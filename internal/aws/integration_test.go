@@ -3,12 +3,13 @@
 package aws
 
 import (
-	"context"
 	"os"
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
+	"github.com/aws/aws-sdk-go-v2/service/lightsail"
 
 	"github.com/scttfrdmn/lfr-tools/internal/testutils"
 )
@@ -55,13 +56,20 @@ func setupIntegrationTest(t *testing.T) *Client {
 		}
 
 		client = &Client{
-			Config: cfg,
+			IAM:       iam.NewFromConfig(cfg),
+			Lightsail: lightsail.NewFromConfig(cfg),
+			Config:    cfg,
 		}
 	} else {
 		// Real AWS configuration
 		opts := Options{
 			Region:  "us-east-1",
-			Profile: os.Getenv("AWS_PROFILE"),
+			Profile: "aws", // Use 'aws' profile for testing
+		}
+
+		// Allow override via environment variable
+		if profile := os.Getenv("AWS_PROFILE"); profile != "" {
+			opts.Profile = profile
 		}
 
 		client, err = NewClient(ctx, opts)
