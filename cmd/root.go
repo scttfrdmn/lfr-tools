@@ -18,7 +18,7 @@ var (
 
 // rootCmd represents the base command when called without any subcommands.
 var rootCmd = &cobra.Command{
-	Use:   "lfr-tools",
+	Use:   "lfr",
 	Short: "A CLI tool for managing AWS Lightsail for Research instances and users",
 	Long: `lfr-tools is a comprehensive CLI tool for managing AWS Lightsail for Research
 instances, IAM users, and groups. It simplifies the process of creating and managing

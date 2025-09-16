@@ -66,7 +66,7 @@ func (s *LightsailService) GetRegions(ctx context.Context) ([]string, error) {
 
 	var regions []string
 	for _, region := range output.Regions {
-		regions = append(regions, aws.ToString(region.Name))
+		regions = append(regions, string(region.Name))
 	}
 
 	return regions, nil
@@ -121,12 +121,12 @@ func (s *LightsailService) GetInstance(ctx context.Context, name string) (*types
 	result := &types.Instance{
 		Name:      aws.ToString(instance.Name),
 		ARN:       aws.ToString(instance.Arn),
-		State:     string(instance.State.Name),
+		State:     aws.ToString(instance.State.Name),
 		Blueprint: aws.ToString(instance.BlueprintName),
-		Bundle:    aws.ToString(instance.BundleName),
-		Region:    aws.ToString(instance.Location.RegionName),
+		Bundle:    aws.ToString(instance.BundleId),
+		Region:    string(instance.Location.RegionName),
 		Tags:      tags,
-		CreatedAt: aws.ToTime(instance.CreatedAt),
+		CreatedAt: *instance.CreatedAt,
 	}
 
 	if instance.PublicIpAddress != nil {
@@ -163,12 +163,12 @@ func (s *LightsailService) ListInstances(ctx context.Context, project string) ([
 		result := &types.Instance{
 			Name:      aws.ToString(instance.Name),
 			ARN:       aws.ToString(instance.Arn),
-			State:     string(instance.State.Name),
+			State:     aws.ToString(instance.State.Name),
 			Blueprint: aws.ToString(instance.BlueprintName),
-			Bundle:    aws.ToString(instance.BundleName),
-			Region:    aws.ToString(instance.Location.RegionName),
+			Bundle:    aws.ToString(instance.BundleId),
+			Region:    string(instance.Location.RegionName),
 			Tags:      tags,
-			CreatedAt: aws.ToTime(instance.CreatedAt),
+			CreatedAt: *instance.CreatedAt,
 		}
 
 		if instance.PublicIpAddress != nil {

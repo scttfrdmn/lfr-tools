@@ -6,7 +6,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/iam"
-	"github.com/aws/aws-sdk-go-v2/service/iam/types"
+	iamTypes "github.com/aws/aws-sdk-go-v2/service/iam/types"
 
 	"github.com/scttfrdmn/lfr-tools/internal/types"
 )
@@ -27,7 +27,7 @@ func NewIAMService(client *Client) *IAMService {
 func (s *IAMService) CreatePolicy(ctx context.Context, name, description, document string) (string, error) {
 	// Check if policy already exists
 	listOutput, err := s.client.IAM.ListPolicies(ctx, &iam.ListPoliciesInput{
-		Scope: types.PolicyScopeTypeLocal,
+		Scope: iamTypes.PolicyScopeTypeLocal,
 	})
 	if err != nil {
 		return "", fmt.Errorf("failed to list policies: %w", err)
@@ -91,7 +91,7 @@ func (s *IAMService) CreateUser(ctx context.Context, username, password, project
 	// Create user
 	_, err := s.client.IAM.CreateUser(ctx, &iam.CreateUserInput{
 		UserName: aws.String(username),
-		Tags: []types.Tag{
+		Tags: []iamTypes.Tag{
 			{
 				Key:   aws.String("Project"),
 				Value: aws.String(project),
@@ -106,7 +106,7 @@ func (s *IAMService) CreateUser(ctx context.Context, username, password, project
 	_, err = s.client.IAM.CreateLoginProfile(ctx, &iam.CreateLoginProfileInput{
 		UserName:              aws.String(username),
 		Password:              aws.String(password),
-		PasswordResetRequired: aws.Bool(true),
+		PasswordResetRequired: true,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create login profile for user %s: %w", username, err)
@@ -145,7 +145,7 @@ func (s *IAMService) PutUserPolicy(ctx context.Context, username, policyName, po
 // DeleteUser removes a user and all associated resources.
 func (s *IAMService) DeleteUser(ctx context.Context, username string) error {
 	// Remove user from all groups
-	groups, err := s.client.IAM.GetGroupsForUser(ctx, &iam.GetGroupsForUserInput{
+	groups, err := s.client.IAM.ListGroupsForUser(ctx, &iam.ListGroupsForUserInput{
 		UserName: aws.String(username),
 	})
 	if err != nil {
@@ -222,12 +222,14 @@ func (s *IAMService) getGroupInfo(ctx context.Context, name string) (*types.Grou
 		policyARNs = append(policyARNs, aws.ToString(policy.PolicyArn))
 	}
 
-	return &types.Group{
+	group := &types.Group{
 		Name:        aws.ToString(output.Group.GroupName),
 		Policies:    policyARNs,
 		Description: aws.ToString(output.Group.Path), // Using path as description placeholder
-		CreatedAt:   aws.ToTime(output.Group.CreateDate),
-	}, nil
+		CreatedAt:   *output.Group.CreateDate,
+	}
+
+	return group, nil
 }
 
 // getUserInfo retrieves user information.
@@ -255,9 +257,11 @@ func (s *IAMService) getUserInfo(ctx context.Context, username string) (*types.U
 		}
 	}
 
-	return &types.User{
+	user := &types.User{
 		Username:  aws.ToString(output.User.UserName),
 		Project:   project,
-		CreatedAt: aws.ToTime(output.User.CreateDate),
-	}, nil
+		CreatedAt: *output.User.CreateDate,
+	}
+
+	return user, nil
 }
