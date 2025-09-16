@@ -386,3 +386,64 @@ func (s *LightsailService) DeleteDisk(ctx context.Context, diskName string) erro
 
 	return nil
 }
+
+// CreateInstanceSnapshot creates a snapshot of an instance.
+func (s *LightsailService) CreateInstanceSnapshot(ctx context.Context, instanceName, snapshotName string) error {
+	_, err := s.client.Lightsail.CreateInstanceSnapshot(ctx, &lightsail.CreateInstanceSnapshotInput{
+		InstanceName:         aws.String(instanceName),
+		InstanceSnapshotName: aws.String(snapshotName),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create instance snapshot %s: %w", snapshotName, err)
+	}
+
+	return nil
+}
+
+// CreateInstanceFromSnapshot creates a new instance from a snapshot with specified bundle.
+func (s *LightsailService) CreateInstanceFromSnapshot(ctx context.Context, newInstanceName, snapshotName, bundleID, availabilityZone string, tags map[string]string) (*types.Instance, error) {
+	var lightsailTags []lightsailTypes.Tag
+	for key, value := range tags {
+		lightsailTags = append(lightsailTags, lightsailTypes.Tag{
+			Key:   aws.String(key),
+			Value: aws.String(value),
+		})
+	}
+
+	_, err := s.client.Lightsail.CreateInstancesFromSnapshot(ctx, &lightsail.CreateInstancesFromSnapshotInput{
+		InstanceNames:        []string{newInstanceName},
+		InstanceSnapshotName: aws.String(snapshotName),
+		BundleId:             aws.String(bundleID),
+		AvailabilityZone:     aws.String(availabilityZone),
+		Tags:                 lightsailTags,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create instance %s from snapshot %s: %w", newInstanceName, snapshotName, err)
+	}
+
+	return s.GetInstance(ctx, newInstanceName)
+}
+
+// DeleteInstanceSnapshot deletes an instance snapshot.
+func (s *LightsailService) DeleteInstanceSnapshot(ctx context.Context, snapshotName string) error {
+	_, err := s.client.Lightsail.DeleteInstanceSnapshot(ctx, &lightsail.DeleteInstanceSnapshotInput{
+		InstanceSnapshotName: aws.String(snapshotName),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to delete instance snapshot %s: %w", snapshotName, err)
+	}
+
+	return nil
+}
+
+// GetInstanceSnapshot gets snapshot details.
+func (s *LightsailService) GetInstanceSnapshot(ctx context.Context, snapshotName string) (*lightsailTypes.InstanceSnapshot, error) {
+	output, err := s.client.Lightsail.GetInstanceSnapshot(ctx, &lightsail.GetInstanceSnapshotInput{
+		InstanceSnapshotName: aws.String(snapshotName),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get instance snapshot %s: %w", snapshotName, err)
+	}
+
+	return output.InstanceSnapshot, nil
+}

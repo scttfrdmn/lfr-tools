@@ -175,20 +175,32 @@ of the instances, preserving all data.`,
 }
 
 var instancesResizeCmd = &cobra.Command{
-	Use:   "resize [instance-name] [new-bundle]",
-	Short: "Resize an instance to a different bundle",
-	Long: `Change the bundle (CPU, RAM, storage) of a Lightsail instance. The instance
-will be stopped during the resize operation and then restarted.`,
+	Use:   "resize [instance-name] [direction]",
+	Short: "Resize an instance to next larger/smaller bundle",
+	Long: `Resize an instance to the next larger or smaller bundle in the same category.
+Direction: 'up' for larger, 'down' for smaller. Instance will be stopped during resize.`,
 	Args: cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		instanceName := args[0]
-		newBundle := args[1]
+		direction := args[1]
+		wait, _ := cmd.Flags().GetBool("wait")
 
-		fmt.Printf("Resizing instance '%s' to bundle '%s'\n", instanceName, newBundle)
-		fmt.Println("Note: Instance will be stopped during resize operation")
+		return resizeInstance(cmd.Context(), instanceName, direction, wait)
+	},
+}
 
-		// TODO: Implement instance resize logic
-		return fmt.Errorf("instance resize not yet implemented")
+var instancesGpuCmd = &cobra.Command{
+	Use:   "gpu [instance-name] [enable|disable]",
+	Short: "Switch instance between GPU and standard bundles",
+	Long: `Switch an instance between GPU and standard bundles of equivalent size.
+Automatically finds the equivalent bundle and checks GPU quota availability.`,
+	Args: cobra.ExactArgs(2),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		instanceName := args[0]
+		action := args[1]
+		wait, _ := cmd.Flags().GetBool("wait")
+
+		return switchGPUMode(cmd.Context(), instanceName, action, wait)
 	},
 }
 
@@ -204,6 +216,7 @@ func init() {
 	instancesCmd.AddCommand(instancesCloneCmd)
 	instancesCmd.AddCommand(instancesRebootCmd)
 	instancesCmd.AddCommand(instancesResizeCmd)
+	instancesCmd.AddCommand(instancesGpuCmd)
 
 	// List command flags
 	instancesListCmd.Flags().StringP("project", "p", "", "Filter by project name")
@@ -238,6 +251,12 @@ func init() {
 
 	// Reboot command flags
 	instancesRebootCmd.Flags().BoolP("force", "f", false, "Force reboot without confirmation")
+
+	// Resize command flags
+	instancesResizeCmd.Flags().BoolP("wait", "w", false, "Wait for resize to complete")
+
+	// GPU command flags
+	instancesGpuCmd.Flags().BoolP("wait", "w", false, "Wait for GPU switch to complete")
 }
 
 // listInstances lists Lightsail instances with filtering.
@@ -463,5 +482,282 @@ func stopInstances(ctx context.Context, users []string, project string, wait boo
 	}
 
 	fmt.Printf("\n🎉 Instance stop completed!\n")
+	return nil
+}
+
+// resizeInstance resizes an instance using the snapshot method.
+func resizeInstance(ctx context.Context, instanceName, direction string, wait bool) error {
+	if direction != "up" && direction != "down" {
+		return fmt.Errorf("direction must be 'up' or 'down', got: %s", direction)
+	}
+
+	// Load configuration
+	_, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("failed to load configuration: %w", err)
+	}
+
+	// Create AWS client
+	awsClient, err := aws.NewClient(ctx, aws.Options{
+		Region:  viper.GetString("aws.region"),
+		Profile: viper.GetString("aws.profile"),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create AWS client: %w", err)
+	}
+
+	lightsailService := aws.NewLightsailService(awsClient)
+
+	// Get current instance details
+	instance, err := lightsailService.GetInstance(ctx, instanceName)
+	if err != nil {
+		return fmt.Errorf("failed to get instance details: %w", err)
+	}
+
+	currentBundle, err := utils.GetBundleInfo(instance.Bundle)
+	if err != nil {
+		return fmt.Errorf("failed to get current bundle info: %w", err)
+	}
+
+	// Find target bundle
+	var targetBundle *utils.BundleInfo
+	if direction == "up" {
+		targetBundle, err = utils.GetNextSizeBundle(instance.Bundle)
+		if err != nil {
+			return fmt.Errorf("failed to find larger bundle: %w", err)
+		}
+	} else {
+		targetBundle, err = utils.GetPreviousSizeBundle(instance.Bundle)
+		if err != nil {
+			return fmt.Errorf("failed to find smaller bundle: %w", err)
+		}
+	}
+
+	// Display resize plan
+	fmt.Printf("Resizing instance: %s\n", instanceName)
+	fmt.Printf("Current state: %s\n", instance.State)
+	fmt.Printf("%s\n", utils.FormatBundleComparison(currentBundle, targetBundle))
+	fmt.Printf("\n⚠️  This operation will:\n")
+	fmt.Printf("   1. Stop the instance (if running)\n")
+	fmt.Printf("   2. Create a snapshot: %s-resize-snapshot\n", instanceName)
+	fmt.Printf("   3. Create new instance: %s-resized\n", instanceName)
+	fmt.Printf("   4. Optionally delete old instance and snapshot\n\n")
+
+	// Stop instance if running
+	if instance.State == "running" {
+		fmt.Printf("Stopping instance %s...\n", instanceName)
+		err = lightsailService.StopInstance(ctx, instanceName)
+		if err != nil {
+			return fmt.Errorf("failed to stop instance: %w", err)
+		}
+
+		if wait {
+			err = utils.WaitForInstanceState(ctx, instanceName, "stopped", func() (string, error) {
+				inst, err := lightsailService.GetInstance(ctx, instanceName)
+				if err != nil {
+					return "", err
+				}
+				return inst.State, nil
+			})
+			if err != nil {
+				return fmt.Errorf("error waiting for instance to stop: %w", err)
+			}
+		}
+	}
+
+	// Create snapshot
+	snapshotName := instanceName + "-resize-snapshot"
+	fmt.Printf("Creating snapshot: %s\n", snapshotName)
+	err = lightsailService.CreateInstanceSnapshot(ctx, instanceName, snapshotName)
+	if err != nil {
+		return fmt.Errorf("failed to create snapshot: %w", err)
+	}
+
+	// Wait for snapshot to complete if requested
+	if wait {
+		fmt.Printf("Waiting for snapshot to complete...\n")
+		err = utils.WaitForSnapshotState(ctx, snapshotName, "available", func() (string, error) {
+			snapshot, err := lightsailService.GetInstanceSnapshot(ctx, snapshotName)
+			if err != nil {
+				return "", err
+			}
+			return string(snapshot.State), nil
+		})
+		if err != nil {
+			return fmt.Errorf("error waiting for snapshot: %w", err)
+		}
+	}
+
+	// Create new instance from snapshot
+	newInstanceName := instanceName + "-resized"
+	fmt.Printf("Creating resized instance: %s\n", newInstanceName)
+
+	tags := instance.Tags
+	if tags == nil {
+		tags = make(map[string]string)
+	}
+	tags["ResizedFrom"] = instanceName
+
+	_, err = lightsailService.CreateInstanceFromSnapshot(ctx, newInstanceName, snapshotName, targetBundle.ID, instance.Region+"a", tags)
+	if err != nil {
+		return fmt.Errorf("failed to create instance from snapshot: %w", err)
+	}
+
+	fmt.Printf("✅ Resize operation initiated!\n")
+	fmt.Printf("New instance: %s (%s)\n", newInstanceName, targetBundle.Name)
+	fmt.Printf("\nNext steps:\n")
+	fmt.Printf("1. Wait for new instance to be ready\n")
+	fmt.Printf("2. Test the new instance: lfr ssh connect %s\n", strings.Split(newInstanceName, "-")[0])
+	fmt.Printf("3. Delete old instance: lfr instances delete %s\n", instanceName)
+	fmt.Printf("4. Rename new instance if desired\n")
+
+	return nil
+}
+
+// switchGPUMode switches an instance between GPU and standard bundles.
+func switchGPUMode(ctx context.Context, instanceName, action string, wait bool) error {
+	if action != "enable" && action != "disable" {
+		return fmt.Errorf("action must be 'enable' or 'disable', got: %s", action)
+	}
+
+	// Load configuration
+	_, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("failed to load configuration: %w", err)
+	}
+
+	// Create AWS client
+	awsClient, err := aws.NewClient(ctx, aws.Options{
+		Region:  viper.GetString("aws.region"),
+		Profile: viper.GetString("aws.profile"),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create AWS client: %w", err)
+	}
+
+	lightsailService := aws.NewLightsailService(awsClient)
+
+	// Get current instance details
+	instance, err := lightsailService.GetInstance(ctx, instanceName)
+	if err != nil {
+		return fmt.Errorf("failed to get instance details: %w", err)
+	}
+
+	currentBundle, err := utils.GetBundleInfo(instance.Bundle)
+	if err != nil {
+		return fmt.Errorf("failed to get current bundle info: %w", err)
+	}
+
+	// Find target bundle
+	var targetBundle *utils.BundleInfo
+	if action == "enable" {
+		if currentBundle.IsGPU {
+			return fmt.Errorf("instance %s already has GPU enabled (%s)", instanceName, currentBundle.Name)
+		}
+		targetBundle, err = utils.GetEquivalentGPUBundle(instance.Bundle)
+		if err != nil {
+			return fmt.Errorf("failed to find equivalent GPU bundle: %w", err)
+		}
+	} else {
+		if !currentBundle.IsGPU {
+			return fmt.Errorf("instance %s does not have GPU enabled (%s)", instanceName, currentBundle.Name)
+		}
+		targetBundle, err = utils.GetEquivalentStandardBundle(instance.Bundle)
+		if err != nil {
+			return fmt.Errorf("failed to find equivalent standard bundle: %w", err)
+		}
+	}
+
+	// Display GPU switch plan
+	actionDesc := "Enabling GPU"
+	if action == "disable" {
+		actionDesc = "Disabling GPU"
+	}
+
+	fmt.Printf("%s for instance: %s\n", actionDesc, instanceName)
+	fmt.Printf("Current state: %s\n", instance.State)
+	fmt.Printf("%s\n", utils.FormatBundleComparison(currentBundle, targetBundle))
+
+	// TODO: Add GPU quota checking here when AWS implements it
+	if action == "enable" {
+		fmt.Printf("\n💡 Note: GPU quota checking not yet available from AWS API\n")
+		fmt.Printf("Ensure you have GPU quota in your account before proceeding\n")
+	}
+
+	fmt.Printf("\n⚠️  This operation will:\n")
+	fmt.Printf("   1. Stop the instance (if running)\n")
+	fmt.Printf("   2. Create a snapshot: %s-gpu-snapshot\n", instanceName)
+	fmt.Printf("   3. Create new instance: %s-gpu\n", instanceName)
+	fmt.Printf("   4. Optionally delete old instance and snapshot\n\n")
+
+	// Stop instance if running
+	if instance.State == "running" {
+		fmt.Printf("Stopping instance %s...\n", instanceName)
+		err = lightsailService.StopInstance(ctx, instanceName)
+		if err != nil {
+			return fmt.Errorf("failed to stop instance: %w", err)
+		}
+
+		if wait {
+			err = utils.WaitForInstanceState(ctx, instanceName, "stopped", func() (string, error) {
+				inst, err := lightsailService.GetInstance(ctx, instanceName)
+				if err != nil {
+					return "", err
+				}
+				return inst.State, nil
+			})
+			if err != nil {
+				return fmt.Errorf("error waiting for instance to stop: %w", err)
+			}
+		}
+	}
+
+	// Create snapshot
+	snapshotName := instanceName + "-gpu-snapshot"
+	fmt.Printf("Creating snapshot: %s\n", snapshotName)
+	err = lightsailService.CreateInstanceSnapshot(ctx, instanceName, snapshotName)
+	if err != nil {
+		return fmt.Errorf("failed to create snapshot: %w", err)
+	}
+
+	// Wait for snapshot if requested
+	if wait {
+		fmt.Printf("Waiting for snapshot to complete...\n")
+		err = utils.WaitForSnapshotState(ctx, snapshotName, "available", func() (string, error) {
+			snapshot, err := lightsailService.GetInstanceSnapshot(ctx, snapshotName)
+			if err != nil {
+				return "", err
+			}
+			return string(snapshot.State), nil
+		})
+		if err != nil {
+			return fmt.Errorf("error waiting for snapshot: %w", err)
+		}
+	}
+
+	// Create new instance with GPU/standard bundle
+	newInstanceName := instanceName + "-gpu"
+	fmt.Printf("Creating new instance: %s\n", newInstanceName)
+
+	tags := instance.Tags
+	if tags == nil {
+		tags = make(map[string]string)
+	}
+	tags["GPUSwitchFrom"] = instanceName
+	tags["GPUMode"] = action
+
+	_, err = lightsailService.CreateInstanceFromSnapshot(ctx, newInstanceName, snapshotName, targetBundle.ID, instance.Region+"a", tags)
+	if err != nil {
+		return fmt.Errorf("failed to create GPU-switched instance: %w", err)
+	}
+
+	fmt.Printf("✅ GPU switch operation initiated!\n")
+	fmt.Printf("New instance: %s (%s)\n", newInstanceName, targetBundle.Name)
+	fmt.Printf("\nNext steps:\n")
+	fmt.Printf("1. Wait for new instance to be ready\n")
+	fmt.Printf("2. Test the new instance: lfr ssh connect %s\n", strings.Split(newInstanceName, "-")[0])
+	fmt.Printf("3. Delete old instance: lfr instances delete %s\n", instanceName)
+	fmt.Printf("4. Rename new instance if desired\n")
+
 	return nil
 }

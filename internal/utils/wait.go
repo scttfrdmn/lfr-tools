@@ -161,3 +161,16 @@ func WaitForDiskState(ctx context.Context, diskName, targetState string, checkSt
 
 	return WaitForState(ctx, config)
 }
+
+// WaitForSnapshotState waits for a Lightsail snapshot to reach target state.
+func WaitForSnapshotState(ctx context.Context, snapshotName, targetState string, checkStateFn func() (string, error)) error {
+	config := DefaultWaitConfig("snapshot", snapshotName)
+	config.TargetState = targetState
+	config.CurrentStateFn = checkStateFn
+
+	// Snapshots can take longer
+	config.MaxDuration = 15 * time.Minute
+	config.CheckInterval = 10 * time.Second
+
+	return WaitForState(ctx, config)
+}
