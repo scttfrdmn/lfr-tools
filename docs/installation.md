@@ -20,8 +20,8 @@ export AWS_DEFAULT_REGION=us-east-1
 
 Required AWS permissions:
 - IAM: Create/delete users, groups, policies
-- Lightsail: Create/manage instances, key pairs
-- EC2: Describe regions (for Lightsail)
+- Lightsail for Research: Create/manage instances, key pairs, volumes
+- EC2: Describe regions and VPCs (for Lightsail for Research integration)
 
 ## Installation Methods
 

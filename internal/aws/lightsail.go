@@ -253,3 +253,136 @@ func (s *LightsailService) GetInstanceAccessDetails(ctx context.Context, instanc
 
 	return output, nil
 }
+
+// CreateDisk creates a new block storage disk.
+func (s *LightsailService) CreateDisk(ctx context.Context, diskName string, sizeGB int32, availabilityZone, project string) (*types.Disk, error) {
+	_, err := s.client.Lightsail.CreateDisk(ctx, &lightsail.CreateDiskInput{
+		DiskName:         aws.String(diskName),
+		AvailabilityZone: aws.String(availabilityZone),
+		SizeInGb:         aws.Int32(sizeGB),
+		Tags: []lightsailTypes.Tag{
+			{
+				Key:   aws.String("Project"),
+				Value: aws.String(project),
+			},
+			{
+				Key:   aws.String("CreatedBy"),
+				Value: aws.String("lfr-tools"),
+			},
+		},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create disk %s: %w", diskName, err)
+	}
+
+	return s.GetDisk(ctx, diskName)
+}
+
+// GetDisk retrieves disk details.
+func (s *LightsailService) GetDisk(ctx context.Context, diskName string) (*types.Disk, error) {
+	output, err := s.client.Lightsail.GetDisk(ctx, &lightsail.GetDiskInput{
+		DiskName: aws.String(diskName),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get disk %s: %w", diskName, err)
+	}
+
+	disk := output.Disk
+	tags := make(map[string]string)
+	for _, tag := range disk.Tags {
+		tags[aws.ToString(tag.Key)] = aws.ToString(tag.Value)
+	}
+
+	return &types.Disk{
+		Name:             aws.ToString(disk.Name),
+		ARN:              aws.ToString(disk.Arn),
+		State:            string(disk.State),
+		SizeGB:           aws.ToInt32(disk.SizeInGb),
+		IOPS:             aws.ToInt32(disk.Iops),
+		Path:             aws.ToString(disk.Path),
+		AttachedTo:       aws.ToString(disk.AttachedTo),
+		AvailabilityZone: aws.ToString(disk.Location.AvailabilityZone),
+		Region:           string(disk.Location.RegionName),
+		Tags:             tags,
+		CreatedAt:        *disk.CreatedAt,
+	}, nil
+}
+
+// ListDisks lists all block storage disks.
+func (s *LightsailService) ListDisks(ctx context.Context, project string) ([]*types.Disk, error) {
+	output, err := s.client.Lightsail.GetDisks(ctx, &lightsail.GetDisksInput{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to list disks: %w", err)
+	}
+
+	var disks []*types.Disk
+	for _, disk := range output.Disks {
+		tags := make(map[string]string)
+		for _, tag := range disk.Tags {
+			tags[aws.ToString(tag.Key)] = aws.ToString(tag.Value)
+		}
+
+		// Filter by project if specified
+		if project != "" {
+			if projectTag, exists := tags["Project"]; !exists || projectTag != project {
+				continue
+			}
+		}
+
+		result := &types.Disk{
+			Name:             aws.ToString(disk.Name),
+			ARN:              aws.ToString(disk.Arn),
+			State:            string(disk.State),
+			SizeGB:           aws.ToInt32(disk.SizeInGb),
+			IOPS:             aws.ToInt32(disk.Iops),
+			Path:             aws.ToString(disk.Path),
+			AttachedTo:       aws.ToString(disk.AttachedTo),
+			AvailabilityZone: aws.ToString(disk.Location.AvailabilityZone),
+			Region:           string(disk.Location.RegionName),
+			Tags:             tags,
+			CreatedAt:        *disk.CreatedAt,
+		}
+
+		disks = append(disks, result)
+	}
+
+	return disks, nil
+}
+
+// AttachDisk attaches a disk to an instance.
+func (s *LightsailService) AttachDisk(ctx context.Context, diskName, instanceName, diskPath string) error {
+	_, err := s.client.Lightsail.AttachDisk(ctx, &lightsail.AttachDiskInput{
+		DiskName:     aws.String(diskName),
+		InstanceName: aws.String(instanceName),
+		DiskPath:     aws.String(diskPath),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to attach disk %s to instance %s: %w", diskName, instanceName, err)
+	}
+
+	return nil
+}
+
+// DetachDisk detaches a disk from an instance.
+func (s *LightsailService) DetachDisk(ctx context.Context, diskName string) error {
+	_, err := s.client.Lightsail.DetachDisk(ctx, &lightsail.DetachDiskInput{
+		DiskName: aws.String(diskName),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to detach disk %s: %w", diskName, err)
+	}
+
+	return nil
+}
+
+// DeleteDisk deletes a block storage disk.
+func (s *LightsailService) DeleteDisk(ctx context.Context, diskName string) error {
+	_, err := s.client.Lightsail.DeleteDisk(ctx, &lightsail.DeleteDiskInput{
+		DiskName: aws.String(diskName),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to delete disk %s: %w", diskName, err)
+	}
+
+	return nil
+}

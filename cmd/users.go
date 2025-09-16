@@ -329,9 +329,9 @@ func listUsers(ctx context.Context, project string) error {
 		fmt.Printf("All users and instances:\n\n")
 	}
 
-	fmt.Printf("%-20s %-20s %-15s %-15s %-15s %-15s\n",
+	fmt.Printf("%-15s %-20s %-12s %-15s %-20s %-18s\n",
 		"USERNAME", "INSTANCE", "STATE", "BLUEPRINT", "BUNDLE", "PUBLIC IP")
-	fmt.Println(strings.Repeat("-", 110))
+	fmt.Println(strings.Repeat("-", 120))
 
 	for _, instance := range instances {
 		// Extract username from instance name
@@ -341,13 +341,18 @@ func listUsers(ctx context.Context, project string) error {
 			username = parts[0]
 		}
 
-		fmt.Printf("%-20s %-20s %-15s %-15s %-15s %-15s\n",
+		publicIP := instance.PublicIP
+		if publicIP == "" {
+			publicIP = "-"
+		}
+
+		fmt.Printf("%-15s %-20s %-12s %-15s %-20s %-18s\n",
 			username,
 			instance.Name,
 			instance.State,
 			instance.Blueprint,
 			instance.Bundle,
-			instance.PublicIP,
+			publicIP,
 		)
 	}
 

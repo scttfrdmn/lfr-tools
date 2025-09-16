@@ -43,3 +43,18 @@ type Instance struct {
 	PublicIP     string            `json:"public_ip,omitempty" yaml:"public_ip,omitempty"`
 	PrivateIP    string            `json:"private_ip,omitempty" yaml:"private_ip,omitempty"`
 }
+
+// Disk represents a Lightsail block storage disk.
+type Disk struct {
+	Name             string            `json:"name" yaml:"name"`
+	ARN              string            `json:"arn" yaml:"arn"`
+	State            string            `json:"state" yaml:"state"`
+	SizeGB           int32             `json:"size_gb" yaml:"size_gb"`
+	IOPS             int32             `json:"iops" yaml:"iops"`
+	Path             string            `json:"path,omitempty" yaml:"path,omitempty"`
+	AttachedTo       string            `json:"attached_to,omitempty" yaml:"attached_to,omitempty"`
+	AvailabilityZone string            `json:"availability_zone" yaml:"availability_zone"`
+	Region           string            `json:"region" yaml:"region"`
+	Tags             map[string]string `json:"tags" yaml:"tags"`
+	CreatedAt        time.Time         `json:"created_at" yaml:"created_at"`
+}

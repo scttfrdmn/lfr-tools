@@ -290,9 +290,9 @@ func listInstances(ctx context.Context, project, user string) error {
 	}
 
 	// Display results
-	fmt.Printf("%-20s %-15s %-20s %-15s %-15s %-15s %-12s\n",
+	fmt.Printf("%-20s %-12s %-18s %-15s %-20s %-12s %-15s\n",
 		"INSTANCE", "STATE", "PUBLIC IP", "BLUEPRINT", "BUNDLE", "REGION", "PROJECT")
-	fmt.Println(strings.Repeat("-", 125))
+	fmt.Println(strings.Repeat("-", 130))
 
 	for _, instance := range instances {
 		project := instance.Tags["Project"]
@@ -300,10 +300,15 @@ func listInstances(ctx context.Context, project, user string) error {
 			project = "untagged"
 		}
 
-		fmt.Printf("%-20s %-15s %-20s %-15s %-15s %-15s %-12s\n",
+		publicIP := instance.PublicIP
+		if publicIP == "" {
+			publicIP = "-"
+		}
+
+		fmt.Printf("%-20s %-12s %-18s %-15s %-20s %-12s %-15s\n",
 			instance.Name,
 			instance.State,
-			instance.PublicIP,
+			publicIP,
 			instance.Blueprint,
 			instance.Bundle,
 			instance.Region,

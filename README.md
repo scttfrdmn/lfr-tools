@@ -13,7 +13,7 @@ A comprehensive CLI tool for managing AWS Lightsail for Research instances, IAM 
 
 - **User Management**: Create, remove, and list IAM users with auto-generated passwords
 - **Group Management**: Organize users with IAM groups and custom policies
-- **Instance Management**: List, start, stop, and monitor Lightsail instances
+- **Instance Management**: List, start, stop, and monitor Lightsail for Research instances
 - **SSH Simplification**: Easy SSH access with automatic key management and tunneling
 - **Project Organization**: Tag and organize resources by project
 - **Idle Detection**: Built-in idle detection to save costs
@@ -21,7 +21,7 @@ A comprehensive CLI tool for managing AWS Lightsail for Research instances, IAM 
 ### 🚧 Roadmap
 
 #### Phase 1 - Enhanced Core Features
-- **EFS Integration**: Mount shared storage via VPC peering (as outlined in Lightsail documentation)
+- **EFS Integration**: Mount shared storage via VPC peering (as outlined in Lightsail for Research documentation)
 - **Advanced Idle Detection**: More configurable idle thresholds and detection algorithms
 - **NICE DCV Integration**: Better DCV settings and direct connection commands for remote desktop access
 - **Instance Lifecycle**: Full snapshot, backup, restore, and cloning capabilities

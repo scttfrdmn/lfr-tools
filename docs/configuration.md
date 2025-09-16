@@ -52,8 +52,8 @@ Default values for command parameters to reduce repetitive typing.
 
 ```yaml
 defaults:
-  blueprint: "ubuntu_22_04"      # Default Lightsail blueprint
-  bundle: "nano_2_0"             # Default Lightsail bundle
+  blueprint: "ubuntu_22_04"      # Default Lightsail for Research blueprint
+  bundle: "nano_2_0"             # Default Lightsail for Research bundle
   idle_threshold: 120            # Default idle threshold (minutes)
 ```
 
@@ -122,7 +122,7 @@ Common Lightsail for Research bundles:
 
 ## Available Regions
 
-Common AWS regions for Lightsail:
+Common AWS regions for Lightsail for Research:
 
 - `us-east-1` - US East (N. Virginia)
 - `us-east-2` - US East (Ohio)

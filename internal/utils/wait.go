@@ -148,3 +148,16 @@ func WaitForMountTargetState(ctx context.Context, mountTargetID, targetState str
 
 	return WaitForState(ctx, config)
 }
+
+// WaitForDiskState waits for a Lightsail disk to reach target state.
+func WaitForDiskState(ctx context.Context, diskName, targetState string, checkStateFn func() (string, error)) error {
+	config := DefaultWaitConfig("volume", diskName)
+	config.TargetState = targetState
+	config.CurrentStateFn = checkStateFn
+
+	// Disk operations are usually fast
+	config.MaxDuration = 5 * time.Minute
+	config.CheckInterval = 5 * time.Second
+
+	return WaitForState(ctx, config)
+}
