@@ -12,6 +12,7 @@ import (
 	"github.com/scttfrdmn/lfr-tools/internal/aws"
 	"github.com/scttfrdmn/lfr-tools/internal/config"
 	"github.com/scttfrdmn/lfr-tools/internal/types"
+	"github.com/scttfrdmn/lfr-tools/internal/utils"
 )
 
 var instancesCmd = &cobra.Command{
@@ -41,8 +42,9 @@ charged according to your bundle pricing while running.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		users, _ := cmd.Flags().GetStringSlice("users")
 		project, _ := cmd.Flags().GetString("project")
+		wait, _ := cmd.Flags().GetBool("wait")
 
-		return startInstances(cmd.Context(), users, project)
+		return startInstances(cmd.Context(), users, project, wait)
 	},
 }
 
@@ -54,8 +56,9 @@ but users will lose access until instances are restarted.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		users, _ := cmd.Flags().GetStringSlice("users")
 		project, _ := cmd.Flags().GetString("project")
+		wait, _ := cmd.Flags().GetBool("wait")
 
-		return stopInstances(cmd.Context(), users, project)
+		return stopInstances(cmd.Context(), users, project, wait)
 	},
 }
 
@@ -209,11 +212,13 @@ func init() {
 	// Start command flags
 	instancesStartCmd.Flags().StringSliceP("users", "u", []string{}, "Comma-separated list of usernames (required)")
 	instancesStartCmd.Flags().StringP("project", "p", "", "Filter by project name")
+	instancesStartCmd.Flags().BoolP("wait", "w", false, "Wait for instances to reach running state")
 	instancesStartCmd.MarkFlagRequired("users")
 
 	// Stop command flags
 	instancesStopCmd.Flags().StringSliceP("users", "u", []string{}, "Comma-separated list of usernames (required)")
 	instancesStopCmd.Flags().StringP("project", "p", "", "Filter by project name")
+	instancesStopCmd.Flags().BoolP("wait", "w", false, "Wait for instances to reach stopped state")
 	instancesStopCmd.MarkFlagRequired("users")
 
 	// Monitor command flags
@@ -311,7 +316,7 @@ func listInstances(ctx context.Context, project, user string) error {
 }
 
 // startInstances starts instances for specified users.
-func startInstances(ctx context.Context, users []string, project string) error {
+func startInstances(ctx context.Context, users []string, project string, wait bool) error {
 	// Load configuration
 	_, err := config.Load()
 	if err != nil {
@@ -363,6 +368,20 @@ func startInstances(ctx context.Context, users []string, project string) error {
 		}
 
 		fmt.Printf("✅ Started instance: %s\n", instanceName)
+
+		// Wait for instance to reach running state if requested
+		if wait {
+			err = utils.WaitForInstanceState(ctx, instanceName, "running", func() (string, error) {
+				instance, err := lightsailService.GetInstance(ctx, instanceName)
+				if err != nil {
+					return "", err
+				}
+				return instance.State, nil
+			})
+			if err != nil {
+				fmt.Printf("❌ Error waiting for instance %s: %v\n", instanceName, err)
+			}
+		}
 	}
 
 	fmt.Printf("\n🎉 Instance start completed!\n")
@@ -370,7 +389,7 @@ func startInstances(ctx context.Context, users []string, project string) error {
 }
 
 // stopInstances stops instances for specified users.
-func stopInstances(ctx context.Context, users []string, project string) error {
+func stopInstances(ctx context.Context, users []string, project string, wait bool) error {
 	// Load configuration
 	_, err := config.Load()
 	if err != nil {
@@ -422,6 +441,20 @@ func stopInstances(ctx context.Context, users []string, project string) error {
 		}
 
 		fmt.Printf("✅ Stopped instance: %s\n", instanceName)
+
+		// Wait for instance to reach stopped state if requested
+		if wait {
+			err = utils.WaitForInstanceState(ctx, instanceName, "stopped", func() (string, error) {
+				instance, err := lightsailService.GetInstance(ctx, instanceName)
+				if err != nil {
+					return "", err
+				}
+				return instance.State, nil
+			})
+			if err != nil {
+				fmt.Printf("❌ Error waiting for instance %s: %v\n", instanceName, err)
+			}
+		}
 	}
 
 	fmt.Printf("\n🎉 Instance stop completed!\n")
