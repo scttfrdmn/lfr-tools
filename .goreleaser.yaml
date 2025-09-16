@@ -1,0 +1,116 @@
+---
+project_name: lfr-tools
+
+before:
+  hooks:
+    - go mod tidy
+    - go generate ./...
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - "386"
+      - amd64
+      - arm64
+    goarm:
+      - "7"
+    ignore:
+      - goos: windows
+        goarch: arm64
+      - goos: windows
+        goarch: "386"
+    ldflags:
+      - -s -w
+      - -X github.com/scttfrdmn/lfr-tools/cmd.version={{.Version}}
+      - -X github.com/scttfrdmn/lfr-tools/cmd.commit={{.Commit}}
+      - -X github.com/scttfrdmn/lfr-tools/cmd.date={{.Date}}
+
+archives:
+  - format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+      - '^ci:'
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\(.+\))??!?:.+$'
+      order: 0
+    - title: Bug fixes
+      regexp: '^.*?fix(\(.+\))??!?:.+$'
+      order: 1
+    - title: Others
+      order: 999
+
+brews:
+  - name: lfr-tools
+    description: "CLI tool for managing AWS Lightsail for Research instances and users"
+    homepage: "https://github.com/scttfrdmn/lfr-tools"
+    license: "MIT"
+    repository:
+      owner: scttfrdmn
+      name: homebrew-lfr-tools
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    folder: Formula
+    install: |
+      bin.install "lfr-tools"
+    test: |
+      system "#{bin}/lfr-tools", "version"
+
+dockers:
+  - image_templates:
+      - "ghcr.io/scttfrdmn/lfr-tools:{{ .Tag }}"
+      - "ghcr.io/scttfrdmn/lfr-tools:v{{ .Major }}"
+      - "ghcr.io/scttfrdmn/lfr-tools:v{{ .Major }}.{{ .Minor }}"
+      - "ghcr.io/scttfrdmn/lfr-tools:latest"
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--platform=linux/amd64"
+
+release:
+  draft: false
+  replace_existing_draft: true
+  target_commitish: "{{ .Commit }}"
+  discussion_category_name: General
+  prerelease: auto
+  mode: replace
+  header: |
+    ## Release Notes
+
+    This release was automatically generated.
+  footer: |
+    ## Thanks
+
+    Thanks to all contributors who helped make this release possible!
+
+    **Full Changelog**: https://github.com/scttfrdmn/lfr-tools/compare/{{ .PreviousTag }}...{{ .Tag }}
