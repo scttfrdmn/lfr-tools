@@ -1,12 +1,12 @@
 # Installation Guide
 
-This guide covers various methods to install lfr-tools on your system.
+This guide covers various methods to install lfr on your system.
 
 ## Prerequisites
 
 ### AWS Configuration
 
-Before using lfr-tools, ensure you have AWS credentials configured:
+Before using lfr, ensure you have AWS credentials configured:
 
 ```bash
 # Using AWS CLI
@@ -31,11 +31,11 @@ Required AWS permissions:
 # Add the tap
 brew tap scttfrdmn/lfr-tools
 
-# Install lfr-tools
-brew install lfr-tools
+# Install lfr
+brew install lfr
 
 # Verify installation
-lfr-tools version
+lfr version
 ```
 
 ### 2. GitHub Releases
@@ -46,9 +46,9 @@ Download the latest binary for your platform from the [releases page](https://gi
 
 ```bash
 # Download and install (replace with latest version and your platform)
-curl -L https://github.com/scttfrdmn/lfr-tools/releases/download/v1.0.0/lfr-tools_Linux_x86_64.tar.gz | tar xz
-sudo mv lfr-tools /usr/local/bin/
-chmod +x /usr/local/bin/lfr-tools
+curl -L https://github.com/scttfrdmn/lfr-tools/releases/download/v1.0.0/lfr_Linux_x86_64.tar.gz | tar xz
+sudo mv lfr /usr/local/bin/
+chmod +x /usr/local/bin/lfr
 ```
 
 #### Windows
@@ -69,7 +69,7 @@ docker run --rm -it \
   ghcr.io/scttfrdmn/lfr-tools:latest --help
 
 # Create an alias for convenience
-alias lfr-tools='docker run --rm -it -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION ghcr.io/scttfrdmn/lfr-tools:latest'
+alias lfr='docker run --rm -it -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_DEFAULT_REGION ghcr.io/scttfrdmn/lfr-tools:latest'
 ```
 
 ### 4. Go Install (Build from Source)
@@ -98,17 +98,17 @@ make install
 
 ## Verification
 
-After installation, verify lfr-tools is working:
+After installation, verify lfr is working:
 
 ```bash
 # Check version
-lfr-tools version
+lfr version
 
 # View help
-lfr-tools --help
+lfr --help
 
 # Test AWS connectivity
-lfr-tools instances list
+lfr instances list
 ```
 
 ## Configuration
@@ -232,7 +232,7 @@ If experiencing connectivity issues:
 curl -I https://lightsail.us-east-1.amazonaws.com
 
 # Check if behind corporate firewall
-lfr-tools --debug instances list
+lfr --debug instances list
 ```
 
 ## Next Steps

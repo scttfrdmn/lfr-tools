@@ -1,5 +1,5 @@
 ---
-project_name: lfr-tools
+project_name: lfr
 
 before:
   hooks:
@@ -68,7 +68,7 @@ changelog:
       order: 999
 
 brews:
-  - name: lfr-tools
+  - name: lfr
     description: "CLI tool for managing AWS Lightsail for Research instances and users"
     homepage: "https://github.com/scttfrdmn/lfr-tools"
     license: "MIT"
@@ -78,9 +78,9 @@ brews:
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     folder: Formula
     install: |
-      bin.install "lfr-tools"
+      bin.install "lfr"
     test: |
-      system "#{bin}/lfr-tools", "version"
+      system "#{bin}/lfr", "version"
 
 dockers:
   - image_templates:

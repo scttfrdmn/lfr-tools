@@ -20,11 +20,23 @@ A comprehensive CLI tool for managing AWS Lightsail for Research instances, IAM 
 
 ### 🚧 Roadmap
 
-- **EFS Integration**: Mount shared storage via VPC peering
-- **Advanced Monitoring**: Enhanced idle detection and usage analytics
-- **Cost Optimization**: Automated recommendations and scheduling
-- **Multi-region Support**: Deploy across multiple AWS regions
-- **Auth Integration**: External authentication system support
+#### Phase 1 - Enhanced Core Features
+- **EFS Integration**: Mount shared storage via VPC peering (as outlined in Lightsail documentation)
+- **Advanced Idle Detection**: More configurable idle thresholds and detection algorithms
+- **NICE DCV Integration**: Better DCV settings and direct connection commands for remote desktop access
+- **Instance Lifecycle**: Full snapshot, backup, restore, and cloning capabilities
+
+#### Phase 2 - Advanced Management
+- **Cost Optimization**: Automated recommendations, scheduling, and budget alerts
+- **Multi-region Support**: Deploy and manage across multiple AWS regions
+- **Bulk Operations**: Mass user/instance operations with progress tracking and rollback
+- **Usage Analytics**: Detailed reporting on instance utilization and costs
+
+#### Phase 3 - Enterprise Features
+- **Auth Integration**: External authentication systems (LDAP, SAML, OAuth)
+- **RBAC**: Role-based access control with custom permission sets
+- **Audit Logging**: Comprehensive activity logging and compliance reporting
+- **API & SDK**: RESTful API and language-specific SDKs for integration
 
 ## Installation
 
@@ -32,7 +44,7 @@ A comprehensive CLI tool for managing AWS Lightsail for Research instances, IAM 
 
 ```bash
 brew tap scttfrdmn/lfr-tools
-brew install lfr-tools
+brew install lfr
 ```
 
 ### GitHub Releases
@@ -57,7 +69,7 @@ go install github.com/scttfrdmn/lfr-tools@latest
 
 2. **Create users and instances:**
    ```bash
-   lfr-tools users create \
+   lfr users create \
      --project "my-research" \
      --blueprint "ubuntu_22_04" \
      --bundle "nano_2_0" \
@@ -67,12 +79,12 @@ go install github.com/scttfrdmn/lfr-tools@latest
 
 3. **Connect via SSH:**
    ```bash
-   lfr-tools ssh connect alice --project "my-research"
+   lfr ssh connect alice --project "my-research"
    ```
 
 4. **Monitor instances:**
    ```bash
-   lfr-tools instances monitor --project "my-research"
+   lfr instances monitor --project "my-research"
    ```
 
 ## Usage
@@ -81,57 +93,67 @@ go install github.com/scttfrdmn/lfr-tools@latest
 
 ```bash
 # Create users with instances
-lfr-tools users create -p myproject -b ubuntu_22_04 --bundle nano_2_0 -r us-east-1 -u alice,bob
+lfr users create -p myproject -b ubuntu_22_04 --bundle nano_2_0 -r us-east-1 -u alice,bob
 
 # List users
-lfr-tools users list -p myproject
+lfr users list -p myproject
 
 # Remove users
-lfr-tools users remove -p myproject -u alice,bob
-lfr-tools users remove -p myproject --all
+lfr users remove -p myproject -u alice,bob
+lfr users remove -p myproject --all
 ```
 
 ### Group Management
 
 ```bash
 # Create group with policies
-lfr-tools groups create -n researchers -p arn:aws:iam::aws:policy/ReadOnlyAccess
+lfr groups create -n researchers -p arn:aws:iam::aws:policy/ReadOnlyAccess
 
 # List groups
-lfr-tools groups list
+lfr groups list
 
 # Remove group
-lfr-tools groups remove -n researchers
+lfr groups remove -n researchers
 ```
 
 ### Instance Management
 
 ```bash
 # List instances
-lfr-tools instances list -p myproject
+lfr instances list -p myproject
 
 # Start/stop instances
-lfr-tools instances start -u alice,bob
-lfr-tools instances stop -u alice,bob
+lfr instances start -u alice,bob
+lfr instances stop -u alice,bob
 
 # Monitor usage
-lfr-tools instances monitor -p myproject --idle-threshold 60
+lfr instances monitor -p myproject --idle-threshold 60
+
+# Snapshot and restore
+lfr instances snapshot alice-ubuntu_22_04
+lfr instances restore snapshot-name new-instance-name
+
+# Clone instances
+lfr instances clone alice-ubuntu_22_04 bob-ubuntu_22_04
+
+# Reboot instances
+lfr instances reboot alice-ubuntu_22_04 bob-ubuntu_22_04
 ```
 
 ### SSH Management
 
 ```bash
 # Connect to instance
-lfr-tools ssh connect alice -p myproject
+lfr ssh connect alice -p myproject
 
 # Download SSH keys
-lfr-tools ssh keys download alice -o ~/.ssh/
+lfr ssh keys download alice -o ~/.ssh/
 
 # Generate SSH config
-lfr-tools ssh config -p myproject -o ~/.ssh/config.d/lfr-tools
+lfr ssh config -p myproject -o ~/.ssh/config.d/lfr-tools
 
 # Create SSH tunnel
-lfr-tools ssh tunnel alice 8888:8888 -p myproject
+lfr ssh tunnel alice 8888:8888 -p myproject
 ```
 
 ## Configuration
@@ -151,6 +173,22 @@ defaults:
 ssh:
   key_path: "~/.ssh/lfr-tools"
   config_path: "~/.ssh/config.d/lfr-tools"
+```
+
+### NICE DCV Management
+
+```bash
+# Connect via NICE DCV
+lfr dcv connect alice -p myproject
+
+# Configure DCV settings
+lfr dcv config -p myproject --quality high
+
+# Check DCV status
+lfr dcv status -p myproject
+
+# List active sessions
+lfr dcv sessions list
 ```
 
 ## Development

@@ -1,6 +1,6 @@
 # Configuration Reference
 
-lfr-tools supports configuration through YAML files, environment variables, and command-line flags.
+lfr supports configuration through YAML files, environment variables, and command-line flags.
 
 ## Configuration File
 
@@ -135,11 +135,11 @@ Common AWS regions for Lightsail:
 
 ## Configuration Validation
 
-lfr-tools validates configuration on startup:
+lfr validates configuration on startup:
 
 ```bash
 # Test configuration
-lfr-tools --config ~/.lfr-tools.yaml instances list --dry-run
+lfr --config ~/.lfr-tools.yaml instances list --dry-run
 ```
 
 ## Environment Variable Precedence
@@ -178,20 +178,20 @@ Manage different environments using profiles:
 
 ```bash
 # Development environment
-lfr-tools --profile dev --region us-east-1 users list
+lfr --profile dev --region us-east-1 users list
 
 # Production environment
-lfr-tools --profile prod --region us-west-2 users list
+lfr --profile prod --region us-west-2 users list
 ```
 
 Or separate configuration files:
 
 ```bash
 # Development config
-lfr-tools --config ~/.lfr-tools-dev.yaml users list
+lfr --config ~/.lfr-tools-dev.yaml users list
 
 # Production config
-lfr-tools --config ~/.lfr-tools-prod.yaml users list
+lfr --config ~/.lfr-tools-prod.yaml users list
 ```
 
 ## Configuration Examples
@@ -239,7 +239,7 @@ ssh:
 ### View Current Configuration
 
 ```bash
-lfr-tools --debug users list 2>&1 | head -20
+lfr --debug users list 2>&1 | head -20
 ```
 
 ### Validate Configuration File
@@ -248,8 +248,8 @@ lfr-tools --debug users list 2>&1 | head -20
 # Check YAML syntax
 yamllint ~/.lfr-tools.yaml
 
-# Test with lfr-tools
-lfr-tools --config ~/.lfr-tools.yaml version
+# Test with lfr
+lfr --config ~/.lfr-tools.yaml version
 ```
 
 ### Common Issues

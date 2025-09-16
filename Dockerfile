@@ -4,6 +4,6 @@ RUN apk --no-cache add ca-certificates tzdata
 
 WORKDIR /root/
 
-COPY lfr-tools .
+COPY lfr .
 
-ENTRYPOINT ["./lfr-tools"]
+ENTRYPOINT ["./lfr"]
