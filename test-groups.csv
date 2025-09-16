@@ -1,0 +1,4 @@
+name,description,policies,project
+researchers,Research team members,arn:aws:iam::aws:policy/ReadOnlyAccess,research-team
+data-analysts,Data analysis team,arn:aws:iam::aws:policy/ReadOnlyAccess;arn:aws:iam::aws:policy/IAMUserChangePassword,research-team
+ml-engineers,Machine learning engineers,arn:aws:iam::aws:policy/PowerUserAccess,ml-team

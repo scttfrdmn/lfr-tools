@@ -30,8 +30,10 @@ for each user with appropriate access controls.`,
 		bundle, _ := cmd.Flags().GetString("bundle")
 		region, _ := cmd.Flags().GetString("region")
 		users, _ := cmd.Flags().GetStringSlice("users")
+		idleThreshold, _ := cmd.Flags().GetInt("idle-threshold")
+		idleDuration, _ := cmd.Flags().GetInt("idle-duration")
 
-		return createUsers(cmd.Context(), project, blueprint, bundle, region, users)
+		return createUsersWithIdle(cmd.Context(), project, blueprint, bundle, region, users, idleThreshold, idleDuration)
 	},
 }
 
@@ -120,6 +122,8 @@ func init() {
 	usersCreateCmd.Flags().String("bundle", "", "Lightsail bundle ID (required)")
 	usersCreateCmd.Flags().StringP("region", "r", "", "AWS region (required)")
 	usersCreateCmd.Flags().StringSliceP("users", "u", []string{}, "Comma-separated list of usernames (required)")
+	usersCreateCmd.Flags().IntP("idle-threshold", "", 120, "Idle threshold in minutes (default: 120)")
+	usersCreateCmd.Flags().IntP("idle-duration", "", 30, "Duration in minutes before stopping (default: 30)")
 
 	usersCreateCmd.MarkFlagRequired("project")
 	usersCreateCmd.MarkFlagRequired("blueprint")
@@ -601,4 +605,18 @@ func generateUserTemplate(filename string) error {
 	fmt.Printf("Edit the file and run: lfr users create-bulk %s\n", filename)
 
 	return nil
+}
+
+// createUsersWithIdle implements user creation with custom idle detection settings.
+func createUsersWithIdle(ctx context.Context, project, blueprint, bundle, region string, usernames []string, idleThreshold, idleDuration int) error {
+	fmt.Printf("Creating %d users for project: %s\n", len(usernames), project)
+	fmt.Printf("Blueprint: %s, Bundle: %s, Region: %s\n", blueprint, bundle, region)
+	fmt.Printf("Idle detection: %d minutes threshold, %d minutes duration\n", idleThreshold, idleDuration)
+
+	// For now, use the standard createUsers function
+	// TODO: Implement CreateInstanceWithIdleDetection in lightsail service
+	fmt.Printf("Note: Custom idle detection requires API enhancement\n")
+	fmt.Printf("Using standard idle detection (120min/30min) for now\n\n")
+
+	return createUsers(ctx, project, blueprint, bundle, region, usernames)
 }
