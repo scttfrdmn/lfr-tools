@@ -1,9 +1,15 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
+	"github.com/scttfrdmn/lfr-tools/internal/aws"
+	"github.com/scttfrdmn/lfr-tools/internal/config"
 )
 
 var groupsCmd = &cobra.Command{
@@ -22,12 +28,7 @@ organized user management and consistent permission sets.`,
 		policies, _ := cmd.Flags().GetStringSlice("policies")
 		description, _ := cmd.Flags().GetString("description")
 
-		fmt.Printf("Creating group: %s\n", name)
-		fmt.Printf("Description: %s\n", description)
-		fmt.Printf("Policies: %v\n", policies)
-
-		// TODO: Implement group creation logic
-		return fmt.Errorf("group creation not yet implemented")
+		return createGroup(cmd.Context(), name, description, policies)
 	},
 }
 
@@ -76,4 +77,41 @@ func init() {
 	// Remove command flags
 	groupsRemoveCmd.Flags().StringP("name", "n", "", "Group name (required)")
 	groupsRemoveCmd.MarkFlagRequired("name")
+}
+
+// createGroup creates an IAM group with policies.
+func createGroup(ctx context.Context, name, description string, policies []string) error {
+	// Load configuration
+	_, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("failed to load configuration: %w", err)
+	}
+
+	// Create AWS client
+	awsClient, err := aws.NewClient(ctx, aws.Options{
+		Region:  viper.GetString("aws.region"),
+		Profile: viper.GetString("aws.profile"),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create AWS client: %w", err)
+	}
+
+	iamService := aws.NewIAMService(awsClient)
+
+	fmt.Printf("Creating group: %s\n", name)
+	if description != "" {
+		fmt.Printf("Description: %s\n", description)
+	}
+	fmt.Printf("Policies: %v\n", policies)
+
+	// Create group with policies
+	group, err := iamService.CreateGroup(ctx, name, description, policies)
+	if err != nil {
+		return fmt.Errorf("failed to create group: %w", err)
+	}
+
+	fmt.Printf("✅ Group created: %s\n", group.Name)
+	fmt.Printf("Attached policies: %v\n", group.Policies)
+
+	return nil
 }

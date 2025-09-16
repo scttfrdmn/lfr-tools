@@ -1,9 +1,20 @@
 package cmd
 
 import (
+	"context"
+	"encoding/base64"
 	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
+	"github.com/scttfrdmn/lfr-tools/internal/aws"
+	"github.com/scttfrdmn/lfr-tools/internal/config"
+	"github.com/scttfrdmn/lfr-tools/internal/types"
 )
 
 var sshCmd = &cobra.Command{
@@ -23,16 +34,7 @@ connection setup, and provides a seamless SSH experience.`,
 		project, _ := cmd.Flags().GetString("project")
 		keyPath, _ := cmd.Flags().GetString("key-path")
 
-		fmt.Printf("Connecting to instance for user: %s\n", username)
-		if project != "" {
-			fmt.Printf("Project: %s\n", project)
-		}
-		if keyPath != "" {
-			fmt.Printf("Using key: %s\n", keyPath)
-		}
-
-		// TODO: Implement SSH connection logic
-		return fmt.Errorf("SSH connect not yet implemented")
+		return connectSSH(cmd.Context(), username, project, keyPath)
 	},
 }
 
@@ -53,16 +55,7 @@ the local SSH directory with proper permissions.`,
 		project, _ := cmd.Flags().GetString("project")
 		outputPath, _ := cmd.Flags().GetString("output")
 
-		fmt.Printf("Downloading SSH key for user: %s\n", username)
-		if project != "" {
-			fmt.Printf("Project: %s\n", project)
-		}
-		if outputPath != "" {
-			fmt.Printf("Output path: %s\n", outputPath)
-		}
-
-		// TODO: Implement SSH key download logic
-		return fmt.Errorf("SSH key download not yet implemented")
+		return downloadSSHKey(cmd.Context(), username, project, outputPath)
 	},
 }
 
@@ -157,4 +150,189 @@ func init() {
 
 	// Tunnel command flags
 	sshTunnelCmd.Flags().StringP("project", "p", "", "Filter by project name")
+}
+
+// connectSSH connects to a user's instance via SSH.
+func connectSSH(ctx context.Context, username, project, keyPath string) error {
+	// Load configuration
+	cfg, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("failed to load configuration: %w", err)
+	}
+
+	// Create AWS client
+	awsClient, err := aws.NewClient(ctx, aws.Options{
+		Region:  viper.GetString("aws.region"),
+		Profile: viper.GetString("aws.profile"),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create AWS client: %w", err)
+	}
+
+	lightsailService := aws.NewLightsailService(awsClient)
+
+	// Find the user's instance
+	instances, err := lightsailService.ListInstances(ctx, project)
+	if err != nil {
+		return fmt.Errorf("failed to list instances: %w", err)
+	}
+
+	var targetInstance *types.Instance
+	for _, instance := range instances {
+		if strings.HasPrefix(instance.Name, username+"-") {
+			targetInstance = instance
+			break
+		}
+	}
+
+	if targetInstance == nil {
+		return fmt.Errorf("no instance found for user: %s", username)
+	}
+
+	if targetInstance.PublicIP == "" {
+		return fmt.Errorf("instance %s has no public IP address", targetInstance.Name)
+	}
+
+	fmt.Printf("Connecting to %s's instance: %s\n", username, targetInstance.Name)
+	fmt.Printf("Instance: %s (%s)\n", targetInstance.PublicIP, targetInstance.State)
+
+	// Use custom key path if provided, otherwise try to download/use default
+	var privateKeyPath string
+	if keyPath != "" {
+		privateKeyPath = keyPath
+	} else {
+		// Try to download and use the default key
+		privateKeyPath = filepath.Join(cfg.SSH.KeyPath, "LightsailDefaultKey.pem")
+
+		// Ensure the SSH key directory exists
+		if err := os.MkdirAll(cfg.SSH.KeyPath, 0700); err != nil {
+			return fmt.Errorf("failed to create SSH key directory: %w", err)
+		}
+
+		// Download the key if it doesn't exist
+		if _, err := os.Stat(privateKeyPath); os.IsNotExist(err) {
+			fmt.Println("Downloading SSH key...")
+			keyContent, err := lightsailService.DownloadSSHKey(ctx, "")
+			if err != nil {
+				return fmt.Errorf("failed to download SSH key: %w", err)
+			}
+
+			// Check if key content is already decoded or needs base64 decoding
+			var keyBytes []byte
+			if strings.HasPrefix(keyContent, "-----BEGIN") {
+				// Key is already in PEM format
+				keyBytes = []byte(keyContent)
+			} else {
+				// Try to decode from base64
+				decoded, err := base64.StdEncoding.DecodeString(keyContent)
+				if err != nil {
+					return fmt.Errorf("failed to decode SSH key (not base64): %w", err)
+				}
+				keyBytes = decoded
+			}
+
+			// Write key file with proper permissions
+			err = os.WriteFile(privateKeyPath, keyBytes, 0600)
+			if err != nil {
+				return fmt.Errorf("failed to write SSH key file: %w", err)
+			}
+
+			fmt.Printf("SSH key saved to: %s\n", privateKeyPath)
+		}
+	}
+
+	// Verify key file exists and has proper permissions
+	if _, err := os.Stat(privateKeyPath); os.IsNotExist(err) {
+		return fmt.Errorf("SSH key file not found: %s", privateKeyPath)
+	}
+
+	// Ensure proper permissions
+	if err := os.Chmod(privateKeyPath, 0600); err != nil {
+		return fmt.Errorf("failed to set SSH key permissions: %w", err)
+	}
+
+	// Execute SSH command
+	sshArgs := []string{
+		"-i", privateKeyPath,
+		"-o", "StrictHostKeyChecking=no",
+		"-o", "UserKnownHostsFile=/dev/null",
+		fmt.Sprintf("ubuntu@%s", targetInstance.PublicIP),
+	}
+
+	fmt.Printf("Executing: ssh %s\n\n", strings.Join(sshArgs, " "))
+
+	sshCmdExec := exec.Command("ssh", sshArgs...)
+	sshCmdExec.Stdin = os.Stdin
+	sshCmdExec.Stdout = os.Stdout
+	sshCmdExec.Stderr = os.Stderr
+
+	return sshCmdExec.Run()
+}
+
+// downloadSSHKey downloads SSH key for a user's instance.
+func downloadSSHKey(ctx context.Context, username, project, outputPath string) error {
+	// Load configuration
+	cfg, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("failed to load configuration: %w", err)
+	}
+
+	// Create AWS client
+	awsClient, err := aws.NewClient(ctx, aws.Options{
+		Region:  viper.GetString("aws.region"),
+		Profile: viper.GetString("aws.profile"),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create AWS client: %w", err)
+	}
+
+	lightsailService := aws.NewLightsailService(awsClient)
+
+	// Download the key
+	fmt.Printf("Downloading SSH key for user: %s\n", username)
+	keyContent, err := lightsailService.DownloadSSHKey(ctx, "")
+	if err != nil {
+		return fmt.Errorf("failed to download SSH key: %w", err)
+	}
+
+	// Check if key content is already decoded or needs base64 decoding
+	var keyBytes []byte
+	if strings.HasPrefix(keyContent, "-----BEGIN") {
+		// Key is already in PEM format
+		keyBytes = []byte(keyContent)
+	} else {
+		// Try to decode from base64
+		decoded, err := base64.StdEncoding.DecodeString(keyContent)
+		if err != nil {
+			return fmt.Errorf("failed to decode SSH key (not base64): %w", err)
+		}
+		keyBytes = decoded
+	}
+
+	// Determine output path
+	var keyPath string
+	if outputPath != "" {
+		keyPath = filepath.Join(outputPath, "LightsailDefaultKey.pem")
+		// Ensure output directory exists
+		if err := os.MkdirAll(outputPath, 0700); err != nil {
+			return fmt.Errorf("failed to create output directory: %w", err)
+		}
+	} else {
+		keyPath = filepath.Join(cfg.SSH.KeyPath, "LightsailDefaultKey.pem")
+		// Ensure SSH key directory exists
+		if err := os.MkdirAll(cfg.SSH.KeyPath, 0700); err != nil {
+			return fmt.Errorf("failed to create SSH key directory: %w", err)
+		}
+	}
+
+	// Write key file with proper permissions
+	err = os.WriteFile(keyPath, keyBytes, 0600)
+	if err != nil {
+		return fmt.Errorf("failed to write SSH key file: %w", err)
+	}
+
+	fmt.Printf("✅ SSH key downloaded to: %s\n", keyPath)
+	fmt.Printf("Key permissions set to 600 (owner read/write only)\n")
+
+	return nil
 }

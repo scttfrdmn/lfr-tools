@@ -231,3 +231,25 @@ func (s *LightsailService) GetInstanceSSHKeyPair(ctx context.Context, keyPairNam
 
 	return output.KeyPair, nil
 }
+
+// DownloadSSHKey downloads the private key for an instance.
+func (s *LightsailService) DownloadSSHKey(ctx context.Context, keyPairName string) (string, error) {
+	output, err := s.client.Lightsail.DownloadDefaultKeyPair(ctx, &lightsail.DownloadDefaultKeyPairInput{})
+	if err != nil {
+		return "", fmt.Errorf("failed to download default key pair: %w", err)
+	}
+
+	return aws.ToString(output.PrivateKeyBase64), nil
+}
+
+// GetInstanceAccessDetails retrieves SSH access information for an instance.
+func (s *LightsailService) GetInstanceAccessDetails(ctx context.Context, instanceName string) (*lightsail.GetInstanceAccessDetailsOutput, error) {
+	output, err := s.client.Lightsail.GetInstanceAccessDetails(ctx, &lightsail.GetInstanceAccessDetailsInput{
+		InstanceName: aws.String(instanceName),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to get instance access details for %s: %w", instanceName, err)
+	}
+
+	return output, nil
+}
