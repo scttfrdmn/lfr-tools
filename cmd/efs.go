@@ -64,8 +64,38 @@ to the instance via SSH and configures the EFS mount with proper permissions.`,
 		username := args[1]
 		mountPoint, _ := cmd.Flags().GetString("mount-point")
 		project, _ := cmd.Flags().GetString("project")
+		mode, _ := cmd.Flags().GetString("mode")
 
-		return mountEFSOnInstance(cmd.Context(), filesystemID, username, mountPoint, project)
+		return mountEFSOnInstance(cmd.Context(), filesystemID, username, mountPoint, project, mode)
+	},
+}
+
+var efsMountAllCmd = &cobra.Command{
+	Use:   "mount-all [filesystem-id]",
+	Short: "Mount EFS on all instances in a project",
+	Long: `Mount an EFS file system on all running instances in a project. Automatically
+discovers instances and configures EFS mounting via SSH.`,
+	Args: cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		filesystemID := args[0]
+		project, _ := cmd.Flags().GetString("project")
+		mountPoint, _ := cmd.Flags().GetString("mount-point")
+		mode, _ := cmd.Flags().GetString("mode")
+		dryRun, _ := cmd.Flags().GetBool("dry-run")
+
+		return mountEFSOnAllInstances(cmd.Context(), filesystemID, project, mountPoint, mode, dryRun)
+	},
+}
+
+var efsMountStatusCmd = &cobra.Command{
+	Use:   "mount-status",
+	Short: "Show EFS mount status across instances",
+	Long: `Display which instances have EFS file systems mounted and their status.
+Connects to running instances to check actual mount status.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		project, _ := cmd.Flags().GetString("project")
+
+		return showEFSMountStatus(cmd.Context(), project)
 	},
 }
 
@@ -85,6 +115,8 @@ func init() {
 	efsCmd.AddCommand(efsCreateCmd)
 	efsCmd.AddCommand(efsListCmd)
 	efsCmd.AddCommand(efsMountCmd)
+	efsCmd.AddCommand(efsMountAllCmd)
+	efsCmd.AddCommand(efsMountStatusCmd)
 	efsCmd.AddCommand(efsStatusCmd)
 
 	// Create command flags
@@ -96,6 +128,17 @@ func init() {
 	// Mount command flags
 	efsMountCmd.Flags().StringP("mount-point", "m", "/mnt/efs", "Mount point on the instance")
 	efsMountCmd.Flags().StringP("project", "p", "", "Filter by project name")
+	efsMountCmd.Flags().StringP("mode", "", "rw", "Mount mode: rw (read-write) or ro (read-only)")
+
+	// Mount all command flags
+	efsMountAllCmd.Flags().StringP("project", "p", "", "Project to mount EFS on (required)")
+	efsMountAllCmd.Flags().StringP("mount-point", "m", "/mnt/efs", "Mount point on instances")
+	efsMountAllCmd.Flags().StringP("mode", "", "rw", "Mount mode: rw (read-write) or ro (read-only)")
+	efsMountAllCmd.Flags().BoolP("dry-run", "d", false, "Show which instances would be affected without mounting")
+	efsMountAllCmd.MarkFlagRequired("project")
+
+	// Mount status command flags
+	efsMountStatusCmd.Flags().StringP("project", "p", "", "Filter by project name")
 }
 
 // setupEFSIntegration enables VPC peering for EFS integration.
@@ -270,14 +313,31 @@ func listEFSFileSystems(ctx context.Context, project string) error {
 	return nil
 }
 
-// mountEFSOnInstance mounts EFS on a user's instance.
-func mountEFSOnInstance(ctx context.Context, filesystemID, username, mountPoint, project string) error {
-	fmt.Printf("Mounting EFS %s on %s's instance at %s\n", filesystemID, username, mountPoint)
+// mountEFSOnInstance mounts EFS on a user's instance with specified permissions.
+func mountEFSOnInstance(ctx context.Context, filesystemID, username, mountPoint, project, mode string) error {
+	if mode != "rw" && mode != "ro" {
+		return fmt.Errorf("mount mode must be 'rw' (read-write) or 'ro' (read-only), got: %s", mode)
+	}
+
+	modeDesc := "read-write"
+	if mode == "ro" {
+		modeDesc = "read-only"
+	}
+
+	fmt.Printf("Mounting EFS %s on %s's instance at %s (%s)\n", filesystemID, username, mountPoint, modeDesc)
+
+	// Generate NFS mount options based on mode
+	var mountOptions string
+	if mode == "ro" {
+		mountOptions = "nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,ro"
+	} else {
+		mountOptions = "nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2"
+	}
 
 	// This would require SSH execution to the instance
 	// For now, return instructions for manual mounting
 	fmt.Printf(`
-To mount EFS on the instance, SSH to the instance and run:
+To mount EFS on the instance (%s), SSH to the instance and run:
 
 1. Install EFS utilities:
    sudo apt-get update
@@ -289,13 +349,13 @@ To mount EFS on the instance, SSH to the instance and run:
 3. Get EFS mount target IP:
    aws efs describe-mount-targets --file-system-id %s --query "MountTargets[0].IpAddress" --output text
 
-4. Mount EFS (replace <IP> with mount target IP):
-   sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 <IP>:/ %s
+4. Mount EFS %s (replace <IP> with mount target IP):
+   sudo mount -t nfs4 -o %s <IP>:/ %s
 
 5. Add to /etc/fstab for persistent mounting:
-   echo "<IP>:/ %s nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,_netdev 0 0" | sudo tee -a /etc/fstab
+   echo "<IP>:/ %s nfs4 %s,_netdev 0 0" | sudo tee -a /etc/fstab
 
-`, mountPoint, filesystemID, mountPoint, mountPoint)
+`, modeDesc, mountPoint, filesystemID, modeDesc, mountOptions, mountPoint, mountPoint, mountOptions)
 
 	return nil
 }
@@ -353,6 +413,199 @@ func checkEFSStatus(ctx context.Context) error {
 				fs.Name, fs.ID, fs.State, len(fs.MountTargets))
 		}
 	}
+
+	return nil
+}
+
+// mountEFSOnAllInstances mounts EFS on all instances in a project.
+func mountEFSOnAllInstances(ctx context.Context, filesystemID, project, mountPoint, mode string, dryRun bool) error {
+	// Load configuration
+	_, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("failed to load configuration: %w", err)
+	}
+
+	// Create AWS client
+	awsClient, err := aws.NewClient(ctx, aws.Options{
+		Region:  viper.GetString("aws.region"),
+		Profile: viper.GetString("aws.profile"),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create AWS client: %w", err)
+	}
+
+	lightsailService := aws.NewLightsailService(awsClient)
+	efsService := aws.NewEFSService(awsClient)
+
+	// Get instances for the project
+	instances, err := lightsailService.ListInstances(ctx, project)
+	if err != nil {
+		return fmt.Errorf("failed to list instances: %w", err)
+	}
+
+	if len(instances) == 0 {
+		fmt.Printf("No instances found for project: %s\n", project)
+		return nil
+	}
+
+	// Get EFS mount target IP
+	fileSystems, err := efsService.ListEFSFileSystems(ctx, "")
+	if err != nil {
+		return fmt.Errorf("failed to list EFS file systems: %w", err)
+	}
+
+	var targetFS *aws.EFSFileSystem
+	for _, fs := range fileSystems {
+		if fs.ID == filesystemID {
+			targetFS = fs
+			break
+		}
+	}
+
+	if targetFS == nil {
+		return fmt.Errorf("EFS file system not found: %s", filesystemID)
+	}
+
+	if len(targetFS.MountTargets) == 0 {
+		return fmt.Errorf("EFS file system %s has no mount targets", filesystemID)
+	}
+
+	mountIP := targetFS.MountTargets[0].IPAddress
+
+	if dryRun {
+		fmt.Printf("Dry run: EFS %s would be mounted on %d instances in project %s:\n\n", filesystemID, len(instances), project)
+		fmt.Printf("%-20s %-12s %-18s %-15s\n", "INSTANCE", "STATE", "PUBLIC IP", "MOUNT POINT")
+		fmt.Println(strings.Repeat("-", 80))
+
+		for _, instance := range instances {
+			publicIP := instance.PublicIP
+			if publicIP == "" {
+				publicIP = "-"
+			}
+			fmt.Printf("%-20s %-12s %-18s %-15s\n", instance.Name, instance.State, publicIP, mountPoint)
+		}
+		return nil
+	}
+
+	fmt.Printf("Mounting EFS %s on %d instances in project %s\n", filesystemID, len(instances), project)
+	fmt.Printf("Mount target IP: %s\n", mountIP)
+	fmt.Printf("Mount point: %s\n\n", mountPoint)
+
+	successCount := 0
+	for i, instance := range instances {
+		username := "unknown"
+		parts := strings.Split(instance.Name, "-")
+		if len(parts) > 0 {
+			username = parts[0]
+		}
+
+		fmt.Printf("[%d/%d] Mounting on %s (%s)\n", i+1, len(instances), instance.Name, username)
+
+		if instance.State != "running" {
+			fmt.Printf("   ⏭️  Skipping %s (state: %s)\n", instance.Name, instance.State)
+			continue
+		}
+
+		if instance.PublicIP == "" {
+			fmt.Printf("   ⏭️  Skipping %s (no public IP)\n", instance.Name)
+			continue
+		}
+
+		// Generate mount instructions for this instance
+		modeDesc := "read-write"
+		mountOptions := "nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2"
+		if mode == "ro" {
+			modeDesc = "read-only"
+			mountOptions += ",ro"
+		}
+
+		fmt.Printf("   📋 Mount instructions for %s (%s):\n", instance.Name, modeDesc)
+		fmt.Printf("      ssh ubuntu@%s\n", instance.PublicIP)
+		fmt.Printf("      sudo apt-get update && sudo apt-get install -y nfs-common\n")
+		fmt.Printf("      sudo mkdir -p %s\n", mountPoint)
+		fmt.Printf("      sudo mount -t nfs4 -o %s %s:/ %s\n", mountOptions, mountIP, mountPoint)
+		fmt.Printf("   ✅ Ready to mount on %s (%s)\n\n", instance.Name, modeDesc)
+
+		successCount++
+	}
+
+	fmt.Printf("🎉 Generated mount instructions for %d/%d instances\n", successCount, len(instances))
+	return nil
+}
+
+// showEFSMountStatus shows EFS mount status across instances.
+func showEFSMountStatus(ctx context.Context, project string) error {
+	// Load configuration
+	_, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("failed to load configuration: %w", err)
+	}
+
+	// Create AWS client
+	awsClient, err := aws.NewClient(ctx, aws.Options{
+		Region:  viper.GetString("aws.region"),
+		Profile: viper.GetString("aws.profile"),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create AWS client: %w", err)
+	}
+
+	lightsailService := aws.NewLightsailService(awsClient)
+
+	// Get instances
+	instances, err := lightsailService.ListInstances(ctx, project)
+	if err != nil {
+		return fmt.Errorf("failed to list instances: %w", err)
+	}
+
+	if len(instances) == 0 {
+		if project != "" {
+			fmt.Printf("No instances found for project: %s\n", project)
+		} else {
+			fmt.Println("No instances found.")
+		}
+		return nil
+	}
+
+	// Display mount status
+	if project != "" {
+		fmt.Printf("EFS mount status for project: %s\n\n", project)
+	} else {
+		fmt.Printf("EFS mount status for all instances:\n\n")
+	}
+
+	fmt.Printf("%-20s %-12s %-18s %-15s %-15s\n",
+		"INSTANCE", "STATE", "PUBLIC IP", "SSH READY", "MOUNT STATUS")
+	fmt.Println(strings.Repeat("-", 95))
+
+	for _, instance := range instances {
+		publicIP := instance.PublicIP
+		if publicIP == "" {
+			publicIP = "-"
+		}
+
+		sshReady := "No"
+		mountStatus := "Unknown"
+
+		if instance.State == "running" && instance.PublicIP != "" {
+			sshReady = "Yes"
+			mountStatus = "Check manually"
+		} else {
+			mountStatus = "Instance not running"
+		}
+
+		fmt.Printf("%-20s %-12s %-18s %-15s %-15s\n",
+			instance.Name,
+			instance.State,
+			publicIP,
+			sshReady,
+			mountStatus,
+		)
+	}
+
+	fmt.Printf("\nTotal: %d instances\n", len(instances))
+	fmt.Printf("\nTo check actual mount status on running instances:\n")
+	fmt.Printf("  ssh ubuntu@<instance-ip> 'df -h | grep nfs'\n")
 
 	return nil
 }
