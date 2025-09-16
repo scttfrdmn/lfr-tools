@@ -1,0 +1,26 @@
+---
+version: '3.8'
+
+services:
+  localstack:
+    image: localstack/localstack:3.0
+    container_name: lfr-tools-localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=iam,ec2
+      - DEBUG=1
+      - LAMBDA_EXECUTOR=docker
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./localstack-data:/var/lib/localstack"
+    networks:
+      - lfr-tools-test
+
+networks:
+  lfr-tools-test:
+    driver: bridge

@@ -78,6 +78,33 @@ deps:
 	@go install golang.org/x/tools/cmd/goimports@latest
 	@go install github.com/goreleaser/goreleaser@latest
 
+## integration-test: Run integration tests with LocalStack
+integration-test:
+	@echo "Starting LocalStack for integration tests..."
+	@docker-compose -f docker-compose.test.yml up -d
+	@echo "Waiting for LocalStack to be ready..."
+	@sleep 10
+	@echo "Running integration tests..."
+	@AWS_ENDPOINT_URL=http://localhost:4566 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test go test -tags=integration ./internal/aws -v
+	@echo "Stopping LocalStack..."
+	@docker-compose -f docker-compose.test.yml down
+
+## integration-test-real: Run integration tests with real AWS
+integration-test-real:
+	@echo "Running integration tests with real AWS..."
+	@go test -tags=integration ./internal/aws -v
+
+## test-with-localstack: Start LocalStack for development
+test-with-localstack:
+	@echo "Starting LocalStack..."
+	@docker-compose -f docker-compose.test.yml up -d
+	@echo "LocalStack running at http://localhost:4566"
+
+## stop-localstack: Stop LocalStack
+stop-localstack:
+	@echo "Stopping LocalStack..."
+	@docker-compose -f docker-compose.test.yml down
+
 ## help: Show this help message
 help:
 	@echo "Usage: make [target]"
