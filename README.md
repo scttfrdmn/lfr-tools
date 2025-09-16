@@ -33,10 +33,16 @@ A comprehensive CLI tool for managing AWS Lightsail for Research instances, IAM 
 - **Advanced Scheduling**: Time-based instance management and automation
 
 #### Phase 3 - Enterprise Features
+- **User Documentation**: Comprehensive guides at 14-year-old reading level with tutorials
+- **Software Pack Installation**: User-defined APT and container-based software deployment
+- **Advanced Idle Detection**: Sophisticated detection modeled after CloudWorkstation
+  - Policy templates (aggressive, balanced, conservative, research)
+  - Multi-metric detection (CPU, memory, network, SSH activity)
+  - Time-based schedules with timezone support
+  - Cost savings analysis and recommendations
 - **Auth Integration**: External authentication systems (LDAP, SAML, OAuth)
 - **RBAC**: Role-based access control with custom permission sets
 - **Audit Logging**: Comprehensive activity logging and compliance reporting
-- **API & SDK**: RESTful API and language-specific SDKs for integration
 
 ## Installation
 
