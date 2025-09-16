@@ -1,0 +1,4 @@
+username,project,blueprint,bundle,groups
+alice,research-team,ubuntu_22_04,app_standard_xl_1_0,researchers;data-analysts
+bob,research-team,ubuntu_22_04,app_standard_2xl_1_0,researchers
+charlie,ml-team,ubuntu_22_04,gpu_nvidia_xl_1_0,ml-engineers;gpu-users

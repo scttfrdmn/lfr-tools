@@ -27,10 +27,10 @@ A comprehensive CLI tool for managing AWS Lightsail for Research instances, IAM 
 - **Instance Lifecycle**: Full snapshot, backup, restore, and cloning capabilities
 
 #### Phase 2 - Advanced Management
+- **Bulk Operations**: Mass user/group operations with progress tracking and rollback
 - **Cost Optimization**: Automated recommendations, scheduling, and budget alerts
-- **Multi-region Support**: Deploy and manage across multiple AWS regions
-- **Bulk Operations**: Mass user/instance operations with progress tracking and rollback
 - **Usage Analytics**: Detailed reporting on instance utilization and costs
+- **Advanced Scheduling**: Time-based instance management and automation
 
 #### Phase 3 - Enterprise Features
 - **Auth Integration**: External authentication systems (LDAP, SAML, OAuth)
