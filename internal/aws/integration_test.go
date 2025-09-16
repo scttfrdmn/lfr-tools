@@ -64,7 +64,7 @@ func setupIntegrationTest(t *testing.T) *Client {
 		// Real AWS configuration
 		opts := Options{
 			Region:  "us-east-1",
-			Profile: "aws", // Use 'aws' profile for testing
+			Profile: "default", // Default profile for testing
 		}
 
 		// Allow override via environment variable

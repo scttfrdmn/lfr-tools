@@ -1,10 +1,17 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
+	"github.com/scttfrdmn/lfr-tools/internal/aws"
+	"github.com/scttfrdmn/lfr-tools/internal/config"
+	"github.com/scttfrdmn/lfr-tools/internal/types"
 )
 
 var instancesCmd = &cobra.Command{
@@ -22,18 +29,7 @@ or user. Shows instance details including state, IP addresses, and resource util
 		project, _ := cmd.Flags().GetString("project")
 		user, _ := cmd.Flags().GetString("user")
 
-		if project != "" {
-			fmt.Printf("Listing instances for project: %s\n", project)
-		}
-		if user != "" {
-			fmt.Printf("Listing instances for user: %s\n", user)
-		}
-		if project == "" && user == "" {
-			fmt.Println("Listing all instances")
-		}
-
-		// TODO: Implement instance listing logic
-		return fmt.Errorf("instance listing not yet implemented")
+		return listInstances(cmd.Context(), project, user)
 	},
 }
 
@@ -46,13 +42,7 @@ charged according to your bundle pricing while running.`,
 		users, _ := cmd.Flags().GetStringSlice("users")
 		project, _ := cmd.Flags().GetString("project")
 
-		fmt.Printf("Starting instances for users: %v\n", users)
-		if project != "" {
-			fmt.Printf("Project filter: %s\n", project)
-		}
-
-		// TODO: Implement instance start logic
-		return fmt.Errorf("instance start not yet implemented")
+		return startInstances(cmd.Context(), users, project)
 	},
 }
 
@@ -65,13 +55,7 @@ but users will lose access until instances are restarted.`,
 		users, _ := cmd.Flags().GetStringSlice("users")
 		project, _ := cmd.Flags().GetString("project")
 
-		fmt.Printf("Stopping instances for users: %v\n", users)
-		if project != "" {
-			fmt.Printf("Project filter: %s\n", project)
-		}
-
-		// TODO: Implement instance stop logic
-		return fmt.Errorf("instance stop not yet implemented")
+		return stopInstances(cmd.Context(), users, project)
 	},
 }
 
@@ -249,4 +233,197 @@ func init() {
 
 	// Reboot command flags
 	instancesRebootCmd.Flags().BoolP("force", "f", false, "Force reboot without confirmation")
+}
+
+// listInstances lists Lightsail instances with filtering.
+func listInstances(ctx context.Context, project, user string) error {
+	// Load configuration
+	_, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("failed to load configuration: %w", err)
+	}
+
+	// Create AWS client
+	awsClient, err := aws.NewClient(ctx, aws.Options{
+		Region:  viper.GetString("aws.region"),
+		Profile: viper.GetString("aws.profile"),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create AWS client: %w", err)
+	}
+
+	lightsailService := aws.NewLightsailService(awsClient)
+
+	// Get instances
+	instances, err := lightsailService.ListInstances(ctx, project)
+	if err != nil {
+		return fmt.Errorf("failed to list instances: %w", err)
+	}
+
+	// Filter by user if specified
+	if user != "" {
+		var filtered []*types.Instance
+		for _, instance := range instances {
+			if strings.HasPrefix(instance.Name, user+"-") {
+				filtered = append(filtered, instance)
+			}
+		}
+		instances = filtered
+	}
+
+	if len(instances) == 0 {
+		if project != "" && user != "" {
+			fmt.Printf("No instances found for user %s in project: %s\n", user, project)
+		} else if project != "" {
+			fmt.Printf("No instances found for project: %s\n", project)
+		} else if user != "" {
+			fmt.Printf("No instances found for user: %s\n", user)
+		} else {
+			fmt.Println("No instances found.")
+		}
+		return nil
+	}
+
+	// Display results
+	fmt.Printf("%-20s %-15s %-20s %-15s %-15s %-15s %-12s\n",
+		"INSTANCE", "STATE", "PUBLIC IP", "BLUEPRINT", "BUNDLE", "REGION", "PROJECT")
+	fmt.Println(strings.Repeat("-", 125))
+
+	for _, instance := range instances {
+		project := instance.Tags["Project"]
+		if project == "" {
+			project = "untagged"
+		}
+
+		fmt.Printf("%-20s %-15s %-20s %-15s %-15s %-15s %-12s\n",
+			instance.Name,
+			instance.State,
+			instance.PublicIP,
+			instance.Blueprint,
+			instance.Bundle,
+			instance.Region,
+			project,
+		)
+	}
+
+	fmt.Printf("\nTotal: %d instances\n", len(instances))
+	return nil
+}
+
+// startInstances starts instances for specified users.
+func startInstances(ctx context.Context, users []string, project string) error {
+	// Load configuration
+	_, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("failed to load configuration: %w", err)
+	}
+
+	// Create AWS client
+	awsClient, err := aws.NewClient(ctx, aws.Options{
+		Region:  viper.GetString("aws.region"),
+		Profile: viper.GetString("aws.profile"),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create AWS client: %w", err)
+	}
+
+	lightsailService := aws.NewLightsailService(awsClient)
+
+	// Get all instances
+	instances, err := lightsailService.ListInstances(ctx, project)
+	if err != nil {
+		return fmt.Errorf("failed to list instances: %w", err)
+	}
+
+	// Filter instances for specified users
+	var instancesToStart []string
+	for _, instance := range instances {
+		for _, user := range users {
+			if strings.HasPrefix(instance.Name, user+"-") {
+				instancesToStart = append(instancesToStart, instance.Name)
+				break
+			}
+		}
+	}
+
+	if len(instancesToStart) == 0 {
+		fmt.Printf("No instances found for users: %v\n", users)
+		return nil
+	}
+
+	fmt.Printf("Starting %d instances for users: %v\n", len(instancesToStart), users)
+
+	for i, instanceName := range instancesToStart {
+		fmt.Printf("[%d/%d] Starting instance: %s\n", i+1, len(instancesToStart), instanceName)
+
+		err = lightsailService.StartInstance(ctx, instanceName)
+		if err != nil {
+			fmt.Printf("❌ Error starting instance %s: %v\n", instanceName, err)
+			continue
+		}
+
+		fmt.Printf("✅ Started instance: %s\n", instanceName)
+	}
+
+	fmt.Printf("\n🎉 Instance start completed!\n")
+	return nil
+}
+
+// stopInstances stops instances for specified users.
+func stopInstances(ctx context.Context, users []string, project string) error {
+	// Load configuration
+	_, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("failed to load configuration: %w", err)
+	}
+
+	// Create AWS client
+	awsClient, err := aws.NewClient(ctx, aws.Options{
+		Region:  viper.GetString("aws.region"),
+		Profile: viper.GetString("aws.profile"),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create AWS client: %w", err)
+	}
+
+	lightsailService := aws.NewLightsailService(awsClient)
+
+	// Get all instances
+	instances, err := lightsailService.ListInstances(ctx, project)
+	if err != nil {
+		return fmt.Errorf("failed to list instances: %w", err)
+	}
+
+	// Filter instances for specified users
+	var instancesToStop []string
+	for _, instance := range instances {
+		for _, user := range users {
+			if strings.HasPrefix(instance.Name, user+"-") {
+				instancesToStop = append(instancesToStop, instance.Name)
+				break
+			}
+		}
+	}
+
+	if len(instancesToStop) == 0 {
+		fmt.Printf("No instances found for users: %v\n", users)
+		return nil
+	}
+
+	fmt.Printf("Stopping %d instances for users: %v\n", len(instancesToStop), users)
+
+	for i, instanceName := range instancesToStop {
+		fmt.Printf("[%d/%d] Stopping instance: %s\n", i+1, len(instancesToStop), instanceName)
+
+		err = lightsailService.StopInstance(ctx, instanceName)
+		if err != nil {
+			fmt.Printf("❌ Error stopping instance %s: %v\n", instanceName, err)
+			continue
+		}
+
+		fmt.Printf("✅ Stopped instance: %s\n", instanceName)
+	}
+
+	fmt.Printf("\n🎉 Instance stop completed!\n")
+	return nil
 }

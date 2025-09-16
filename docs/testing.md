@@ -68,7 +68,7 @@ LocalStack provides a fully functional local AWS cloud stack for testing without
 The integration tests automatically detect real AWS credentials and will run against actual AWS services when:
 - No `AWS_ENDPOINT_URL` is set
 - Valid AWS credentials are available
-- **Default Profile**: Uses `aws` profile (can be overridden with `AWS_PROFILE` env var)
+- **Default Profile**: Uses `default` profile (can be overridden with `AWS_PROFILE` env var)
 
 **⚠️ Real AWS Testing Notes:**
 - Tests create actual AWS resources
