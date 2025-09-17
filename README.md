@@ -32,16 +32,23 @@ A comprehensive CLI tool for managing AWS Lightsail for Research instances, IAM 
 - **Usage Analytics**: Detailed reporting on instance utilization and costs
 - **Advanced Scheduling**: Time-based instance management and automation
 
-#### Phase 3 - Enterprise Features
+#### Phase 3 - Enterprise & Educational Features
+- **Educational Access System**: Hardware-tied tokens with automatic S3 status updates
+  - Non-transferable tokens tied to student hardware fingerprints
+  - Automatic instance start requests via S3 communication
+  - Role-based delegation (Professor → TA → Student hierarchy)
+  - Time-boxed budgets and access controls
+- **Secure Token Management**: Platform-native credential storage
+  - macOS Keychain integration for token security
+  - Windows Credential Manager support
+  - Linux secret service integration (gnome-keyring, KWallet)
 - **User Documentation**: Comprehensive guides at 14-year-old reading level with tutorials
 - **Software Pack Installation**: User-defined APT and container-based software deployment
 - **Advanced Idle Detection**: Sophisticated detection modeled after CloudWorkstation
   - Policy templates (aggressive, balanced, conservative, research)
   - Multi-metric detection (CPU, memory, network, SSH activity)
   - Time-based schedules with timezone support
-  - Cost savings analysis and recommendations
-- **Auth Integration**: External authentication systems (LDAP, SAML, OAuth)
-- **RBAC**: Role-based access control with custom permission sets
+- **Auth Integration**: External authentication systems (Globus, LDAP, SAML, OAuth)
 - **Audit Logging**: Comprehensive activity logging and compliance reporting
 
 ## Installation
