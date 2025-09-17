@@ -400,11 +400,20 @@ func startInstances(ctx context.Context, users []string, project string, wait bo
 				if err != nil {
 					return "", err
 				}
+
+				// Update S3 status during wait
+				_ = utils.UpdateInstanceStatusInS3(ctx, instance)
+
 				return instance.State, nil
 			})
 			if err != nil {
 				fmt.Printf("❌ Error waiting for instance %s: %v\n", instanceName, err)
 			}
+		}
+
+		// Update S3 status after start
+		if instance, err := lightsailService.GetInstance(ctx, instanceName); err == nil {
+			_ = utils.UpdateInstanceStatusInS3(ctx, instance)
 		}
 	}
 
@@ -473,11 +482,20 @@ func stopInstances(ctx context.Context, users []string, project string, wait boo
 				if err != nil {
 					return "", err
 				}
+
+				// Update S3 status during wait
+				_ = utils.UpdateInstanceStatusInS3(ctx, instance)
+
 				return instance.State, nil
 			})
 			if err != nil {
 				fmt.Printf("❌ Error waiting for instance %s: %v\n", instanceName, err)
 			}
+		}
+
+		// Update S3 status after stop
+		if instance, err := lightsailService.GetInstance(ctx, instanceName); err == nil {
+			_ = utils.UpdateInstanceStatusInS3(ctx, instance)
 		}
 	}
 
