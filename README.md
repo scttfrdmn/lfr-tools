@@ -248,12 +248,34 @@ git push origin v1.0.0
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+## Documentation
+
+### Quick Start
+- 📚 [Getting Started Guide](docs/getting-started.md) - Simple introduction for beginners
+- 🎓 [Student Guide](docs/tutorials/student-guide.md) - How to connect and use your cloud computer
+- 👨‍🏫 [Teacher Guide](docs/tutorials/teacher-guide.md) - Managing digital classrooms
+
+### Detailed Guides
+- 🔧 [Installation Guide](docs/installation.md) - Complete installation instructions
+- ⚙️ [Configuration Guide](docs/configuration.md) - Customize LFR Tools for your needs
+- 🧪 [Testing Guide](docs/testing.md) - Run tests and validate functionality
+
+### Tutorials and Examples
+- 📖 [Common Tasks](docs/tutorials/common-tasks.md) - Step-by-step task examples
+- 🎯 [Real Examples](docs/tutorials/examples.md) - Actual classroom scenarios
+- 🏫 [Educational Workflows](docs/educational-workflows.md) - Complete class setup examples
+- 🆘 [Troubleshooting](docs/troubleshooting.md) - Fix problems with simple solutions
+
+### Advanced Topics
+- 🤝 [Contributing Guide](CONTRIBUTING.md) - How to help improve LFR Tools
+- 📊 [Testing Documentation](docs/testing.md) - LocalStack and AWS testing
+
 ## Support
 
-- 📖 [Documentation](https://github.com/scttfrdmn/lfr-tools/wiki)
-- 🐛 [Issues](https://github.com/scttfrdmn/lfr-tools/issues)
-- 💬 [Discussions](https://github.com/scttfrdmn/lfr-tools/discussions)
-- ☕ [Ko-Fi](https://ko-fi.com/scttfrdmn)
+- 📖 [Complete Documentation](docs/) - All guides and tutorials
+- 🐛 [Issues](https://github.com/scttfrdmn/lfr-tools/issues) - Report bugs or request features
+- 💬 [Discussions](https://github.com/scttfrdmn/lfr-tools/discussions) - Ask questions and share ideas
+- ☕ [Ko-Fi](https://ko-fi.com/scttfrdmn) - Support the project
 
 ## License
 
