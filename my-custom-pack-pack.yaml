@@ -1,0 +1,49 @@
+{
+  "id": "my-custom-pack",
+  "name": "My-Custom-Pack Development Pack",
+  "description": "Development environment with common tools",
+  "category": "development",
+  "type": "mixed",
+  "version": "1.0",
+  "dependencies": null,
+  "packages": [
+    {
+      "name": "build-essential",
+      "source": "apt"
+    },
+    {
+      "name": "git",
+      "source": "apt"
+    },
+    {
+      "name": "python3",
+      "source": "apt"
+    },
+    {
+      "name": "python3-pip",
+      "source": "apt"
+    },
+    {
+      "name": "nodejs",
+      "source": "apt"
+    },
+    {
+      "name": "npm",
+      "source": "apt"
+    }
+  ],
+  "scripts": [
+    {
+      "name": "dev-setup",
+      "description": "",
+      "content": "echo 'Development environment setup complete'",
+      "type": "bash"
+    }
+  ],
+  "environment": null,
+  "tags": null,
+  "supported_platforms": [
+    "ubuntu_22_04",
+    "ubuntu_20_04"
+  ]
+}
