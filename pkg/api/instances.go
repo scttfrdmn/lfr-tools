@@ -61,10 +61,15 @@ func (api *InstanceAPI) ListInstances(project string) ([]*InstanceInfo, error) {
 		return nil, fmt.Errorf("failed to load configuration: %w", err)
 	}
 
-	// Create AWS client
+	// Create AWS client with 'aws' profile for GUI
+	profile := cfg.AWS.Profile
+	if profile == "" {
+		profile = "aws" // Default to 'aws' profile for GUI
+	}
+
 	awsClient, err := aws.NewClient(api.ctx, aws.Options{
 		Region:  cfg.AWS.Region,
-		Profile: cfg.AWS.Profile,
+		Profile: profile,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create AWS client: %w", err)
@@ -105,10 +110,15 @@ func (api *InstanceAPI) StartInstance(instanceName string) error {
 		return fmt.Errorf("failed to load configuration: %w", err)
 	}
 
-	// Create AWS client
+	// Create AWS client with 'aws' profile for GUI
+	profile := cfg.AWS.Profile
+	if profile == "" {
+		profile = "aws" // Default to 'aws' profile for GUI
+	}
+
 	awsClient, err := aws.NewClient(api.ctx, aws.Options{
 		Region:  cfg.AWS.Region,
-		Profile: cfg.AWS.Profile,
+		Profile: profile,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create AWS client: %w", err)
@@ -127,10 +137,15 @@ func (api *InstanceAPI) StopInstance(instanceName string) error {
 		return fmt.Errorf("failed to load configuration: %w", err)
 	}
 
-	// Create AWS client
+	// Create AWS client with 'aws' profile for GUI
+	profile := cfg.AWS.Profile
+	if profile == "" {
+		profile = "aws" // Default to 'aws' profile for GUI
+	}
+
 	awsClient, err := aws.NewClient(api.ctx, aws.Options{
 		Region:  cfg.AWS.Region,
-		Profile: cfg.AWS.Profile,
+		Profile: profile,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create AWS client: %w", err)
