@@ -28,12 +28,16 @@ func main() {
 	// 'Assets' configures the asset server with the 'FS' variable pointing to the frontend files.
 	// 'Bind' is a list of Go struct instances. The frontend has access to the methods of these instances.
 	// 'Mac' options tailor the application when running an macOS.
+	// Create monitoring service
+	monitoringService := services.NewMonitoringService()
+
 	app := application.New(application.Options{
 		Name:        "LFR Tools",
 		Description: "Desktop interface for AWS Lightsail for Research management",
 		Services: []application.Service{
 			application.NewService(&GreetService{}),
 			application.NewService(services.NewLFRService()),
+			application.NewService(monitoringService),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),

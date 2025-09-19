@@ -11,6 +11,7 @@ import Instances from './components/Instances'
 import Users from './components/Users'
 import Students from './components/Students'
 import Settings from './components/Settings'
+import Analytics from './components/Analytics'
 
 interface UserInfo {
   role: string
@@ -141,11 +142,15 @@ function App() {
               <>
                 <Route path="/users" element={<Users userInfo={userInfo} />} />
                 <Route path="/students" element={<Students userInfo={userInfo} />} />
+                <Route path="/analytics" element={<Analytics userInfo={userInfo} />} />
                 <Route path="/settings" element={<Settings userInfo={userInfo} />} />
               </>
             )}
             {userInfo.role === 'ta' && (
-              <Route path="/students" element={<Students userInfo={userInfo} />} />
+              <>
+                <Route path="/students" element={<Students userInfo={userInfo} />} />
+                <Route path="/analytics" element={<Analytics userInfo={userInfo} />} />
+              </>
             )}
           </Routes>
         }

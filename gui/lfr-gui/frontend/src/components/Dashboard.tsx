@@ -14,6 +14,8 @@ import {
 } from '@cloudscape-design/components'
 
 import { LFRService } from "../../bindings/lfr-gui"
+import StudentConnect from './StudentConnect'
+import { useClassMonitoring } from '../hooks/useRealTimeStatus'
 
 interface UserInfo {
   role: string
@@ -55,57 +57,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userInfo }) => {
   }, [userInfo.project])
 
   const renderStudentDashboard = () => (
-    <Container header={<Header variant="h1">My Cloud Computer</Header>}>
-      <SpaceBetween direction="vertical" size="l">
-        <Alert statusIconAriaLabel="Info" type="info">
-          Welcome to your cloud computing environment! Your computer will automatically
-          start when you connect and sleep when not in use to save costs.
-        </Alert>
-
-        <Grid gridDefinition={[{ colspan: 12 }]}>
-          <Container header={<Header variant="h2">{userInfo.project}</Header>}>
-            <SpaceBetween direction="vertical" size="m">
-              <Box>
-                <SpaceBetween direction="horizontal" size="m">
-                  <StatusIndicator type="success">Ready to use</StatusIndicator>
-                  <Badge color="green">Budget: $18.50 / $25.00</Badge>
-                  <Badge color="blue">45 days remaining</Badge>
-                </SpaceBetween>
-              </Box>
-
-              <Box padding={{ vertical: "m" }}>
-                <strong>💻 {userInfo.username}-ubuntu-22-04</strong>
-                <br />
-                Status: Ready to connect
-                <br />
-                Last used: 2 hours ago
-              </Box>
-
-              <SpaceBetween direction="horizontal" size="m">
-                <Button variant="primary" iconName="external">
-                  Connect Now
-                </Button>
-                <Button iconName="folder">
-                  Shared Files
-                </Button>
-                <Button iconName="status-info">
-                  Get Help
-                </Button>
-              </SpaceBetween>
-            </SpaceBetween>
-          </Container>
-        </Grid>
-
-        <Container header={<Header variant="h3">💡 Tips</Header>}>
-          <ul>
-            <li>Your computer sleeps automatically to save money</li>
-            <li>Shared files are in /mnt/efs/shared/</li>
-            <li>Save your work often</li>
-            <li>Ask your teacher or TA if you need help</li>
-          </ul>
-        </Container>
-      </SpaceBetween>
-    </Container>
+    <StudentConnect userInfo={userInfo} />
   )
 
   const renderProfessorDashboard = () => (
