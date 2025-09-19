@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
+	"lfr-gui/pkg/services"
 )
 
 // Wails uses Go's `embed` package to embed the frontend files into the binary.
@@ -32,7 +33,7 @@ func main() {
 		Description: "Desktop interface for AWS Lightsail for Research management",
 		Services: []application.Service{
 			application.NewService(&GreetService{}),
-			application.NewService(NewLFRService()),
+			application.NewService(services.NewLFRService()),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),

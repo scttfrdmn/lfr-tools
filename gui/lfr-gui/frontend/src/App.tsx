@@ -4,7 +4,6 @@ import '@cloudscape-design/global-styles/index.css'
 import { AppLayout, TopNavigation, SideNavigation } from '@cloudscape-design/components'
 
 import { LFRService } from "../bindings/lfr-gui"
-import { Events } from "@wailsio/runtime"
 
 // Import components
 import Dashboard from './components/Dashboard'
@@ -28,7 +27,7 @@ function App() {
   useEffect(() => {
     // Get user role and permissions on app load
     LFRService.GetUserRole()
-      .then((user: UserInfo) => {
+      .then((user: UserInfo | null) => {
         setUserInfo(user)
         setLoading(false)
       })
@@ -50,16 +49,13 @@ function App() {
     // Add role-specific navigation
     if (userInfo.role === 'professor' || userInfo.role === 'admin') {
       baseItems.push(
-        { type: 'divider' },
         { type: 'link', text: 'Users & Groups', href: '/users' },
         { type: 'link', text: 'Students', href: '/students' },
         { type: 'link', text: 'Analytics', href: '/analytics' },
-        { type: 'divider' },
         { type: 'link', text: 'Settings', href: '/settings' }
       )
     } else if (userInfo.role === 'ta') {
       baseItems.push(
-        { type: 'divider' },
         { type: 'link', text: 'Student Support', href: '/students' },
         { type: 'link', text: 'Class Status', href: '/analytics' }
       )
@@ -83,7 +79,6 @@ function App() {
           items: [
             { id: "profile", text: "Profile" },
             { id: "settings", text: "Settings" },
-            { type: "divider" },
             { id: "signout", text: "Sign out" }
           ]
         }
@@ -134,7 +129,7 @@ function App() {
 
   return (
     <Router>
-      <TopNavigation {...topNavigation} />
+      {topNavigation}
       <AppLayout
         navigation={sideNavigation}
         content={
