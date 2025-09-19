@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -552,6 +554,16 @@ func generateInstallScript(pack *types.SoftwarePack, instance *types.Instance, f
 func executeInstallationScript(ctx context.Context, instance *types.Instance, script, username string) (*types.InstallResult, error) {
 	start := time.Now()
 
+	fmt.Printf("Executing software installation on %s...\n", instance.PublicIP)
+
+	// Get SSH key path
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get home directory: %w", err)
+	}
+
+	keyPath := filepath.Join(homeDir, ".ssh", "lfr-tools", "LightsailDefaultKey.pem")
+
 	// Create temporary script file
 	tmpFile, err := os.CreateTemp("", "lfr-install-*.sh")
 	if err != nil {
@@ -571,25 +583,66 @@ func executeInstallationScript(ctx context.Context, instance *types.Instance, sc
 		return nil, fmt.Errorf("failed to make script executable: %w", err)
 	}
 
-	// Execute via SSH
-	// For now, return success placeholder
-	// TODO: Implement actual SSH execution with proper key management
+	// Copy script to instance and execute via SSH
+	scpCommand := exec.Command("scp",
+		"-i", keyPath,
+		"-o", "StrictHostKeyChecking=no",
+		"-o", "UserKnownHostsFile=/dev/null",
+		tmpFile.Name(),
+		fmt.Sprintf("ubuntu@%s:/tmp/install-script.sh", instance.PublicIP))
 
-	duration := time.Since(start)
-
-	result := &types.InstallResult{
-		PackID:      "placeholder",
-		Success:     true,
-		Message:     "Installation script prepared (SSH execution pending)",
-		Duration:    duration.String(),
-		InstalledAt: time.Now().Format(time.RFC3339),
-		Packages:    []string{"preparation-complete"},
+	output, err := scpCommand.CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("failed to copy script: %w (output: %s)", err, string(output))
 	}
 
-	fmt.Printf("📋 Installation script prepared for %s\n", instance.Name)
-	fmt.Printf("To execute manually:\n")
-	fmt.Printf("1. SSH to instance: lfr ssh connect %s\n", username)
-	fmt.Printf("2. Run the installation commands\n")
+	// Execute script on remote instance
+	sshCommand := exec.Command("ssh",
+		"-i", keyPath,
+		"-o", "StrictHostKeyChecking=no",
+		"-o", "UserKnownHostsFile=/dev/null",
+		"-o", "ConnectTimeout=30",
+		fmt.Sprintf("ubuntu@%s", instance.PublicIP),
+		"chmod +x /tmp/install-script.sh && sudo /tmp/install-script.sh && rm /tmp/install-script.sh")
+
+	output, err = sshCommand.CombinedOutput()
+	duration := time.Since(start)
+
+	if err != nil {
+		return &types.InstallResult{
+			PackID:      "failed",
+			Success:     false,
+			Message:     fmt.Sprintf("Installation failed: %v", err),
+			Duration:    duration.String(),
+			InstalledAt: time.Now().Format(time.RFC3339),
+			Errors:      []string{string(output)},
+		}, fmt.Errorf("software installation failed: %w", err)
+	}
+
+	// Parse successful installation
+	outputStr := string(output)
+	var installedPackages []string
+	if strings.Contains(outputStr, "python3") {
+		installedPackages = append(installedPackages, "python3")
+	}
+	if strings.Contains(outputStr, "git") {
+		installedPackages = append(installedPackages, "git")
+	}
+	if strings.Contains(outputStr, "nodejs") {
+		installedPackages = append(installedPackages, "nodejs")
+	}
+
+	result := &types.InstallResult{
+		PackID:      "success",
+		Success:     true,
+		Message:     "Software pack installed successfully",
+		Duration:    duration.String(),
+		InstalledAt: time.Now().Format(time.RFC3339),
+		Packages:    installedPackages,
+	}
+
+	fmt.Printf("✅ Software installation completed in %s\n", duration.String())
+	fmt.Printf("Installed packages: %s\n", strings.Join(installedPackages, ", "))
 
 	return result, nil
 }
