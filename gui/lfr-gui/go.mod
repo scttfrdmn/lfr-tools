@@ -6,7 +6,7 @@ replace github.com/scttfrdmn/lfr-tools => ../../
 
 require (
 	github.com/scttfrdmn/lfr-tools v0.0.0-00010101000000-000000000000
-	github.com/wailsapp/wails/v3 v3.0.0-alpha.27
+	github.com/wailsapp/wails/v3 v3.0.0-alpha.28
 	golang.org/x/crypto v0.42.0
 )
 
