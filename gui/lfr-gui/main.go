@@ -39,6 +39,7 @@ func main() {
 			application.NewService(services.NewLFRService()),
 			application.NewService(monitoringService),
 			application.NewService(services.NewSSHProxyService()),
+			application.NewService(services.NewDCVService()),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
