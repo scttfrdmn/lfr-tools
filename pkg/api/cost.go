@@ -120,8 +120,8 @@ func (api *CostAPI) GetProjectBudget(project string) (*BudgetInfo, error) {
 	totalCost := 0.0
 	for _, group := range result.ResultsByTime {
 		for _, costGroup := range group.Groups {
-			if amount := costGroup.Metrics["BlendedCost"]; amount != nil {
-				if cost, err := strconv.ParseFloat(aws.ToString(amount.Amount), 64); err == nil {
+			if blendedCost, exists := costGroup.Metrics["BlendedCost"]; exists && blendedCost.Amount != nil {
+				if cost, err := strconv.ParseFloat(aws.ToString(blendedCost.Amount), 64); err == nil {
 					totalCost += cost
 				}
 			}

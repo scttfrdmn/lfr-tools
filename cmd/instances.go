@@ -13,6 +13,7 @@ import (
 	"github.com/scttfrdmn/lfr-tools/internal/config"
 	"github.com/scttfrdmn/lfr-tools/internal/types"
 	"github.com/scttfrdmn/lfr-tools/internal/utils"
+	"github.com/scttfrdmn/lfr-tools/pkg/api"
 )
 
 var instancesCmd = &cobra.Command{
@@ -414,6 +415,13 @@ func startInstances(ctx context.Context, users []string, project string, wait bo
 		// Update S3 status after start
 		if instance, err := lightsailService.GetInstance(ctx, instanceName); err == nil {
 			_ = utils.UpdateInstanceStatusInS3(ctx, instance)
+
+			// Also update comprehensive student status
+			username := utils.ExtractUsernameFromInstance(instanceName)
+			if username != "" {
+				s3StatusAPI := api.NewS3StatusAPI()
+				_ = s3StatusAPI.UpdateStudentStatus(username, project)
+			}
 		}
 	}
 

@@ -4,6 +4,8 @@ import { FitAddon } from '@xterm/addon-fit'
 import { WebLinksAddon } from '@xterm/addon-web-links'
 import '@xterm/xterm/css/xterm.css'
 
+import { useWebSocketSSH } from '../hooks/useWebSocketSSH'
+
 import {
   Container,
   Header,
@@ -35,9 +37,10 @@ const Terminal: React.FC<TerminalProps> = ({
 }) => {
   const terminalRef = useRef<HTMLDivElement>(null)
   const [terminal, setTerminal] = useState<XTerm | null>(null)
-  const [connected, setConnected] = useState(false)
-  const [connecting, setConnecting] = useState(false)
   const [fitAddon, setFitAddon] = useState<FitAddon | null>(null)
+
+  // Use WebSocket SSH hook for real communication
+  const { status, connect, sendInput, resize, disconnect, setOnOutput } = useWebSocketSSH(username, project)
 
   useEffect(() => {
     if (!terminalRef.current) return
@@ -93,56 +96,75 @@ const Terminal: React.FC<TerminalProps> = ({
   const handleConnect = async () => {
     if (!terminal || !instanceInfo) return
 
-    setConnecting(true)
-
     try {
       // Check instance status
       if (instanceInfo.state !== 'running') {
         terminal.writeln(`\x1b[33mInstance is ${instanceInfo.state}. Starting instance...\x1b[0m`)
-
-        // In a real implementation, this would:
-        // 1. Start the instance via LFRService.StartInstance()
-        // 2. Wait for it to be running
-        // 3. Get the SSH connection details
-        // 4. Establish WebSocket connection to backend SSH proxy
-
-        terminal.writeln('\x1b[32mInstance started successfully!\x1b[0m')
+        // TODO: Integrate with LFRService.StartInstance() for real instance starting
+        return
       }
 
       if (!instanceInfo.public_ip) {
         terminal.writeln('\x1b[31mError: Instance has no public IP address\x1b[0m')
-        setConnecting(false)
         return
       }
 
       terminal.writeln(`\x1b[32mConnecting to ${instanceInfo.public_ip}...\x1b[0m`)
 
-      // Simulate connection process
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      terminal.writeln('')
-      terminal.writeln('\x1b[32mConnected to your cloud computer!\x1b[0m')
-      terminal.writeln('')
-      terminal.writeln('Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 6.8.0-1028-aws x86_64)')
-      terminal.writeln('')
-      terminal.writeln(' * Documentation:  https://help.ubuntu.com')
-      terminal.writeln(' * Management:     https://landscape.canonical.com')
-      terminal.writeln(' * Support:        https://ubuntu.com/pro')
-      terminal.writeln('')
-      terminal.writeln(`${username}@instance:~$ `)
-
-      setConnected(true)
-      setConnecting(false)
-      onConnect?.()
-
-      // In a real implementation, this would establish a WebSocket connection
-      // to a backend SSH proxy service that handles the actual SSH connection
+      // Connect via WebSocket SSH proxy
+      await connect()
 
     } catch (error) {
       terminal.writeln(`\x1b[31mConnection failed: ${error}\x1b[0m`)
-      setConnecting(false)
     }
   }
+
+  // Set up terminal input handling
+  useEffect(() => {
+    if (!terminal) return
+
+    const handleTerminalInput = (input: string) => {
+      sendInput(input)
+    }
+
+    // Handle terminal data input (when user types)
+    const disposable = terminal.onData(handleTerminalInput)
+
+    return () => {
+      disposable.dispose()
+    }
+  }, [terminal, sendInput])
+
+  // Set up output handling from WebSocket
+  useEffect(() => {
+    if (!terminal) return
+
+    setOnOutput((output: string) => {
+      terminal.write(output)
+    })
+  }, [terminal, setOnOutput])
+
+  // Handle connection status changes
+  useEffect(() => {
+    if (!terminal) return
+
+    if (status.connected && !status.connecting) {
+      terminal.writeln('\x1b[32m✅ Connected to your cloud computer!\x1b[0m')
+      onConnect?.()
+    }
+
+    if (status.error) {
+      terminal.writeln(`\x1b[31m❌ ${status.error}\x1b[0m`)
+    }
+  }, [status, terminal, onConnect])
+
+  // Handle terminal resize
+  const handleResize = useCallback(() => {
+    if (fitAddon && terminal) {
+      fitAddon.fit()
+      resize(terminal.cols, terminal.rows)
+    }
+  }, [fitAddon, terminal, resize])
 
   const handleDisconnect = () => {
     if (terminal) {
