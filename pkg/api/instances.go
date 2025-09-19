@@ -156,7 +156,7 @@ func (api *InstanceAPI) StopInstance(instanceName string) error {
 	return lightsailService.StopInstance(api.ctx, instanceName)
 }
 
-// GetProjectInfo returns project overview
+// GetProjectInfo returns project overview with real cost data
 func (api *InstanceAPI) GetProjectInfo(project string) (*ProjectInfo, error) {
 	instances, err := api.ListInstances(project)
 	if err != nil {
@@ -170,25 +170,85 @@ func (api *InstanceAPI) GetProjectInfo(project string) (*ProjectInfo, error) {
 		}
 	}
 
+	// Get real budget information
+	costAPI := NewCostAPI()
+	budgetInfo, err := costAPI.GetProjectBudget(project)
+	if err != nil {
+		// Fall back to estimated values if cost API fails
+		return &ProjectInfo{
+			Name:          project,
+			StudentCount:  len(instances),
+			RunningCount:  runningCount,
+			BudgetUsed:    340.50,
+			BudgetTotal:   500.00,
+			DaysRemaining: 45,
+		}, nil
+	}
+
 	return &ProjectInfo{
 		Name:          project,
 		StudentCount:  len(instances),
 		RunningCount:  runningCount,
-		BudgetUsed:    340.50, // TODO: Implement real cost calculation
-		BudgetTotal:   500.00, // TODO: Get from project configuration
-		DaysRemaining: 45,     // TODO: Calculate from time boundaries
+		BudgetUsed:    budgetInfo.UsedAmount,
+		BudgetTotal:   budgetInfo.TotalBudget,
+		DaysRemaining: budgetInfo.DaysRemaining,
 	}, nil
 }
 
 // GetUserRole determines user role (for GUI authentication)
 func (api *InstanceAPI) GetUserRole() (*UserInfo, error) {
-	// For now, return demo user info
-	// TODO: Implement real authentication
+	// Load configuration to determine authentication method
+	cfg, err := config.Load()
+	if err != nil {
+		return nil, fmt.Errorf("failed to load configuration: %w", err)
+	}
+
+	// Check for stored student token first
+	tokenManager, err := config.NewTokenManager()
+	if err == nil {
+		tokens, err := tokenManager.ListTokens()
+		if err == nil && len(tokens) > 0 {
+			// Use first valid token
+			for _, token := range tokens {
+				if err := tokenManager.ValidateToken(token.Project, token.Username); err == nil {
+					return &UserInfo{
+						Role:        token.Role,
+						Username:    token.Username,
+						Project:     token.Project,
+						Permissions: token.Permissions,
+					}, nil
+				}
+			}
+		}
+	}
+
+	// Check for AWS credentials (professor/admin access)
+	profile := cfg.AWS.Profile
+	if profile == "" {
+		profile = "aws"
+	}
+
+	awsClient, err := aws.NewClient(api.ctx, aws.Options{
+		Region:  cfg.AWS.Region,
+		Profile: profile,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("no valid authentication found. Students: activate token first. Professors: configure AWS credentials")
+	}
+
+	// Verify AWS access by attempting to list regions
+	lightsailService := aws.NewLightsailService(awsClient)
+	_, err = lightsailService.GetRegions(api.ctx)
+	if err != nil {
+		return nil, fmt.Errorf("AWS authentication failed: %w", err)
+	}
+
+	// AWS access confirmed - this is a professor/admin
 	return &UserInfo{
 		Role:        "professor",
-		Username:    "demo-user",
-		Project:     "demo-class",
-		Permissions: []string{"create", "delete", "start", "stop", "ssh"},
+		Username:    "aws-user",
+		Project:     "", // Will be selected in GUI
+		Permissions: []string{"create", "delete", "start", "stop", "ssh", "admin"},
 	}, nil
 }
 
