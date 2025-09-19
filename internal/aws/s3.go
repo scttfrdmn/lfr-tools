@@ -77,7 +77,12 @@ func (s *S3Service) GetStudentStatus(ctx context.Context, bucket, project, usern
 	if err != nil {
 		return nil, fmt.Errorf("failed to get student status from S3: %w", err)
 	}
-	defer output.Body.Close()
+	defer func() {
+		if err := output.Body.Close(); err != nil {
+			// Log error but don't fail the operation
+			fmt.Printf("Warning: failed to close S3 response body: %v\n", err)
+		}
+	}()
 
 	var status StudentStatus
 	if err := json.NewDecoder(output.Body).Decode(&status); err != nil {

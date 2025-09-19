@@ -227,13 +227,13 @@ func init() {
 	instancesStartCmd.Flags().StringSliceP("users", "u", []string{}, "Comma-separated list of usernames (required)")
 	instancesStartCmd.Flags().StringP("project", "p", "", "Filter by project name")
 	instancesStartCmd.Flags().BoolP("wait", "w", false, "Wait for instances to reach running state")
-	instancesStartCmd.MarkFlagRequired("users")
+	_ = instancesStartCmd.MarkFlagRequired("users")
 
 	// Stop command flags
 	instancesStopCmd.Flags().StringSliceP("users", "u", []string{}, "Comma-separated list of usernames (required)")
 	instancesStopCmd.Flags().StringP("project", "p", "", "Filter by project name")
 	instancesStopCmd.Flags().BoolP("wait", "w", false, "Wait for instances to reach stopped state")
-	instancesStopCmd.MarkFlagRequired("users")
+	_ = instancesStopCmd.MarkFlagRequired("users")
 
 	// Monitor command flags
 	instancesMonitorCmd.Flags().StringP("project", "p", "", "Filter by project name")

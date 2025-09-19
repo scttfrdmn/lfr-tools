@@ -107,22 +107,22 @@ func init() {
 	studentsSetupClassCmd.Flags().String("professor", "", "Professor username")
 	studentsSetupClassCmd.Flags().String("start-date", "", "Course start date (YYYY-MM-DD)")
 	studentsSetupClassCmd.Flags().String("end-date", "", "Course end date (YYYY-MM-DD)")
-	studentsSetupClassCmd.MarkFlagRequired("project")
-	studentsSetupClassCmd.MarkFlagRequired("s3-bucket")
+	_ = studentsSetupClassCmd.MarkFlagRequired("project")
+	_ = studentsSetupClassCmd.MarkFlagRequired("s3-bucket")
 
 	// Generate command flags
 	studentsGenerateCmd.Flags().StringP("project", "p", "", "Project name (required)")
 	studentsGenerateCmd.Flags().StringP("output", "o", "./student-tokens", "Output directory for tokens")
-	studentsGenerateCmd.MarkFlagRequired("project")
+	_ = studentsGenerateCmd.MarkFlagRequired("project")
 
 	// Check command flags
 	studentsCheckCmd.Flags().StringP("project", "p", "", "Project name (required)")
 	studentsCheckCmd.Flags().BoolP("auto-approve", "a", false, "Automatically approve start requests")
-	studentsCheckCmd.MarkFlagRequired("project")
+	_ = studentsCheckCmd.MarkFlagRequired("project")
 
 	// Status command flags
 	studentsStatusCmd.Flags().StringP("project", "p", "", "Project name (required)")
-	studentsStatusCmd.MarkFlagRequired("project")
+	_ = studentsStatusCmd.MarkFlagRequired("project")
 }
 
 // setupClass sets up a complete class environment.
@@ -236,11 +236,15 @@ func generateStudentTokens(ctx context.Context, project, outputDir string) error
 	if err != nil {
 		return fmt.Errorf("failed to create tokens file: %w", err)
 	}
-	defer tokensList.Close()
+	defer func() {
+		if err := tokensList.Close(); err != nil {
+			fmt.Printf("Warning: failed to close tokens file: %v\n", err)
+		}
+	}()
 
-	fmt.Fprintf(tokensList, "# Access tokens for %s\n", project)
-	fmt.Fprintf(tokensList, "# Format: USERNAME:ROLE:TOKEN\n")
-	fmt.Fprintf(tokensList, "# Distribution: Send each user their specific token\n\n")
+	_, _ = fmt.Fprintf(tokensList, "# Access tokens for %s\n", project)
+	_, _ = fmt.Fprintf(tokensList, "# Format: USERNAME:ROLE:TOKEN\n")
+	_, _ = fmt.Fprintf(tokensList, "# Distribution: Send each user their specific token\n\n")
 
 	// Generate student tokens
 	fmt.Printf("Generating tokens for %d students...\n", len(students))
@@ -255,7 +259,7 @@ func generateStudentTokens(ctx context.Context, project, outputDir string) error
 			continue
 		}
 
-		fmt.Fprintf(tokensList, "%s:student:%s\n", student, tokenString)
+		_, _ = fmt.Fprintf(tokensList, "%s:student:%s\n", student, tokenString)
 		fmt.Printf("✅ Generated token for student: %s\n", student)
 	}
 
@@ -273,7 +277,7 @@ func generateStudentTokens(ctx context.Context, project, outputDir string) error
 				continue
 			}
 
-			fmt.Fprintf(tokensList, "%s:ta:%s\n", ta, tokenString)
+			_, _ = fmt.Fprintf(tokensList, "%s:ta:%s\n", ta, tokenString)
 			fmt.Printf("✅ Generated token for TA: %s\n", ta)
 		}
 	}

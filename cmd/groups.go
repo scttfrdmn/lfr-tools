@@ -117,12 +117,12 @@ func init() {
 	groupsCreateCmd.Flags().StringSliceP("policies", "p", []string{}, "Policy ARNs to attach (required)")
 	groupsCreateCmd.Flags().StringP("description", "d", "", "Group description")
 
-	groupsCreateCmd.MarkFlagRequired("name")
-	groupsCreateCmd.MarkFlagRequired("policies")
+	_ = groupsCreateCmd.MarkFlagRequired("name")
+	_ = groupsCreateCmd.MarkFlagRequired("policies")
 
 	// Remove command flags
 	groupsRemoveCmd.Flags().StringP("name", "n", "", "Group name (required)")
-	groupsRemoveCmd.MarkFlagRequired("name")
+	_ = groupsRemoveCmd.MarkFlagRequired("name")
 
 	// List command flags
 	groupsListCmd.Flags().StringP("project", "p", "", "Filter by project name")

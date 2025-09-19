@@ -125,18 +125,18 @@ func init() {
 	usersCreateCmd.Flags().IntP("idle-threshold", "", 120, "Idle threshold in minutes (default: 120)")
 	usersCreateCmd.Flags().IntP("idle-duration", "", 30, "Duration in minutes before stopping (default: 30)")
 
-	usersCreateCmd.MarkFlagRequired("project")
-	usersCreateCmd.MarkFlagRequired("blueprint")
-	usersCreateCmd.MarkFlagRequired("bundle")
-	usersCreateCmd.MarkFlagRequired("region")
-	usersCreateCmd.MarkFlagRequired("users")
+	_ = usersCreateCmd.MarkFlagRequired("project")
+	_ = usersCreateCmd.MarkFlagRequired("blueprint")
+	_ = usersCreateCmd.MarkFlagRequired("bundle")
+	_ = usersCreateCmd.MarkFlagRequired("region")
+	_ = usersCreateCmd.MarkFlagRequired("users")
 
 	// Remove command flags
 	usersRemoveCmd.Flags().StringP("project", "p", "", "Project name (required)")
 	usersRemoveCmd.Flags().StringSliceP("users", "u", []string{}, "Comma-separated list of usernames to remove")
 	usersRemoveCmd.Flags().Bool("all", false, "Remove all users in the project")
 
-	usersRemoveCmd.MarkFlagRequired("project")
+	_ = usersRemoveCmd.MarkFlagRequired("project")
 
 	// List command flags
 	usersListCmd.Flags().StringP("project", "p", "", "Filter by project name")

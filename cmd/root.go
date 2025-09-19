@@ -43,9 +43,9 @@ func init() {
 	rootCmd.PersistentFlags().String("profile", "", "AWS profile to use")
 	rootCmd.PersistentFlags().String("region", "", "AWS region to use")
 
-	viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
-	viper.BindPFlag("aws.profile", rootCmd.PersistentFlags().Lookup("profile"))
-	viper.BindPFlag("aws.region", rootCmd.PersistentFlags().Lookup("region"))
+	_ = viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
+	_ = viper.BindPFlag("aws.profile", rootCmd.PersistentFlags().Lookup("profile"))
+	_ = viper.BindPFlag("aws.region", rootCmd.PersistentFlags().Lookup("region"))
 }
 
 // initConfig reads in config file and ENV variables if set.

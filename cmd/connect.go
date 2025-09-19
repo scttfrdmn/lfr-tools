@@ -182,7 +182,11 @@ func getInstanceStatusFromS3(ctx context.Context, bucket, project, username stri
 	if err != nil {
 		return nil, fmt.Errorf("failed to get status from S3: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			fmt.Printf("Warning: failed to close response body: %v\n", err)
+		}
+	}()
 
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("failed to get status: HTTP %d", resp.StatusCode)

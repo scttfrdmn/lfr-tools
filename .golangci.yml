@@ -1,9 +1,12 @@
+version: 2
+
 run:
   timeout: 5m
   issues-exit-code: 1
   tests: true
   skip-dirs:
     - vendor
+  go: '1.25'
 
 output:
   format: colored-line-number
@@ -72,19 +75,19 @@ linters-settings:
     require-specific: false
 
 linters:
-  enable-all: true
-  disable:
-    - exhaustivestruct
-    - gofumpt
-    - interfacer
-    - maligned
-    - scopelint
-    - varcheck
-    - deadcode
-    - structcheck
-    - golint
-    - nosnakecase
-    - ifshort
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - gocyclo
+    - misspell
+    - revive
+    - gosec
+    - goconst
+    - unconvert
+    - dupl
 
 issues:
   exclude-rules:

@@ -1,0 +1,60 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - heading "☁️ CloudWorkstation" [level=1] [ref=e5]:
+        - generic [ref=e6]: ☁️
+        - text: CloudWorkstation
+      - generic [ref=e7]:
+        - button "🌙" [ref=e8] [cursor=pointer]:
+          - generic [ref=e9] [cursor=pointer]: 🌙
+        - button "⚙️" [ref=e10] [cursor=pointer]
+  - main [ref=e11]:
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - heading "Quick Start" [level=2] [ref=e14]
+        - paragraph [ref=e15]: Choose a template and launch your research environment
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]: Complexity Level
+          - generic [ref=e19]:
+            - button "All" [ref=e20] [cursor=pointer]
+            - button "🟢 Simple" [ref=e21] [cursor=pointer]
+            - button "🟡 Moderate" [ref=e22] [cursor=pointer]
+            - button "🟠 Advanced" [ref=e23] [cursor=pointer]
+            - button "🔴 Complex" [ref=e24] [cursor=pointer]
+        - generic [ref=e25]:
+          - generic [ref=e26]: Research Domain
+          - generic [ref=e27]:
+            - button "All Domains" [ref=e28] [cursor=pointer]
+            - button "🤖 ML" [ref=e29] [cursor=pointer]
+            - button "📊 Data" [ref=e30] [cursor=pointer]
+            - button "🧬 Bio" [ref=e31] [cursor=pointer]
+            - button "🌐 Web" [ref=e32] [cursor=pointer]
+            - button "🖥️ Base" [ref=e33] [cursor=pointer]
+        - generic [ref=e34]:
+          - generic [ref=e35]: Sort By
+          - combobox [ref=e36]:
+            - option "Most Popular" [selected]
+            - option "Complexity (Simple → Complex)"
+            - option "Research Domain"
+            - option "Cost (Low → High)"
+            - option "Launch Time (Fast → Slow)"
+      - generic [ref=e39]:
+        - paragraph [ref=e40]: Failed to load templates
+        - generic [ref=e41]: Please check if the daemon is running
+        - button "Retry" [ref=e42] [cursor=pointer]
+  - navigation [ref=e43]:
+    - button "🚀 Quick Start" [ref=e44] [cursor=pointer]:
+      - generic [ref=e45] [cursor=pointer]: 🚀
+      - generic [ref=e46] [cursor=pointer]: Quick Start
+    - button "💻 My Instances" [ref=e47] [cursor=pointer]:
+      - generic [ref=e48] [cursor=pointer]: 💻
+      - generic [ref=e49] [cursor=pointer]: My Instances
+    - button "🖥️ Remote Desktop" [ref=e50] [cursor=pointer]:
+      - generic [ref=e51] [cursor=pointer]: 🖥️
+      - generic [ref=e52] [cursor=pointer]: Remote Desktop
+  - generic [ref=e54]: Connected to daemon
+```

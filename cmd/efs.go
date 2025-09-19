@@ -135,7 +135,7 @@ func init() {
 	efsMountAllCmd.Flags().StringP("mount-point", "m", "/mnt/efs", "Mount point on instances")
 	efsMountAllCmd.Flags().StringP("mode", "", "rw", "Mount mode: rw (read-write) or ro (read-only)")
 	efsMountAllCmd.Flags().BoolP("dry-run", "d", false, "Show which instances would be affected without mounting")
-	efsMountAllCmd.MarkFlagRequired("project")
+	_ = efsMountAllCmd.MarkFlagRequired("project")
 
 	// Mount status command flags
 	efsMountStatusCmd.Flags().StringP("project", "p", "", "Filter by project name")

@@ -5,6 +5,7 @@ go 1.25.1
 replace github.com/scttfrdmn/lfr-tools => ../../
 
 require (
+	github.com/gorilla/websocket v1.5.3
 	github.com/scttfrdmn/lfr-tools v0.0.0-00010101000000-000000000000
 	github.com/wailsapp/wails/v3 v3.0.0-alpha.28
 	golang.org/x/crypto v0.42.0
@@ -24,6 +25,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.7 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.8.3 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.4.7 // indirect
+	github.com/aws/aws-sdk-go-v2/service/costexplorer v1.56.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.251.2 // indirect
 	github.com/aws/aws-sdk-go-v2/service/efs v1.40.5 // indirect
 	github.com/aws/aws-sdk-go-v2/service/iam v1.47.5 // indirect
@@ -51,7 +53,6 @@ require (
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
