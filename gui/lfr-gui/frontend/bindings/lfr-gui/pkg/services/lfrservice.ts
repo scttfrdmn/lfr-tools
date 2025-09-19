@@ -15,58 +15,58 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 import * as $models from "./models.js";
 
 /**
- * ConnectToInstance initiates SSH connection for a student
+ * ConnectToInstance returns SSH connection information
  */
 export function ConnectToInstance(username: string, project: string): $CancellablePromise<string> {
-    return $Call.ByID(3900238179, username, project);
+    return $Call.ByID(3413776704, username, project);
 }
 
 /**
- * GetProjectInfo returns project/class overview information
+ * GetProjectInfo delegates to the API
  */
 export function GetProjectInfo(project: string): $CancellablePromise<$models.ProjectInfo | null> {
-    return $Call.ByID(2992472392, project).then(($result: any) => {
+    return $Call.ByID(2444192161, project).then(($result: any) => {
         return $$createType1($result);
     });
 }
 
 /**
- * GetUserRole determines the current user's role and permissions
+ * GetUserRole delegates to the API
  */
 export function GetUserRole(): $CancellablePromise<$models.UserInfo | null> {
-    return $Call.ByID(3415882300).then(($result: any) => {
+    return $Call.ByID(2160639299).then(($result: any) => {
         return $$createType3($result);
     });
 }
 
 /**
- * ListInstances returns all instances for the current user/project
+ * ListInstances delegates to the API
  */
 export function ListInstances(project: string): $CancellablePromise<($models.InstanceInfo | null)[]> {
-    return $Call.ByID(2078346311, project).then(($result: any) => {
+    return $Call.ByID(149332392, project).then(($result: any) => {
         return $$createType6($result);
     });
 }
 
 /**
- * StartInstance starts a specific instance
+ * StartInstance delegates to the API
  */
 export function StartInstance(instanceName: string): $CancellablePromise<void> {
-    return $Call.ByID(4011197612, instanceName);
+    return $Call.ByID(1903254735, instanceName);
 }
 
 /**
- * StopInstance stops a specific instance
+ * StopInstance delegates to the API
  */
 export function StopInstance(instanceName: string): $CancellablePromise<void> {
-    return $Call.ByID(679314178, instanceName);
+    return $Call.ByID(535795755, instanceName);
 }
 
 // Private type creation functions
-const $$createType0 = $models.ProjectInfo.createFrom;
+const $$createType0 = $0.ProjectInfo.createFrom;
 const $$createType1 = $Create.Nullable($$createType0);
-const $$createType2 = $models.UserInfo.createFrom;
+const $$createType2 = $0.UserInfo.createFrom;
 const $$createType3 = $Create.Nullable($$createType2);
-const $$createType4 = $models.InstanceInfo.createFrom;
+const $$createType4 = $0.InstanceInfo.createFrom;
 const $$createType5 = $Create.Nullable($$createType4);
 const $$createType6 = $Create.Array($$createType5);

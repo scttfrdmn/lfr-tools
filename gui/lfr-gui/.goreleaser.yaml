@@ -1,0 +1,169 @@
+---
+project_name: lfr-tools-gui
+
+before:
+  hooks:
+    - go mod tidy
+    - npm install --prefix frontend
+    - npm run build --prefix frontend
+
+builds:
+  - id: lfr-gui
+    main: ./main.go
+    binary: lfr-gui
+    env:
+      - CGO_ENABLED=1
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+    tags:
+      - production
+
+archives:
+  - id: gui-archives
+    builds:
+      - lfr-gui
+    format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_GUI_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README.md
+      - LICENSE
+      - docs/**/*
+
+# macOS app bundle
+universal_binaries:
+  - id: lfr-gui-universal
+    ids:
+      - lfr-gui
+    name_template: lfr-gui
+
+# Windows installer
+nfpms:
+  - id: lfr-gui-packages
+    builds:
+      - lfr-gui
+    package_name: lfr-tools-gui
+    vendor: Scott Friedman
+    homepage: https://github.com/scttfrdmn/lfr-tools
+    maintainer: Scott Friedman <scott@example.com>
+    description: Desktop interface for AWS Lightsail for Research management
+    license: MIT
+    formats:
+      - deb
+      - rpm
+      - apk
+    dependencies:
+      - git
+    recommends:
+      - openssh-client
+
+# Snapcraft (Linux)
+snapcrafts:
+  - id: lfr-gui-snap
+    builds:
+      - lfr-gui
+    name: lfr-tools-gui
+    summary: Educational cloud computing management
+    description: |
+      Desktop interface for managing AWS Lightsail for Research instances
+      in educational environments. Provides student access, cost management,
+      and real-time monitoring capabilities.
+    grade: stable
+    confinement: strict
+    license: MIT
+    apps:
+      lfr-gui:
+        command: lfr-gui
+        plugs: ["home", "network", "desktop"]
+
+# Docker images
+dockers:
+  - id: lfr-gui-docker
+    builds:
+      - lfr-gui
+    image_templates:
+      - "ghcr.io/scttfrdmn/lfr-tools-gui:{{ .Tag }}"
+      - "ghcr.io/scttfrdmn/lfr-tools-gui:v{{ .Major }}"
+      - "ghcr.io/scttfrdmn/lfr-tools-gui:latest"
+    dockerfile: Dockerfile.gui
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+  groups:
+    - title: GUI Features
+      regexp: '^.*?feat\(gui\)(\(.+\))??!?:.+$'
+      order: 0
+    - title: GUI Bug fixes
+      regexp: '^.*?fix\(gui\)(\(.+\))??!?:.+$'
+      order: 1
+    - title: Other GUI Changes
+      order: 999
+
+release:
+  draft: false
+  replace_existing_draft: true
+  target_commitish: "{{ .Commit }}"
+  discussion_category_name: General
+  prerelease: auto
+  mode: replace
+  header: |
+    ## LFR Tools GUI Release
+
+    This release includes the desktop GUI application for LFR Tools.
+
+  footer: |
+    ## Installation
+
+    ### Desktop Application
+    - **macOS**: Download the `.dmg` file
+    - **Windows**: Download the `.exe` installer
+    - **Linux**: Download the `.AppImage` or install via package manager
+
+    ### System Requirements
+    - Modern operating system (macOS 10.15+, Windows 10+, Ubuntu 18.04+)
+    - Internet connection for AWS access
+    - 4GB+ RAM recommended for best performance
+
+    ## Thanks
+
+    Thanks to all contributors and the educational community for feedback!
+
+    **Full Changelog**: https://github.com/scttfrdmn/lfr-tools/compare/{{ .PreviousTag }}...{{ .Tag }}

@@ -6,7 +6,7 @@
 import { Create as $Create } from "@wailsio/runtime";
 
 /**
- * InstanceInfo represents instance information for the frontend
+ * InstanceInfo represents instance information for GUI consumption
  */
 export class InstanceInfo {
     "name": string;
@@ -16,10 +16,6 @@ export class InstanceInfo {
     "bundle": string;
     "region": string;
     "tags": { [_: string]: string };
-
-    /**
-     * Extracted from instance name
-     */
     "username": string;
 
     /** Creates a new InstanceInfo instance. */
@@ -66,7 +62,7 @@ export class InstanceInfo {
 }
 
 /**
- * ProjectInfo represents project/class information
+ * ProjectInfo represents project overview information
  */
 export class ProjectInfo {
     "name": string;
@@ -110,12 +106,9 @@ export class ProjectInfo {
 }
 
 /**
- * UserInfo represents user information for the frontend
+ * UserInfo represents user role and permissions
  */
 export class UserInfo {
-    /**
-     * student, ta, professor, admin
-     */
     "role": string;
     "username": string;
     "project": string;
