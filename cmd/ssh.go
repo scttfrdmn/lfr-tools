@@ -261,6 +261,7 @@ func connectSSH(ctx context.Context, username, project, keyPath string) error {
 
 	fmt.Printf("Executing: ssh %s\n\n", strings.Join(sshArgs, " "))
 
+	// #nosec G204 - SSH command execution is intentional for student access
 	sshCmdExec := exec.Command("ssh", sshArgs...)
 	sshCmdExec.Stdin = os.Stdin
 	sshCmdExec.Stdout = os.Stdout

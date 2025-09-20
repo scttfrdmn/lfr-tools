@@ -138,6 +138,7 @@ func (tm *TokenManager) LoadToken(project, username string) (*StudentToken, erro
 	filename := fmt.Sprintf("%s-%s.json", project, username)
 	filePath := filepath.Join(tm.tokensDir, filename)
 
+	// #nosec G304 - Token file path is constructed from validated project/username
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read token file: %w", err)
