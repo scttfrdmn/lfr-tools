@@ -1,0 +1,148 @@
+cmd/dcv.go:350:7: string `darwin` has 3 occurrences, make it a constant (goconst)
+	case "darwin":
+	     ^
+cmd/dcv.go:359:7: string `windows` has 3 occurrences, make it a constant (goconst)
+	case "windows":
+	     ^
+cmd/dcv.go:368:7: string `linux` has 3 occurrences, make it a constant (goconst)
+	case "linux":
+	     ^
+cmd/instances.go:645:15: string `enable` has 3 occurrences, make it a constant (goconst)
+	if action != "enable" && action != "disable" {
+	             ^
+cmd/students.go:403:24: string `running` has 10 occurrences, make it a constant (goconst)
+		if instance.State == "running" {
+		                     ^
+internal/utils/fingerprint.go:28:14: string `unknown` has 3 occurrences, make it a constant (goconst)
+		hostname = "unknown"
+		           ^
+pkg/api/cost.go:75:13: string `aws` has 8 occurrences, make it a constant (goconst)
+		profile = "aws"
+		          ^
+pkg/api/instances_test.go:75:23: string `running` has 6 occurrences, make it a constant (goconst)
+	if instance.State != "running" {
+	                     ^
+cmd/connect.go:176:12: G204: Subprocess launched with variable (gosec)
+	sshCmd := exec.Command("ssh", sshArgs...)
+	          ^
+cmd/connect.go:188:15: G107: Potential HTTP request made with variable url (gosec)
+	resp, err := http.Get(url)
+	             ^
+cmd/dcv.go:311:9: G204: Subprocess launched with variable (gosec)
+	cmd := exec.Command("ssh",
+		"-i", keyPath,
+		"-o", "StrictHostKeyChecking=no",
+		"-o", "UserKnownHostsFile=/dev/null",
+		"-o", "ConnectTimeout=10",
+		fmt.Sprintf("ubuntu@%s", publicIP),
+		command)
+cmd/dcv.go:357:10: G204: Subprocess launched with variable (gosec)
+			cmd = exec.Command(dcvPath, args...)
+			      ^
+cmd/software.go:407:8: G306: Expect WriteFile permissions to be 0600 or less (gosec)
+	err = os.WriteFile(packFile, data, 0644)
+	      ^
+cmd/software.go:588:8: G302: Expect file permissions to be 0600 or less (gosec)
+	err = os.Chmod(tmpFile.Name(), 0755)
+	      ^
+cmd/students.go:192:6: G306: Expect WriteFile permissions to be 0600 or less (gosec)
+	_ = os.WriteFile(configFile, configData, 0644)
+	    ^
+cmd/students.go:208:12: G301: Expect directory permissions to be 0750 or less (gosec)
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+	          ^
+cmd/users.go:200:2: G101: Potential hardcoded credentials (gosec)
+	changePasswordPolicyARN := "arn:aws:iam::aws:policy/IAMUserChangePassword"
+	^
+internal/utils/csv.go:31:15: G304: Potential file inclusion via variable (gosec)
+	file, err := os.Open(filename)
+	             ^
+internal/utils/csv.go:121:15: G304: Potential file inclusion via variable (gosec)
+	file, err := os.Open(filename)
+	             ^
+internal/utils/csv.go:208:15: G304: Potential file inclusion via variable (gosec)
+	file, err := os.Create(filename)
+	             ^
+pkg/api/cost.go:288:18: G404: Use of weak random number generator (math/rand or math/rand/v2 instead of crypto/rand) (gosec)
+		return 25.0 + (rand.Float64() * 50.0) // GPU instances work harder
+		               ^
+pkg/api/cost.go:290:16: G404: Use of weak random number generator (math/rand or math/rand/v2 instead of crypto/rand) (gosec)
+	return 5.0 + (rand.Float64() * 20.0) // Standard instances
+	              ^
+pkg/api/cost.go:295:18: G404: Use of weak random number generator (math/rand or math/rand/v2 instead of crypto/rand) (gosec)
+		return 30.0 + (rand.Float64() * 40.0)
+		               ^
+cmd/connect.go:211:25: unused-parameter: parameter 'ctx' seems to be unused, consider removing or renaming it as _ (revive)
+func submitStartRequest(ctx context.Context, token *config.StudentToken, status *aws.StudentStatus) error {
+                        ^
+cmd/efs.go:317:80: unused-parameter: parameter 'project' seems to be unused, consider removing or renaming it as _ (revive)
+func mountEFSOnInstance(_ context.Context, filesystemID, username, mountPoint, project, mode string) error {
+                                                                               ^
+cmd/groups.go:276:59: unused-parameter: parameter 'project' seems to be unused, consider removing or renaming it as _ (revive)
+func removeBulkGroups(_ context.Context, groups []string, project, csvFile string, confirm bool) error {
+                                                          ^
+cmd/idle-advanced.go:138:22: unused-parameter: parameter 'ctx' seems to be unused, consider removing or renaming it as _ (revive)
+func applyIdlePolicy(ctx context.Context, policyID, project string, users []string, dryRun bool) error {
+                     ^
+cmd/idle.go:43:33: unused-parameter: parameter 'args' seems to be unused, consider removing or renaming it as _ (revive)
+	RunE: func(cmd *cobra.Command, args []string) error {
+	                               ^
+cmd/idle.go:59:33: unused-parameter: parameter 'args' seems to be unused, consider removing or renaming it as _ (revive)
+	RunE: func(cmd *cobra.Command, args []string) error {
+	                               ^
+cmd/keychain.go:25:13: unused-parameter: parameter 'cmd' seems to be unused, consider removing or renaming it as _ (revive)
+	RunE: func(cmd *cobra.Command, args []string) error {
+	           ^
+cmd/keychain.go:38:13: unused-parameter: parameter 'cmd' seems to be unused, consider removing or renaming it as _ (revive)
+	RunE: func(cmd *cobra.Command, args []string) error {
+	           ^
+cmd/keychain.go:48:13: unused-parameter: parameter 'cmd' seems to be unused, consider removing or renaming it as _ (revive)
+	RunE: func(cmd *cobra.Command, args []string) error {
+	           ^
+cmd/software.go:345:41: unused-parameter: parameter 'installed' seems to be unused, consider removing or renaming it as _ (revive)
+func listSoftwarePacks(category string, installed bool) error {
+                                        ^
+cmd/software.go:517:80: unused-parameter: parameter 'force' seems to be unused, consider removing or renaming it as _ (revive)
+func generateInstallScript(pack *types.SoftwarePack, instance *types.Instance, force bool) (string, error) {
+                                                                               ^
+cmd/ssh.go:273:52: unused-parameter: parameter 'project' seems to be unused, consider removing or renaming it as _ (revive)
+func downloadSSHKey(ctx context.Context, username, project, outputPath string) error {
+                                                   ^
+cmd/students.go:38:33: unused-parameter: parameter 'args' seems to be unused, consider removing or renaming it as _ (revive)
+	RunE: func(cmd *cobra.Command, args []string) error {
+	                               ^
+cmd/students.go:204:28: unused-parameter: parameter 'ctx' seems to be unused, consider removing or renaming it as _ (revive)
+func generateStudentTokens(ctx context.Context, project, outputDir string) error {
+                           ^
+internal/aws/iam.go:56:61: unused-parameter: parameter 'description' seems to be unused, consider removing or renaming it as _ (revive)
+func (s *IAMService) CreateGroup(ctx context.Context, name, description string, policyARNs []string) (*types.Group, error) {
+                                                            ^
+internal/aws/lightsail.go:236:64: unused-parameter: parameter 'keyPairName' seems to be unused, consider removing or renaming it as _ (revive)
+func (s *LightsailService) DownloadSSHKey(ctx context.Context, keyPairName string) (string, error) {
+                                                               ^
+internal/types/software.go:2:9: var-naming: avoid meaningless package names (revive)
+package types
+        ^
+internal/utils/password_test.go:1:9: var-naming: avoid meaningless package names (revive)
+package utils
+        ^
+internal/utils/s3sync_test.go:85:38: unused-parameter: parameter 't' seems to be unused, consider removing or renaming it as _ (revive)
+func TestUpdateMultipleInstancesInS3(t *testing.T) {
+                                     ^
+internal/keychain/keychain_test.go:160:24: SA4023(related information): the lhs of the comparison gets its value from here and has a concrete type (staticcheck)
+	var service Service = NewFileKeychain()
+	                      ^
+internal/keychain/keychain_test.go:161:5: SA4023: this comparison is never true (staticcheck)
+	if service == nil {
+	   ^
+internal/utils/s3sync_test.go:44:34: SA1012: do not pass a nil Context, even if a function permits it; pass context.TODO if you are unsure about which Context to use (staticcheck)
+	err := UpdateInstanceStatusInS3(nil, instance)
+	                                ^
+internal/utils/s3sync_test.go:104:30: SA1012: do not pass a nil Context, even if a function permits it; pass context.TODO if you are unsure about which Context to use (staticcheck)
+	UpdateMultipleInstancesInS3(nil, instances)
+	                            ^
+46 issues:
+* goconst: 8
+* gosec: 15
+* revive: 19
+* staticcheck: 4

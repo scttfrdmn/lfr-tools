@@ -157,7 +157,7 @@ func TestKeychainServiceInterface(t *testing.T) {
 	var _ Service = &FileKeychain{}
 
 	// Test that we can create the interface
-	var service Service = NewFileKeychain()
+	service := NewFileKeychain()
 	if service == nil {
 		t.Error("expected non-nil service")
 	}

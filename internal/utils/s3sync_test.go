@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -41,7 +42,7 @@ func TestUpdateInstanceStatusInS3(t *testing.T) {
 	}
 
 	// This should not error even without S3 configuration
-	err := UpdateInstanceStatusInS3(nil, instance)
+	err := UpdateInstanceStatusInS3(context.TODO(), instance)
 	if err != nil {
 		t.Errorf("expected no error when S3 sync disabled, got: %v", err)
 	}
@@ -101,7 +102,7 @@ func TestUpdateMultipleInstancesInS3(t *testing.T) {
 	}
 
 	// This should not panic or error
-	UpdateMultipleInstancesInS3(nil, instances)
+	UpdateMultipleInstancesInS3(context.TODO(), instances)
 
 	// Function should complete without error even with disabled S3 sync
 }
