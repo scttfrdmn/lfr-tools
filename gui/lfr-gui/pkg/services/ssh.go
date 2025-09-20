@@ -2,13 +2,9 @@
 package services
 
 import (
-	"context"
 	"fmt"
-	"io"
 	"log"
-	"net"
 	"os"
-	"os/exec"
 	"sync"
 	"time"
 
@@ -344,7 +340,7 @@ func (s *SSHProxyService) StartInstanceIfNeeded(username, project string) (*api.
 // ConnectStudent provides simplified connection for students
 func (s *SSHProxyService) ConnectStudent(username, project string) (*SSHConnectionInfo, error) {
 	// First, ensure instance is running
-	instance, err := s.StartInstanceIfNeeded(username, project)
+	_, err := s.StartInstanceIfNeeded(username, project)
 	if err != nil {
 		return nil, fmt.Errorf("failed to prepare instance: %w", err)
 	}

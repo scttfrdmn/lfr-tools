@@ -115,14 +115,14 @@ e2e-test-localstack:
 	@echo "Starting LocalStack and running GUI e2e tests..."
 	@make test-with-localstack
 	@sleep 5
-	@cd gui/lfr-gui/frontend && npm run test:e2e:localstack
+	@cd gui/lfr-gui/frontend && PATH=$$PATH:$$(go env GOPATH)/bin npm run test:e2e:localstack
 	@make stop-localstack
 
 ## e2e-test-aws: Run e2e tests with real AWS
 e2e-test-aws:
 	@echo "Running e2e tests against real AWS..."
 	@echo "Ensure AWS credentials are configured!"
-	@cd gui/lfr-gui/frontend && npm run test:e2e:aws
+	@cd gui/lfr-gui/frontend && PATH=$$PATH:$$(go env GOPATH)/bin AWS_PROFILE=aws npm run test:e2e:aws
 
 ## e2e-test-all: Run all e2e test configurations
 e2e-test-all: e2e-test e2e-test-localstack

@@ -40,7 +40,7 @@ const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({ userInfo }) => {
   const [instance, setInstance] = useState<InstanceInfo | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('overview')
-  const [budgetInfo, setBudgetInfo] = useState({
+  const [budgetInfo] = useState({
     used: 18.50,
     total: 25.00,
     percentage: 74
@@ -54,7 +54,7 @@ const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({ userInfo }) => {
     setLoading(true)
     try {
       const instances = await LFRService.ListInstances(userInfo.project)
-      const studentInstance = instances?.find(inst => inst.username === userInfo.username)
+      const studentInstance = instances?.find(inst => inst?.username === userInfo.username)
       setInstance(studentInstance || null)
     } catch (err) {
       console.error('Failed to load student instance:', err)

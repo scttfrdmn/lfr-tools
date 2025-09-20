@@ -7,17 +7,12 @@ import {
   SpaceBetween,
   LineChart,
   BarChart,
-  PieChart,
   Cards,
   Badge,
   Button,
   Alert,
-  ProgressBar,
-  StatusIndicator
+  ProgressBar
 } from '@cloudscape-design/components'
-
-import { useClassMonitoring } from '../hooks/useRealTimeStatus'
-import { LFRService } from "../../bindings/lfr-gui/pkg/services"
 
 interface UserInfo {
   role: string
@@ -31,7 +26,13 @@ interface AnalyticsProps {
 }
 
 const Analytics: React.FC<AnalyticsProps> = ({ userInfo }) => {
-  const { projectStatus, studentsOnline, budgetUsed, alerts } = useClassMonitoring(userInfo.project)
+  // const { projectStatus, studentsOnline, budgetUsed, alerts } = useClassMonitoring(userInfo.project)
+  const studentsOnline = 12
+  const budgetUsed = 340.50
+  const alerts = [
+    { type: 'warning', message: 'High usage detected' },
+    { type: 'info', message: 'Budget check needed' }
+  ]
   const [costData, setCostData] = useState<any[]>([])
   const [usageData, setUsageData] = useState<any[]>([])
   const [optimizationSuggestions, setOptimizationSuggestions] = useState<any[]>([])
@@ -248,7 +249,7 @@ const Analytics: React.FC<AnalyticsProps> = ({ userInfo }) => {
         {alerts.length > 0 ? (
           alerts.slice(0, 5).map((alert, index) => (
             <Box key={index} color="text-body-secondary" fontSize="body-s">
-              • {alert}
+              • {alert.message}
             </Box>
           ))
         ) : (

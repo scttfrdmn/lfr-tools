@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Terminal as XTerm } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { WebLinksAddon } from '@xterm/addon-web-links'
@@ -39,10 +39,10 @@ const Terminal: React.FC<TerminalProps> = ({
   const [terminal, setTerminal] = useState<XTerm | null>(null)
   const [fitAddon, setFitAddon] = useState<FitAddon | null>(null)
   const [connected, setConnected] = useState<boolean>(false)
-  const [connecting, setConnecting] = useState<boolean>(false)
+  const [connecting] = useState<boolean>(false)
 
   // Use WebSocket SSH hook for real communication
-  const { status, connect, sendInput, resize, disconnect, setOnOutput } = useWebSocketSSH(username, project)
+  const { status, connect, sendInput, setOnOutput } = useWebSocketSSH(username, project)
 
   useEffect(() => {
     if (!terminalRef.current) return
@@ -53,7 +53,7 @@ const Terminal: React.FC<TerminalProps> = ({
         background: '#1e1e1e',
         foreground: '#ffffff',
         cursor: '#ffffff',
-        selection: '#d4d4aa',
+        selectionBackground: '#d4d4aa',
       },
       fontSize: 14,
       fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
@@ -161,12 +161,12 @@ const Terminal: React.FC<TerminalProps> = ({
   }, [status, terminal, onConnect])
 
   // Handle terminal resize
-  const handleResize = useCallback(() => {
-    if (fitAddon && terminal) {
-      fitAddon.fit()
-      resize(terminal.cols, terminal.rows)
-    }
-  }, [fitAddon, terminal, resize])
+  // const handleResize = useCallback(() => {
+  //   if (fitAddon && terminal) {
+  //     fitAddon.fit()
+  //     resize(terminal.cols, terminal.rows)
+  //   }
+  // }, [fitAddon, terminal, resize])
 
   const handleDisconnect = () => {
     if (terminal) {

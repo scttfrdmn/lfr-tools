@@ -8,14 +8,11 @@ import {
   StatusIndicator,
   ProgressBar,
   Button,
-  Alert,
-  Cards,
-  Badge
+  Alert
 } from '@cloudscape-design/components'
 
 import { LFRService } from "../../bindings/lfr-gui/pkg/services"
 import StudentConnect from './StudentConnect'
-import { useClassMonitoring } from '../hooks/useRealTimeStatus'
 
 interface UserInfo {
   role: string
@@ -45,8 +42,10 @@ const Dashboard: React.FC<DashboardProps> = ({ userInfo }) => {
     // Load project information
     if (userInfo.project) {
       LFRService.GetProjectInfo(userInfo.project)
-        .then((info: ProjectInfo) => {
-          setProjectInfo(info)
+        .then((info: ProjectInfo | null) => {
+          if (info) {
+            setProjectInfo(info)
+          }
           setLoading(false)
         })
         .catch((err: any) => {
@@ -136,7 +135,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userInfo }) => {
             <Button iconName="envelope">
               Email Class
             </Button>
-            <Button iconName="trending-up">
+            <Button iconName="upload">
               Generate Report
             </Button>
           </SpaceBetween>

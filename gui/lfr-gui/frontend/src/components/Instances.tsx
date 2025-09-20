@@ -57,7 +57,7 @@ const Instances: React.FC<InstancesProps> = ({ userInfo }) => {
     setLoading(true)
     try {
       const instanceList = await LFRService.ListInstances(userInfo.project)
-      setInstances(instanceList)
+      setInstances(instanceList.filter(inst => inst !== null))
     } catch (err) {
       console.error('Failed to load instances:', err)
     }
@@ -116,7 +116,7 @@ const Instances: React.FC<InstancesProps> = ({ userInfo }) => {
     if (bundle.includes('gpu')) {
       return <Badge color="red">GPU</Badge>
     } else if (bundle.includes('4xl')) {
-      return <Badge color="orange">4XL</Badge>
+      return <Badge color="blue">4XL</Badge>
     } else if (bundle.includes('2xl')) {
       return <Badge color="blue">2XL</Badge>
     } else {

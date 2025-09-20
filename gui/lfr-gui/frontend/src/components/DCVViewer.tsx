@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
   Container,
   Header,
@@ -47,7 +47,7 @@ const DCVViewer: React.FC<DCVViewerProps> = ({
   const [connecting, setConnecting] = useState(false)
   const [quality, setQuality] = useState('medium')
   const [showAdvanced, setShowAdvanced] = useState(false)
-  const [dcvStatus, setDcvStatus] = useState<'available' | 'installing' | 'error'>('available')
+  const [dcvStatus] = useState<'available' | 'installing' | 'error'>('available')
 
   const qualityOptions = [
     { label: 'Low (15 FPS) - Best for slow connections', value: 'low' },
@@ -123,7 +123,7 @@ const DCVViewer: React.FC<DCVViewerProps> = ({
       <Container header={<Header variant="h3">🎨 Display Quality</Header>}>
         <SpaceBetween direction="vertical" size="s">
           <Select
-            selectedOption={qualityOptions.find(opt => opt.value === quality)}
+            selectedOption={qualityOptions.find(opt => opt.value === quality) || null}
             onChange={({ detail }) => setQuality(detail.selectedOption.value!)}
             options={qualityOptions}
             placeholder="Choose quality setting"
@@ -183,7 +183,7 @@ const DCVViewer: React.FC<DCVViewerProps> = ({
         {connectionInfo ? (
           <SpaceBetween direction="vertical" size="s">
             <Box textAlign="center" padding="m">
-              <Box
+              <div
                 style={{
                   width: '100%',
                   height: '200px',
@@ -199,7 +199,7 @@ const DCVViewer: React.FC<DCVViewerProps> = ({
                 🖥️ Ubuntu Desktop Ready
                 <br />
                 <small>Click "Open Desktop Viewer" to access</small>
-              </Box>
+              </div>
             </Box>
 
             <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>

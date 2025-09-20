@@ -1,17 +1,17 @@
-import { useState, useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { useState } from 'react'
 import '@cloudscape-design/global-styles/index.css'
-import { AppLayout, TopNavigation, SideNavigation } from '@cloudscape-design/components'
-
-import { LFRService } from "../bindings/lfr-gui/pkg/services"
-
-// Import components
-import Dashboard from './components/Dashboard'
-import Instances from './components/Instances'
-import Users from './components/Users'
-import Students from './components/Students'
-import Settings from './components/Settings'
-import Analytics from './components/Analytics'
+import {
+  AppLayout,
+  TopNavigation,
+  SideNavigation,
+  Container,
+  Header,
+  Button,
+  SpaceBetween,
+  Box,
+  Grid,
+  StatusIndicator
+} from '@cloudscape-design/components'
 
 interface UserInfo {
   role: string
@@ -21,144 +21,93 @@ interface UserInfo {
 }
 
 function App() {
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [activeHref, setActiveHref] = useState('/dashboard')
+  const [userInfo] = useState<UserInfo>({
+    role: 'professor',
+    username: 'demo-professor',
+    project: 'CS101-Fall2024',
+    permissions: ['create', 'delete', 'start', 'stop', 'ssh', 'admin']
+  })
 
-  useEffect(() => {
-    // Get user role and permissions on app load
-    LFRService.GetUserRole()
-      .then((user: UserInfo | null) => {
-        setUserInfo(user)
-        setLoading(false)
-      })
-      .catch((err: any) => {
-        console.error('Failed to get user role:', err)
-        setLoading(false)
-      })
-  }, [])
-
-  // Navigation items based on user role
-  const getNavigationItems = () => {
-    if (!userInfo) return []
-
-    const baseItems = [
-      { type: 'link', text: 'Dashboard', href: '/dashboard' },
-      { type: 'link', text: 'Instances', href: '/instances' },
-    ]
-
-    // Add role-specific navigation
-    if (userInfo.role === 'professor' || userInfo.role === 'admin') {
-      baseItems.push(
-        { type: 'link', text: 'Users & Groups', href: '/users' },
-        { type: 'link', text: 'Students', href: '/students' },
-        { type: 'link', text: 'Analytics', href: '/analytics' },
-        { type: 'link', text: 'Settings', href: '/settings' }
-      )
-    } else if (userInfo.role === 'ta') {
-      baseItems.push(
-        { type: 'link', text: 'Student Support', href: '/students' },
-        { type: 'link', text: 'Class Status', href: '/analytics' }
-      )
-    }
-
-    return baseItems
-  }
+  const navigationItems = [
+    { type: 'link', text: 'Dashboard', href: '#dashboard' },
+    { type: 'link', text: 'Instances', href: '#instances' },
+    { type: 'link', text: 'Students', href: '#students' },
+    { type: 'link', text: 'Analytics', href: '#analytics' }
+  ]
 
   const topNavigation = (
     <TopNavigation
-      identity={{
-        href: "/",
-        title: "LFR Tools"
-      }}
-      utilities={[
-        {
-          type: "menu-dropdown",
-          text: userInfo?.username || "User",
-          description: userInfo?.role || "Loading...",
-          iconName: "user-profile",
-          items: [
-            { id: "profile", text: "Profile" },
-            { id: "settings", text: "Settings" },
-            { id: "signout", text: "Sign out" }
-          ]
-        }
-      ]}
+      identity={{ title: "LFR Tools", href: "/" }}
+      utilities={[{
+        type: "menu-dropdown",
+        text: userInfo.username,
+        description: userInfo.role,
+        items: [
+          { id: "settings", text: "Settings" },
+          { id: "signout", text: "Sign Out" }
+        ]
+      }]}
     />
   )
 
   const sideNavigation = (
     <SideNavigation
-      activeHref={activeHref}
-      header={{ href: "/dashboard", text: userInfo?.project || "Project" }}
-      items={getNavigationItems()}
-      onFollow={(event) => {
-        if (!event.detail.external) {
-          setActiveHref(event.detail.href)
-        }
-      }}
+      header={{ text: userInfo.project, href: "#" }}
+      items={navigationItems}
     />
   )
 
-  if (loading) {
-    return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        backgroundColor: '#f9f9f9'
-      }}>
-        <div>Loading LFR Tools...</div>
-      </div>
-    )
-  }
+  const content = (
+    <Container header={<Header variant="h1">Class Dashboard</Header>}>
+      <SpaceBetween direction="vertical" size="l">
+        <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
+          <Box>
+            <Container header={<Header variant="h2">Instance Status</Header>}>
+              <SpaceBetween direction="vertical" size="s">
+                <Box>
+                  <StatusIndicator type="success">Running: 1</StatusIndicator>
+                </Box>
+                <Box>
+                  <StatusIndicator type="stopped">Stopped: 5</StatusIndicator>
+                </Box>
+                <Box>
+                  Total Instances: 6
+                </Box>
+              </SpaceBetween>
+            </Container>
+          </Box>
 
-  if (!userInfo) {
-    return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        backgroundColor: '#f9f9f9'
-      }}>
-        <div>Failed to load user information. Please check your configuration.</div>
-      </div>
-    )
-  }
+          <Box>
+            <Container header={<Header variant="h2">Quick Actions</Header>}>
+              <SpaceBetween direction="vertical" size="s">
+                <Button variant="primary">Start All Instances</Button>
+                <Button>Stop All Instances</Button>
+                <Button>View Student Status</Button>
+              </SpaceBetween>
+            </Container>
+          </Box>
+        </Grid>
+
+        <Container header={<Header variant="h2">Recent Activity</Header>}>
+          <Box>
+            <p>• duke-gpu instance running (GPU enabled)</p>
+            <p>• 5 instances available for class use</p>
+            <p>• All systems operational</p>
+          </Box>
+        </Container>
+      </SpaceBetween>
+    </Container>
+  )
 
   return (
-    <Router>
+    <>
       {topNavigation}
       <AppLayout
         navigation={sideNavigation}
-        content={
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<Dashboard userInfo={userInfo} />} />
-            <Route path="/instances" element={<Instances userInfo={userInfo} />} />
-            {(userInfo.role === 'professor' || userInfo.role === 'admin') && (
-              <>
-                <Route path="/users" element={<Users userInfo={userInfo} />} />
-                <Route path="/students" element={<Students userInfo={userInfo} />} />
-                <Route path="/analytics" element={<Analytics userInfo={userInfo} />} />
-                <Route path="/settings" element={<Settings userInfo={userInfo} />} />
-              </>
-            )}
-            {userInfo.role === 'ta' && (
-              <>
-                <Route path="/students" element={<Students userInfo={userInfo} />} />
-                <Route path="/analytics" element={<Analytics userInfo={userInfo} />} />
-              </>
-            )}
-          </Routes>
-        }
-        notifications={<div />} // Placeholder for notifications
-        breadcrumbs={<div />}  // Placeholder for breadcrumbs
+        content={content}
         disableContentHeaderOverlap={true}
       />
-    </Router>
+    </>
   )
 }
 

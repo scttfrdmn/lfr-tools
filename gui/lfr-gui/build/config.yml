@@ -18,6 +18,8 @@ dev_mode:
   root_path: .
   log_level: warn
   debounce: 1000
+  env:
+    PATH: "${PATH}:${HOME}/go/bin"
   ignore:
     dir:
       - .git

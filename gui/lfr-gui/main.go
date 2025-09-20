@@ -71,7 +71,7 @@ func main() {
 			TitleBar:                application.MacTitleBarHiddenInset,
 		},
 		BackgroundColour: application.NewRGB(27, 38, 54),
-		URL:              "/",
+		URL:              "http://localhost:9245/",
 	})
 
 	// Create a goroutine that emits an event containing the current time every second.
