@@ -404,7 +404,7 @@ func createSoftwarePack(packName, template string) error {
 		return fmt.Errorf("failed to marshal pack: %w", err)
 	}
 
-	err = os.WriteFile(packFile, data, 0644)
+	err = os.WriteFile(packFile, data, 0600)
 	if err != nil {
 		return fmt.Errorf("failed to write pack file: %w", err)
 	}
@@ -585,7 +585,7 @@ func executeInstallationScript(ctx context.Context, instance *types.Instance, sc
 	}
 
 	// Make script executable
-	err = os.Chmod(tmpFile.Name(), 0755)
+	err = os.Chmod(tmpFile.Name(), 0700)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make script executable: %w", err)
 	}

@@ -58,10 +58,12 @@ func TestUserInfoStructure(t *testing.T) {
 	}
 }
 
+const testInstanceStateRunning = "running"
+
 func TestInstanceInfoStructure(t *testing.T) {
 	instance := &InstanceInfo{
 		Name:      "alice-ubuntu",
-		State:     "running",
+		State:     testInstanceStateRunning,
 		PublicIP:  "1.2.3.4",
 		Blueprint: "ubuntu_22_04",
 		Bundle:    "app_standard_xl_1_0",
@@ -72,7 +74,7 @@ func TestInstanceInfoStructure(t *testing.T) {
 		t.Errorf("expected name 'alice-ubuntu', got %s", instance.Name)
 	}
 
-	if instance.State != "running" {
+	if instance.State != testInstanceStateRunning {
 		t.Errorf("expected state 'running', got %s", instance.State)
 	}
 

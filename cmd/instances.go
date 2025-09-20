@@ -570,7 +570,7 @@ func resizeInstance(ctx context.Context, instanceName, direction string, wait bo
 	fmt.Printf("   4. Optionally delete old instance and snapshot\n\n")
 
 	// Stop instance if running
-	if instance.State == "running" {
+	if instance.State == instanceStateRunning {
 		fmt.Printf("Stopping instance %s...\n", instanceName)
 		err = lightsailService.StopInstance(ctx, instanceName)
 		if err != nil {
@@ -722,7 +722,7 @@ func switchGPUMode(ctx context.Context, instanceName, action string, wait bool) 
 	fmt.Printf("   4. Optionally delete old instance and snapshot\n\n")
 
 	// Stop instance if running
-	if instance.State == "running" {
+	if instance.State == instanceStateRunning {
 		fmt.Printf("Stopping instance %s...\n", instanceName)
 		err = lightsailService.StopInstance(ctx, instanceName)
 		if err != nil {

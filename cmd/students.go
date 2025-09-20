@@ -189,7 +189,7 @@ func setupClass(ctx context.Context, project, bucket string, students, tas []str
 
 	configFile := fmt.Sprintf(".lfr-class-%s.json", project)
 	configData, _ := json.MarshalIndent(classConfig, "", "  ")
-	_ = os.WriteFile(configFile, configData, 0644)
+	_ = os.WriteFile(configFile, configData, 0600)
 
 	fmt.Printf("✅ Class setup completed!\n")
 	fmt.Printf("\nNext steps:\n")
@@ -205,7 +205,7 @@ func generateStudentTokens(ctx context.Context, project, outputDir string) error
 	fmt.Printf("Generating access tokens for project: %s\n", project)
 
 	// Create output directory
-	if err := os.MkdirAll(outputDir, 0755); err != nil {
+	if err := os.MkdirAll(outputDir, 0750); err != nil {
 		return fmt.Errorf("failed to create output directory: %w", err)
 	}
 
@@ -364,9 +364,6 @@ func checkStartRequests(ctx context.Context, project string, autoApprove bool) e
 }
 
 // showStudentStatus shows comprehensive status for all students.
-const (
-	instanceStateRunning = "running"
-)
 
 func showStudentStatus(ctx context.Context, project string) error {
 	// Create AWS client

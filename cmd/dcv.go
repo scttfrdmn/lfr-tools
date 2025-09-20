@@ -242,7 +242,7 @@ func connectDCV(ctx context.Context, username, project, quality string, fullscre
 		return fmt.Errorf("no instance found for user: %s", username)
 	}
 
-	if targetInstance.State != "running" {
+	if targetInstance.State != instanceStateRunning {
 		return fmt.Errorf("instance %s is not running (state: %s). Start it first", targetInstance.Name, targetInstance.State)
 	}
 
@@ -308,6 +308,7 @@ func executeSSHCommand(_ context.Context, publicIP, command string) error {
 	keyPath := filepath.Join(homeDir, ".ssh", "lfr-tools", "LightsailDefaultKey.pem")
 
 	// Execute SSH command
+	// #nosec G204 - SSH command execution is intentional for DCV setup
 	cmd := exec.Command("ssh",
 		"-i", keyPath,
 		"-o", "StrictHostKeyChecking=no",
@@ -360,6 +361,7 @@ func launchDCVViewer(dcvURL, _ string, fullscreen bool) error {
 			if fullscreen {
 				args = append(args, "--full-screen")
 			}
+			// #nosec G204 - DCV viewer command execution is intentional
 			cmd = exec.Command(dcvPath, args...)
 		}
 	case platformWindows:
@@ -369,6 +371,7 @@ func launchDCVViewer(dcvURL, _ string, fullscreen bool) error {
 			if fullscreen {
 				args = append(args, "--full-screen")
 			}
+			// #nosec G204 - DCV viewer command execution is intentional
 			cmd = exec.Command(dcvPath, args...)
 		}
 	case platformLinux:
@@ -377,6 +380,7 @@ func launchDCVViewer(dcvURL, _ string, fullscreen bool) error {
 			if fullscreen {
 				args = append(args, "--full-screen")
 			}
+			// #nosec G204 - DCV viewer command execution is intentional
 			cmd = exec.Command("dcvviewer", args...)
 		}
 	}
@@ -402,10 +406,13 @@ func launchDCVViewer(dcvURL, _ string, fullscreen bool) error {
 	var browserCmd *exec.Cmd
 	switch runtime.GOOS {
 	case "darwin":
+		// #nosec G204 - Browser command execution is intentional for DCV web access
 		browserCmd = exec.Command("open", webURL)
 	case platformWindows:
+		// #nosec G204 - Browser command execution is intentional for DCV web access
 		browserCmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", webURL)
 	case platformLinux:
+		// #nosec G204 - Browser command execution is intentional for DCV web access
 		browserCmd = exec.Command("xdg-open", webURL)
 	default:
 		return fmt.Errorf("unsupported platform for DCV viewer launch")

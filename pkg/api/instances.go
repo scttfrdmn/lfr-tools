@@ -64,7 +64,7 @@ func (api *InstanceAPI) ListInstances(project string) ([]*InstanceInfo, error) {
 	// Create AWS client with 'aws' profile for GUI
 	profile := cfg.AWS.Profile
 	if profile == "" {
-		profile = "aws" // Default to 'aws' profile for GUI
+		profile = defaultAWSProfile // Default to 'aws' profile for GUI
 	}
 
 	awsClient, err := aws.NewClient(api.ctx, aws.Options{
@@ -113,7 +113,7 @@ func (api *InstanceAPI) StartInstance(instanceName string) error {
 	// Create AWS client with 'aws' profile for GUI
 	profile := cfg.AWS.Profile
 	if profile == "" {
-		profile = "aws" // Default to 'aws' profile for GUI
+		profile = defaultAWSProfile // Default to 'aws' profile for GUI
 	}
 
 	awsClient, err := aws.NewClient(api.ctx, aws.Options{
@@ -140,7 +140,7 @@ func (api *InstanceAPI) StopInstance(instanceName string) error {
 	// Create AWS client with 'aws' profile for GUI
 	profile := cfg.AWS.Profile
 	if profile == "" {
-		profile = "aws" // Default to 'aws' profile for GUI
+		profile = defaultAWSProfile // Default to 'aws' profile for GUI
 	}
 
 	awsClient, err := aws.NewClient(api.ctx, aws.Options{
@@ -225,7 +225,7 @@ func (api *InstanceAPI) GetUserRole() (*UserInfo, error) {
 	// Check for AWS credentials (professor/admin access)
 	profile := cfg.AWS.Profile
 	if profile == "" {
-		profile = "aws"
+		profile = defaultAWSProfile
 	}
 
 	awsClient, err := aws.NewClient(api.ctx, aws.Options{

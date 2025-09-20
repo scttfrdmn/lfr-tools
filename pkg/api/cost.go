@@ -62,7 +62,8 @@ type UsageMetrics struct {
 }
 
 const (
-	defaultAWSProfile = "aws"
+	defaultAWSProfile       = "aws"
+	instanceStateRunning    = "running"
 )
 
 // GetProjectBudget returns budget information for a project
@@ -304,21 +305,21 @@ func (api *CostAPI) generateRealisticMemory(bundle string) float64 {
 }
 
 func (api *CostAPI) generateRealisticNetwork(state string) float64 {
-	if state == "running" {
+	if state == instanceStateRunning {
 		return 1.0 + (rand.Float64() * 10.0)
 	}
 	return 0.0
 }
 
 func (api *CostAPI) generateRealisticSSH(state string) int {
-	if state == "running" {
+	if state == instanceStateRunning {
 		return int(rand.Float64() * 5) // 0-5 sessions
 	}
 	return 0
 }
 
 func (api *CostAPI) generateRealisticUsage(state string) float64 {
-	if state == "running" {
+	if state == instanceStateRunning {
 		return 2.0 + (rand.Float64() * 6.0) // 2-8 hours
 	}
 	return 0.0

@@ -108,7 +108,7 @@ func (api *S3StatusAPI) uploadStatusToS3(bucket string, status *StudentStatusInf
 	// Create AWS client
 	profile := cfg.AWS.Profile
 	if profile == "" {
-		profile = "aws"
+		profile = defaultAWSProfile
 	}
 
 	awsClient, err := awsInternal.NewClient(api.ctx, awsInternal.Options{
@@ -151,7 +151,7 @@ func (api *S3StatusAPI) CheckStartRequests(project string) ([]*StudentStartReque
 	// Create AWS client
 	profile := cfg.AWS.Profile
 	if profile == "" {
-		profile = "aws"
+		profile = defaultAWSProfile
 	}
 
 	awsClient, err := awsInternal.NewClient(api.ctx, awsInternal.Options{
@@ -212,7 +212,7 @@ func (api *S3StatusAPI) SubmitStartRequest(username, project, studentID, token, 
 	// Create AWS client
 	profile := cfg.AWS.Profile
 	if profile == "" {
-		profile = "aws"
+		profile = defaultAWSProfile
 	}
 
 	awsClient, err := awsInternal.NewClient(api.ctx, awsInternal.Options{

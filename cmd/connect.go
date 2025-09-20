@@ -64,6 +64,8 @@ func init() {
 	connectCmd.Flags().BoolP("force", "f", false, "Force connection even if instance stopped")
 }
 
+const instanceStateRunning = "running"
+
 
 // connectToInstance connects to a student's instance with automatic start.
 func connectToInstance(ctx context.Context, username, project string, force bool) error {
@@ -140,7 +142,7 @@ func connectToInstance(ctx context.Context, username, project string, force bool
 	}
 
 	// Check if instance is ready for connection
-	if status.State != "running" {
+	if status.State != instanceStateRunning {
 		if force {
 			fmt.Printf("⚠️ Warning: Instance state is %s, attempting connection anyway...\n", status.State)
 		} else {
@@ -174,6 +176,7 @@ func connectToInstance(ctx context.Context, username, project string, force bool
 		fmt.Sprintf("%s@%s", username, status.PublicIP),
 	}
 
+	// #nosec G204 - SSH command with user input is intentional for educational platform
 	sshCmd := exec.Command("ssh", sshArgs...)
 	sshCmd.Stdin = os.Stdin
 	sshCmd.Stdout = os.Stdout
@@ -186,6 +189,7 @@ func connectToInstance(ctx context.Context, username, project string, force bool
 func getInstanceStatusFromS3(_ context.Context, bucket, project, username string) (*aws.StudentStatus, error) {
 	url := fmt.Sprintf("https://%s.s3.amazonaws.com/%s/%s/status.json", bucket, project, username)
 
+	// #nosec G107 - HTTP request to S3 with constructed URL is intentional for student status
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get status from S3: %w", err)
@@ -270,7 +274,7 @@ func waitForInstanceStart(ctx context.Context, bucket, project, username string,
 				continue // Keep waiting
 			}
 
-			if status.State == "running" && status.PublicIP != "" {
+			if status.State == instanceStateRunning && status.PublicIP != "" {
 				fmt.Print("\r")
 				elapsed := time.Since(start)
 				fmt.Printf("✅ Instance started and ready after %v\n", elapsed.Round(time.Second))

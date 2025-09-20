@@ -501,7 +501,7 @@ func mountEFSOnAllInstances(ctx context.Context, filesystemID, project, mountPoi
 
 		fmt.Printf("[%d/%d] Mounting on %s (%s)\n", i+1, len(instances), instance.Name, username)
 
-		if instance.State != "running" {
+		if instance.State != instanceStateRunning {
 			fmt.Printf("   ⏭️  Skipping %s (state: %s)\n", instance.Name, instance.State)
 			continue
 		}
@@ -587,7 +587,7 @@ func showEFSMountStatus(ctx context.Context, project string) error {
 		sshReady := "No"
 		mountStatus := "Instance not running"
 
-		if instance.State == "running" && instance.PublicIP != "" {
+		if instance.State == instanceStateRunning && instance.PublicIP != "" {
 			sshReady = "Yes"
 			mountStatus = "Check manually"
 		}
