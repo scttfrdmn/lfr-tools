@@ -211,6 +211,7 @@ func generateStudentTokens(ctx context.Context, project, outputDir string) error
 
 	// Load class configuration
 	classConfigFile := fmt.Sprintf(".lfr-class-%s.json", project)
+	// #nosec G304 - Config file path is constructed from project name
 	configData, err := os.ReadFile(classConfigFile)
 	if err != nil {
 		return fmt.Errorf("class not found. Run: lfr students setup class --project=%s", project)
@@ -232,6 +233,7 @@ func generateStudentTokens(ctx context.Context, project, outputDir string) error
 	}
 
 	tokensFile := filepath.Join(outputDir, fmt.Sprintf("%s-tokens.txt", project))
+	// #nosec G304 - Tokens file path is constructed from project name
 	tokensList, err := os.Create(tokensFile)
 	if err != nil {
 		return fmt.Errorf("failed to create tokens file: %w", err)

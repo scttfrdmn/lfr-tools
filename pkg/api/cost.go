@@ -290,29 +290,40 @@ func (api *CostAPI) GetUsageMetrics(project string) ([]*UsageMetrics, error) {
 // Helper functions for realistic data generation
 func (api *CostAPI) generateRealisticCPU(bundle string) float64 {
 	if strings.Contains(bundle, "gpu") {
-		return 25.0 + (rand.Float64() * 50.0) // GPU instances work harder
+		// #nosec G404 - Weak random is acceptable for demo data generation
+		return 25.0 + (// #nosec G404 - Weak random is acceptable for demo data generation
+		rand.Float64() * 50.0) // GPU instances work harder
 	}
-	return 5.0 + (rand.Float64() * 20.0) // Standard instances
+	// #nosec G404 - Weak random is acceptable for demo data generation
+	return 5.0 + (// #nosec G404 - Weak random is acceptable for demo data generation
+		rand.Float64() * 20.0) // Standard instances
 }
 
 func (api *CostAPI) generateRealisticMemory(bundle string) float64 {
 	if strings.Contains(bundle, "4xl") {
-		return 30.0 + (rand.Float64() * 40.0)
+		// #nosec G404 - Weak random is acceptable for demo data generation
+		return 30.0 + (// #nosec G404 - Weak random is acceptable for demo data generation
+		rand.Float64() * 40.0)
 	} else if strings.Contains(bundle, "2xl") {
-		return 20.0 + (rand.Float64() * 30.0)
+		// #nosec G404 - Weak random is acceptable for demo data generation
+		return 20.0 + (// #nosec G404 - Weak random is acceptable for demo data generation
+		rand.Float64() * 30.0)
 	}
-	return 10.0 + (rand.Float64() * 20.0)
+	return 10.0 + (// #nosec G404 - Weak random is acceptable for demo data generation
+		rand.Float64() * 20.0)
 }
 
 func (api *CostAPI) generateRealisticNetwork(state string) float64 {
 	if state == instanceStateRunning {
-		return 1.0 + (rand.Float64() * 10.0)
+		return 1.0 + (// #nosec G404 - Weak random is acceptable for demo data generation
+		rand.Float64() * 10.0)
 	}
 	return 0.0
 }
 
 func (api *CostAPI) generateRealisticSSH(state string) int {
 	if state == instanceStateRunning {
+		// #nosec G404 - Weak random is acceptable for demo data generation
 		return int(rand.Float64() * 5) // 0-5 sessions
 	}
 	return 0
@@ -320,6 +331,7 @@ func (api *CostAPI) generateRealisticSSH(state string) int {
 
 func (api *CostAPI) generateRealisticUsage(state string) float64 {
 	if state == instanceStateRunning {
+		// #nosec G404 - Weak random is acceptable for demo data generation
 		return 2.0 + (rand.Float64() * 6.0) // 2-8 hours
 	}
 	return 0.0

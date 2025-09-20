@@ -207,6 +207,7 @@ func ParseGroupsCSV(filename string) ([]BulkGroup, error) {
 
 // GenerateUsersCSVTemplate creates a sample CSV template for bulk user creation.
 func GenerateUsersCSVTemplate(filename string) error {
+	// #nosec G304 - Template file path is from command line argument
 	file, err := os.Create(filename)
 	if err != nil {
 		return fmt.Errorf("failed to create CSV template: %w", err)
@@ -244,6 +245,7 @@ func GenerateUsersCSVTemplate(filename string) error {
 
 // GenerateGroupsCSVTemplate creates a sample CSV template for bulk group creation.
 func GenerateGroupsCSVTemplate(filename string) error {
+	// #nosec G304 - Template file path is from command line argument
 	file, err := os.Create(filename)
 	if err != nil {
 		return fmt.Errorf("failed to create CSV template: %w", err)

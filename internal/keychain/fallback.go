@@ -68,6 +68,7 @@ func (k *FileKeychain) Retrieve(service, account string) (string, error) {
 	filename := fmt.Sprintf("%s-%s.json", service, account)
 	filepath := filepath.Join(k.storePath, filename)
 
+	// #nosec G304 - File path is constructed from service and account parameters
 	data, err := os.ReadFile(filepath)
 	if err != nil {
 		return "", fmt.Errorf("failed to read secret file: %w", err)
