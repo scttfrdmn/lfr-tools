@@ -40,7 +40,7 @@ var idleConfigureBulkCmd = &cobra.Command{
 	Short: "Configure idle detection for multiple instances",
 	Long: `Configure idle detection for multiple instances by project or user list.
 Applies the same idle settings to all specified instances.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 		users, _ := cmd.Flags().GetStringSlice("users")
 		threshold, _ := cmd.Flags().GetInt("threshold")

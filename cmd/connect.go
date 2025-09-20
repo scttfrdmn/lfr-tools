@@ -213,7 +213,7 @@ func getInstanceStatusFromS3(_ context.Context, bucket, project, username string
 }
 
 // submitStartRequest submits a start request via S3.
-func submitStartRequest(ctx context.Context, token *config.StudentToken, status *aws.StudentStatus) error {
+func submitStartRequest(_ context.Context, token *config.StudentToken, _ *aws.StudentStatus) error {
 	// Create start request
 	request := &aws.StudentStartRequest{
 		Username:    token.Username,

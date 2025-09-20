@@ -23,7 +23,7 @@ var efsSetupCmd = &cobra.Command{
 	Short: "Set up VPC peering for EFS integration",
 	Long: `Enable VPC peering between Lightsail and your default VPC to allow EFS access.
 This is a one-time setup required before using EFS with Lightsail instances.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		return setupEFSIntegration(cmd.Context())
 	},
 }

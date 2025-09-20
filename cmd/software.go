@@ -488,6 +488,7 @@ func loadCustomPack(packName string) (*types.SoftwarePack, error) {
 		}
 	}
 
+	// #nosec G304 - Custom pack file path is from command line argument
 	data, err := os.ReadFile(packFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read pack file: %w", err)
@@ -585,12 +586,14 @@ func executeInstallationScript(ctx context.Context, instance *types.Instance, sc
 	}
 
 	// Make script executable
+	// #nosec G302 - Script needs execute permissions for installation
 	err = os.Chmod(tmpFile.Name(), 0700)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make script executable: %w", err)
 	}
 
 	// Copy script to instance and execute via SSH
+	// #nosec G204 - SCP command execution is intentional for software installation
 	scpCommand := exec.Command("scp",
 		"-i", keyPath,
 		"-o", "StrictHostKeyChecking=no",

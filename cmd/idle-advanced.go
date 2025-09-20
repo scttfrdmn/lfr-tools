@@ -210,7 +210,7 @@ func applyIdlePolicy(_ context.Context, policyID, project string, users []string
 }
 
 // analyzeIdlePatterns analyzes instance usage for idle optimization.
-func analyzeIdlePatterns(ctx context.Context, project string, days int) error {
+func analyzeIdlePatterns(_ context.Context, project string, days int) error {
 	fmt.Printf("Analyzing idle patterns for project: %s\n", project)
 	fmt.Printf("Analysis period: %d days\n\n", days)
 
