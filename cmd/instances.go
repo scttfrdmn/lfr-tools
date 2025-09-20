@@ -11,8 +11,8 @@ import (
 
 	"github.com/scttfrdmn/lfr-tools/internal/aws"
 	"github.com/scttfrdmn/lfr-tools/internal/config"
-	"github.com/scttfrdmn/lfr-tools/internal/types"
-	"github.com/scttfrdmn/lfr-tools/internal/utils"
+	"github.com/scttfrdmn/lfr-tools/internal/lfrtypes"
+	"github.com/scttfrdmn/lfr-tools/internal/lfrutils"
 	"github.com/scttfrdmn/lfr-tools/pkg/api"
 )
 
@@ -27,7 +27,7 @@ var instancesListCmd = &cobra.Command{
 	Short: "List Lightsail instances",
 	Long: `List all Lightsail instances with their current status, optionally filtered by project
 or user. Shows instance details including state, IP addresses, and resource utilization.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 		user, _ := cmd.Flags().GetString("user")
 
@@ -40,7 +40,7 @@ var instancesStartCmd = &cobra.Command{
 	Short: "Start Lightsail instances",
 	Long: `Start stopped Lightsail instances for the specified users. Instances will be
 charged according to your bundle pricing while running.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		users, _ := cmd.Flags().GetStringSlice("users")
 		project, _ := cmd.Flags().GetString("project")
 		wait, _ := cmd.Flags().GetBool("wait")
@@ -54,7 +54,7 @@ var instancesStopCmd = &cobra.Command{
 	Short: "Stop Lightsail instances",
 	Long: `Stop running Lightsail instances for the specified users. This will save costs
 but users will lose access until instances are restarted.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		users, _ := cmd.Flags().GetStringSlice("users")
 		project, _ := cmd.Flags().GetString("project")
 		wait, _ := cmd.Flags().GetBool("wait")
@@ -68,7 +68,7 @@ var instancesMonitorCmd = &cobra.Command{
 	Short: "Monitor instance usage and idle time",
 	Long: `Monitor instance CPU, memory, and network usage. Identify idle instances
 that may be candidates for automatic shutdown to save costs.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 		threshold, _ := cmd.Flags().GetInt("idle-threshold")
 
@@ -287,7 +287,7 @@ func listInstances(ctx context.Context, project, user string) error {
 
 	// Filter by user if specified
 	if user != "" {
-		var filtered []*types.Instance
+		var filtered []*lfrtypes.Instance
 		for _, instance := range instances {
 			if strings.HasPrefix(instance.Name, user+"-") {
 				filtered = append(filtered, instance)
@@ -396,14 +396,14 @@ func startInstances(ctx context.Context, users []string, project string, wait bo
 
 		// Wait for instance to reach running state if requested
 		if wait {
-			err = utils.WaitForInstanceState(ctx, instanceName, "running", func() (string, error) {
+			err = lfrutils.WaitForInstanceState(ctx, instanceName, "running", func() (string, error) {
 				instance, err := lightsailService.GetInstance(ctx, instanceName)
 				if err != nil {
 					return "", err
 				}
 
 				// Update S3 status during wait
-				_ = utils.UpdateInstanceStatusInS3(ctx, instance)
+				_ = lfrutils.UpdateInstanceStatusInS3(ctx, instance)
 
 				return instance.State, nil
 			})
@@ -414,10 +414,10 @@ func startInstances(ctx context.Context, users []string, project string, wait bo
 
 		// Update S3 status after start
 		if instance, err := lightsailService.GetInstance(ctx, instanceName); err == nil {
-			_ = utils.UpdateInstanceStatusInS3(ctx, instance)
+			_ = lfrutils.UpdateInstanceStatusInS3(ctx, instance)
 
 			// Also update comprehensive student status
-			username := utils.ExtractUsernameFromInstance(instanceName)
+			username := lfrutils.ExtractUsernameFromInstance(instanceName)
 			if username != "" {
 				s3StatusAPI := api.NewS3StatusAPI()
 				_ = s3StatusAPI.UpdateStudentStatus(username, project)
@@ -485,14 +485,14 @@ func stopInstances(ctx context.Context, users []string, project string, wait boo
 
 		// Wait for instance to reach stopped state if requested
 		if wait {
-			err = utils.WaitForInstanceState(ctx, instanceName, "stopped", func() (string, error) {
+			err = lfrutils.WaitForInstanceState(ctx, instanceName, "stopped", func() (string, error) {
 				instance, err := lightsailService.GetInstance(ctx, instanceName)
 				if err != nil {
 					return "", err
 				}
 
 				// Update S3 status during wait
-				_ = utils.UpdateInstanceStatusInS3(ctx, instance)
+				_ = lfrutils.UpdateInstanceStatusInS3(ctx, instance)
 
 				return instance.State, nil
 			})
@@ -503,7 +503,7 @@ func stopInstances(ctx context.Context, users []string, project string, wait boo
 
 		// Update S3 status after stop
 		if instance, err := lightsailService.GetInstance(ctx, instanceName); err == nil {
-			_ = utils.UpdateInstanceStatusInS3(ctx, instance)
+			_ = lfrutils.UpdateInstanceStatusInS3(ctx, instance)
 		}
 	}
 
@@ -540,20 +540,20 @@ func resizeInstance(ctx context.Context, instanceName, direction string, wait bo
 		return fmt.Errorf("failed to get instance details: %w", err)
 	}
 
-	currentBundle, err := utils.GetBundleInfo(instance.Bundle)
+	currentBundle, err := lfrutils.GetBundleInfo(instance.Bundle)
 	if err != nil {
 		return fmt.Errorf("failed to get current bundle info: %w", err)
 	}
 
 	// Find target bundle
-	var targetBundle *utils.BundleInfo
+	var targetBundle *lfrutils.BundleInfo
 	if direction == "up" {
-		targetBundle, err = utils.GetNextSizeBundle(instance.Bundle)
+		targetBundle, err = lfrutils.GetNextSizeBundle(instance.Bundle)
 		if err != nil {
 			return fmt.Errorf("failed to find larger bundle: %w", err)
 		}
 	} else {
-		targetBundle, err = utils.GetPreviousSizeBundle(instance.Bundle)
+		targetBundle, err = lfrutils.GetPreviousSizeBundle(instance.Bundle)
 		if err != nil {
 			return fmt.Errorf("failed to find smaller bundle: %w", err)
 		}
@@ -562,7 +562,7 @@ func resizeInstance(ctx context.Context, instanceName, direction string, wait bo
 	// Display resize plan
 	fmt.Printf("Resizing instance: %s\n", instanceName)
 	fmt.Printf("Current state: %s\n", instance.State)
-	fmt.Printf("%s\n", utils.FormatBundleComparison(currentBundle, targetBundle))
+	fmt.Printf("%s\n", lfrutils.FormatBundleComparison(currentBundle, targetBundle))
 	fmt.Printf("\n⚠️  This operation will:\n")
 	fmt.Printf("   1. Stop the instance (if running)\n")
 	fmt.Printf("   2. Create a snapshot: %s-resize-snapshot\n", instanceName)
@@ -578,7 +578,7 @@ func resizeInstance(ctx context.Context, instanceName, direction string, wait bo
 		}
 
 		if wait {
-			err = utils.WaitForInstanceState(ctx, instanceName, "stopped", func() (string, error) {
+			err = lfrutils.WaitForInstanceState(ctx, instanceName, "stopped", func() (string, error) {
 				inst, err := lightsailService.GetInstance(ctx, instanceName)
 				if err != nil {
 					return "", err
@@ -602,7 +602,7 @@ func resizeInstance(ctx context.Context, instanceName, direction string, wait bo
 	// Wait for snapshot to complete if requested
 	if wait {
 		fmt.Printf("Waiting for snapshot to complete...\n")
-		err = utils.WaitForSnapshotState(ctx, snapshotName, "available", func() (string, error) {
+		err = lfrutils.WaitForSnapshotState(ctx, snapshotName, "available", func() (string, error) {
 			snapshot, err := lightsailService.GetInstanceSnapshot(ctx, snapshotName)
 			if err != nil {
 				return "", err
@@ -674,18 +674,18 @@ func switchGPUMode(ctx context.Context, instanceName, action string, wait bool) 
 		return fmt.Errorf("failed to get instance details: %w", err)
 	}
 
-	currentBundle, err := utils.GetBundleInfo(instance.Bundle)
+	currentBundle, err := lfrutils.GetBundleInfo(instance.Bundle)
 	if err != nil {
 		return fmt.Errorf("failed to get current bundle info: %w", err)
 	}
 
 	// Find target bundle
-	var targetBundle *utils.BundleInfo
+	var targetBundle *lfrutils.BundleInfo
 	if action == actionEnable {
 		if currentBundle.IsGPU {
 			return fmt.Errorf("instance %s already has GPU enabled (%s)", instanceName, currentBundle.Name)
 		}
-		targetBundle, err = utils.GetEquivalentGPUBundle(instance.Bundle)
+		targetBundle, err = lfrutils.GetEquivalentGPUBundle(instance.Bundle)
 		if err != nil {
 			return fmt.Errorf("failed to find equivalent GPU bundle: %w", err)
 		}
@@ -693,7 +693,7 @@ func switchGPUMode(ctx context.Context, instanceName, action string, wait bool) 
 		if !currentBundle.IsGPU {
 			return fmt.Errorf("instance %s does not have GPU enabled (%s)", instanceName, currentBundle.Name)
 		}
-		targetBundle, err = utils.GetEquivalentStandardBundle(instance.Bundle)
+		targetBundle, err = lfrutils.GetEquivalentStandardBundle(instance.Bundle)
 		if err != nil {
 			return fmt.Errorf("failed to find equivalent standard bundle: %w", err)
 		}
@@ -707,7 +707,7 @@ func switchGPUMode(ctx context.Context, instanceName, action string, wait bool) 
 
 	fmt.Printf("%s for instance: %s\n", actionDesc, instanceName)
 	fmt.Printf("Current state: %s\n", instance.State)
-	fmt.Printf("%s\n", utils.FormatBundleComparison(currentBundle, targetBundle))
+	fmt.Printf("%s\n", lfrutils.FormatBundleComparison(currentBundle, targetBundle))
 
 	// TODO: Add GPU quota checking here when AWS implements it
 	if action == actionEnable {
@@ -730,7 +730,7 @@ func switchGPUMode(ctx context.Context, instanceName, action string, wait bool) 
 		}
 
 		if wait {
-			err = utils.WaitForInstanceState(ctx, instanceName, "stopped", func() (string, error) {
+			err = lfrutils.WaitForInstanceState(ctx, instanceName, "stopped", func() (string, error) {
 				inst, err := lightsailService.GetInstance(ctx, instanceName)
 				if err != nil {
 					return "", err
@@ -754,7 +754,7 @@ func switchGPUMode(ctx context.Context, instanceName, action string, wait bool) 
 	// Wait for snapshot if requested
 	if wait {
 		fmt.Printf("Waiting for snapshot to complete...\n")
-		err = utils.WaitForSnapshotState(ctx, snapshotName, "available", func() (string, error) {
+		err = lfrutils.WaitForSnapshotState(ctx, snapshotName, "available", func() (string, error) {
 			snapshot, err := lightsailService.GetInstanceSnapshot(ctx, snapshotName)
 			if err != nil {
 				return "", err

@@ -1,5 +1,5 @@
-// Package utils provides hardware fingerprinting for non-transferable tokens.
-package utils
+// Package lfrutils provides hardware fingerprinting for non-transferable tokens.
+package lfrutils
 
 import (
 	"crypto/sha256"

@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 	iamTypes "github.com/aws/aws-sdk-go-v2/service/iam/types"
 
-	"github.com/scttfrdmn/lfr-tools/internal/types"
+	"github.com/scttfrdmn/lfr-tools/internal/lfrtypes"
 )
 
 // IAMService provides IAM operations.
@@ -53,7 +53,7 @@ func (s *IAMService) CreatePolicy(ctx context.Context, name, description, docume
 }
 
 // CreateGroup creates an IAM group if it doesn't exist.
-func (s *IAMService) CreateGroup(ctx context.Context, name, description string, policyARNs []string) (*types.Group, error) {
+func (s *IAMService) CreateGroup(ctx context.Context, name, _ string, policyARNs []string) (*lfrtypes.Group, error) {
 	// Check if group already exists
 	_, err := s.client.IAM.GetGroup(ctx, &iam.GetGroupInput{
 		GroupName: aws.String(name),
@@ -87,7 +87,7 @@ func (s *IAMService) CreateGroup(ctx context.Context, name, description string, 
 }
 
 // CreateUser creates an IAM user with login profile.
-func (s *IAMService) CreateUser(ctx context.Context, username, password, project string) (*types.User, error) {
+func (s *IAMService) CreateUser(ctx context.Context, username, password, project string) (*lfrtypes.User, error) {
 	// Create user
 	_, err := s.client.IAM.CreateUser(ctx, &iam.CreateUserInput{
 		UserName: aws.String(username),
@@ -201,7 +201,7 @@ func (s *IAMService) DeleteUser(ctx context.Context, username string) error {
 }
 
 // getGroupInfo retrieves group information.
-func (s *IAMService) getGroupInfo(ctx context.Context, name string) (*types.Group, error) {
+func (s *IAMService) getGroupInfo(ctx context.Context, name string) (*lfrtypes.Group, error) {
 	output, err := s.client.IAM.GetGroup(ctx, &iam.GetGroupInput{
 		GroupName: aws.String(name),
 	})
@@ -222,7 +222,7 @@ func (s *IAMService) getGroupInfo(ctx context.Context, name string) (*types.Grou
 		policyARNs = append(policyARNs, aws.ToString(policy.PolicyArn))
 	}
 
-	group := &types.Group{
+	group := &lfrtypes.Group{
 		Name:        aws.ToString(output.Group.GroupName),
 		Policies:    policyARNs,
 		Description: aws.ToString(output.Group.Path), // Using path as description placeholder
@@ -233,7 +233,7 @@ func (s *IAMService) getGroupInfo(ctx context.Context, name string) (*types.Grou
 }
 
 // getUserInfo retrieves user information.
-func (s *IAMService) getUserInfo(ctx context.Context, username string) (*types.User, error) {
+func (s *IAMService) getUserInfo(ctx context.Context, username string) (*lfrtypes.User, error) {
 	output, err := s.client.IAM.GetUser(ctx, &iam.GetUserInput{
 		UserName: aws.String(username),
 	})
@@ -257,7 +257,7 @@ func (s *IAMService) getUserInfo(ctx context.Context, username string) (*types.U
 		}
 	}
 
-	user := &types.User{
+	user := &lfrtypes.User{
 		Username:  aws.ToString(output.User.UserName),
 		Project:   project,
 		CreatedAt: *output.User.CreateDate,

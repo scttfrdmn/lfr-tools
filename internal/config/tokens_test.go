@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/scttfrdmn/lfr-tools/internal/utils"
+	"github.com/scttfrdmn/lfr-tools/internal/lfrutils"
 )
 
 func TestTokenManager(t *testing.T) {
@@ -158,7 +158,7 @@ func TestValidateToken(t *testing.T) {
 	}
 
 	// Create a valid token
-	fingerprint, err := utils.GenerateMachineFingerprint()
+	fingerprint, err := lfrutils.GenerateMachineFingerprint()
 	if err != nil {
 		t.Fatalf("failed to generate fingerprint: %v", err)
 	}

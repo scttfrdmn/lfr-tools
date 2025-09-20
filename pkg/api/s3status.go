@@ -10,7 +10,7 @@ import (
 
 	awsInternal "github.com/scttfrdmn/lfr-tools/internal/aws"
 	"github.com/scttfrdmn/lfr-tools/internal/config"
-	"github.com/scttfrdmn/lfr-tools/internal/utils"
+	"github.com/scttfrdmn/lfr-tools/internal/lfrutils"
 )
 
 // S3StatusAPI provides S3 status communication functionality
@@ -43,7 +43,7 @@ type StudentStatusInfo struct {
 // UpdateStudentStatus updates a student's status in S3 automatically
 func (api *S3StatusAPI) UpdateStudentStatus(username, project string) error {
 	// Check if S3 sync is enabled
-	syncConfig := utils.GetS3SyncConfig()
+	syncConfig := lfrutils.GetS3SyncConfig()
 	if !syncConfig.Enabled {
 		// S3 sync not configured, skip silently
 		return nil
@@ -137,7 +137,7 @@ func (api *S3StatusAPI) uploadStatusToS3(bucket string, status *StudentStatusInf
 // CheckStartRequests checks for pending student start requests in S3
 func (api *S3StatusAPI) CheckStartRequests(project string) ([]*StudentStartRequest, error) {
 	// Check if S3 sync is enabled
-	syncConfig := utils.GetS3SyncConfig()
+	syncConfig := lfrutils.GetS3SyncConfig()
 	if !syncConfig.Enabled {
 		return nil, fmt.Errorf("S3 sync not enabled for project %s", project)
 	}
@@ -198,7 +198,7 @@ type StudentStartRequest struct {
 // SubmitStartRequest submits a start request for a student
 func (api *S3StatusAPI) SubmitStartRequest(username, project, studentID, token, machineHash string) error {
 	// Check if S3 sync is enabled
-	syncConfig := utils.GetS3SyncConfig()
+	syncConfig := lfrutils.GetS3SyncConfig()
 	if !syncConfig.Enabled {
 		return fmt.Errorf("S3 sync not enabled for project %s", project)
 	}
@@ -284,7 +284,7 @@ func (api *S3StatusAPI) ProcessStartRequests(project string, autoApprove bool) (
 
 // EnableS3SyncForProject enables S3 status synchronization for a project
 func (api *S3StatusAPI) EnableS3SyncForProject(project, bucket string) error {
-	return utils.EnableS3Sync(project, bucket)
+	return lfrutils.EnableS3Sync(project, bucket)
 }
 
 // UpdateAllStudentStatuses updates S3 status for all students in a project

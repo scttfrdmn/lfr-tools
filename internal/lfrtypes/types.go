@@ -1,5 +1,5 @@
-// Package types defines common data structures used across the application.
-package types
+// Package lfrtypes defines common data structures used across the application.
+package lfrtypes
 
 import "time"
 

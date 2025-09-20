@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/scttfrdmn/lfr-tools/internal/aws"
-	"github.com/scttfrdmn/lfr-tools/internal/types"
+	"github.com/scttfrdmn/lfr-tools/internal/lfrtypes"
 )
 
 var softwareCmd = &cobra.Command{
@@ -44,7 +44,7 @@ var softwareListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List available software packs",
 	Long:  `List all available software packs with descriptions and installation status.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		category, _ := cmd.Flags().GetString("category")
 		installed, _ := cmd.Flags().GetBool("installed")
 
@@ -103,15 +103,15 @@ func init() {
 }
 
 // Built-in software packs for common educational use cases
-var builtinPacks = map[string]*types.SoftwarePack{
+var builtinPacks = map[string]*lfrtypes.SoftwarePack{
 	"python-dev": {
 		ID:          "python-dev",
 		Name:        "Python Development Environment",
 		Description: "Complete Python development setup with common packages",
 		Category:    "development",
-		Type:        types.PackTypeAPT,
+		Type:        lfrtypes.PackTypeAPT,
 		Version:     "1.0",
-		Packages: []types.Package{
+		Packages: []lfrtypes.Package{
 			{Name: "python3", Source: "apt"},
 			{Name: "python3-pip", Source: "apt"},
 			{Name: "python3-venv", Source: "apt"},
@@ -121,7 +121,7 @@ var builtinPacks = map[string]*types.SoftwarePack{
 			{Name: "vim", Source: "apt"},
 			{Name: "htop", Source: "apt"},
 		},
-		Scripts: []types.Script{
+		Scripts: []lfrtypes.Script{
 			{
 				Name:        "pip-packages",
 				Description: "Install common Python packages",
@@ -143,15 +143,15 @@ echo "Python packages installed successfully"`,
 		Name:        "Data Science Environment",
 		Description: "R, Python, Jupyter, and common data science tools",
 		Category:    "data-science",
-		Type:        types.PackTypeMixed,
+		Type:        lfrtypes.PackTypeMixed,
 		Version:     "1.0",
 		Dependencies: []string{"python-dev"},
-		Packages: []types.Package{
+		Packages: []lfrtypes.Package{
 			{Name: "r-base", Source: "apt"},
 			{Name: "r-base-dev", Source: "apt"},
 			{Name: "rstudio-server", Source: "custom"},
 		},
-		Scripts: []types.Script{
+		Scripts: []lfrtypes.Script{
 			{
 				Name:        "rstudio-setup",
 				Description: "Install and configure RStudio Server",
@@ -178,14 +178,14 @@ echo "RStudio Server installed on port 8787"`,
 		Name:        "GPU Machine Learning Environment",
 		Description: "CUDA, PyTorch, TensorFlow for GPU-enabled instances",
 		Category:    "gpu",
-		Type:        types.PackTypeMixed,
+		Type:        lfrtypes.PackTypeMixed,
 		Version:     "1.0",
 		Dependencies: []string{"python-dev"},
-		Packages: []types.Package{
+		Packages: []lfrtypes.Package{
 			{Name: "nvidia-driver-535", Source: "apt"},
 			{Name: "nvidia-cuda-toolkit", Source: "apt"},
 		},
-		Scripts: []types.Script{
+		Scripts: []lfrtypes.Script{
 			{
 				Name:        "gpu-ml-setup",
 				Description: "Install PyTorch and TensorFlow with GPU support",
@@ -218,9 +218,9 @@ echo "GPU ML environment setup complete"`,
 		Name:        "Web Development Environment",
 		Description: "Node.js, npm, and common web development tools",
 		Category:    "development",
-		Type:        types.PackTypeAPT,
+		Type:        lfrtypes.PackTypeAPT,
 		Version:     "1.0",
-		Packages: []types.Package{
+		Packages: []lfrtypes.Package{
 			{Name: "nodejs", Source: "apt"},
 			{Name: "npm", Source: "apt"},
 			{Name: "git", Source: "apt"},
@@ -228,7 +228,7 @@ echo "GPU ML environment setup complete"`,
 			{Name: "wget", Source: "apt"},
 			{Name: "unzip", Source: "apt"},
 		},
-		Scripts: []types.Script{
+		Scripts: []lfrtypes.Script{
 			{
 				Name:        "node-global-packages",
 				Description: "Install common Node.js global packages",
@@ -275,7 +275,7 @@ func installSoftwarePack(ctx context.Context, packName, username, project string
 		return fmt.Errorf("failed to list instances: %w", err)
 	}
 
-	var targetInstance *types.Instance
+	var targetInstance *lfrtypes.Instance
 	for _, instance := range instances {
 		if strings.HasPrefix(instance.Name, username+"-") {
 			targetInstance = instance
@@ -384,7 +384,7 @@ func createSoftwarePack(packName, template string) error {
 	packFile := fmt.Sprintf("%s-pack.yaml", packName)
 
 	// Create pack based on template
-	var pack *types.SoftwarePack
+	var pack *lfrtypes.SoftwarePack
 	switch template {
 	case "basic":
 		pack = createBasicPackTemplate(packName)
@@ -435,7 +435,7 @@ func showSoftwareStatus(ctx context.Context, username, project string) error {
 		return fmt.Errorf("failed to list instances: %w", err)
 	}
 
-	var targetInstance *types.Instance
+	var targetInstance *lfrtypes.Instance
 	for _, instance := range instances {
 		if strings.HasPrefix(instance.Name, username+"-") {
 			targetInstance = instance
@@ -479,7 +479,7 @@ func getAvailablePackNames() []string {
 	return names
 }
 
-func loadCustomPack(packName string) (*types.SoftwarePack, error) {
+func loadCustomPack(packName string) (*lfrtypes.SoftwarePack, error) {
 	packFile := packName + "-pack.yaml"
 	if _, err := os.Stat(packFile); os.IsNotExist(err) {
 		packFile = packName + "-pack.json"
@@ -494,7 +494,7 @@ func loadCustomPack(packName string) (*types.SoftwarePack, error) {
 		return nil, fmt.Errorf("failed to read pack file: %w", err)
 	}
 
-	var pack types.SoftwarePack
+	var pack lfrtypes.SoftwarePack
 	if err := json.Unmarshal(data, &pack); err != nil {
 		return nil, fmt.Errorf("failed to parse pack file: %w", err)
 	}
@@ -502,7 +502,7 @@ func loadCustomPack(packName string) (*types.SoftwarePack, error) {
 	return &pack, nil
 }
 
-func isPackSupportedOnBlueprint(pack *types.SoftwarePack, blueprint string) bool {
+func isPackSupportedOnBlueprint(pack *lfrtypes.SoftwarePack, blueprint string) bool {
 	if len(pack.Supported) == 0 {
 		return true // No restrictions
 	}
@@ -515,7 +515,7 @@ func isPackSupportedOnBlueprint(pack *types.SoftwarePack, blueprint string) bool
 	return false
 }
 
-func generateInstallScript(pack *types.SoftwarePack, instance *types.Instance, _ bool) (string, error) {
+func generateInstallScript(pack *lfrtypes.SoftwarePack, instance *lfrtypes.Instance, _ bool) (string, error) {
 	script := "#!/bin/bash\n"
 	script += "set -e\n\n"
 	script += fmt.Sprintf("echo 'Installing %s on %s'\n", pack.Name, instance.Name)
@@ -553,7 +553,7 @@ func generateInstallScript(pack *types.SoftwarePack, instance *types.Instance, _
 	return script, nil
 }
 
-func executeInstallationScript(ctx context.Context, instance *types.Instance, script, username string) (*types.InstallResult, error) {
+func executeInstallationScript(_ context.Context, instance *lfrtypes.Instance, script, _ string) (*lfrtypes.InstallResult, error) {
 	start := time.Now()
 
 	fmt.Printf("Executing software installation on %s...\n", instance.PublicIP)
@@ -620,7 +620,7 @@ func executeInstallationScript(ctx context.Context, instance *types.Instance, sc
 	duration := time.Since(start)
 
 	if err != nil {
-		return &types.InstallResult{
+		return &lfrtypes.InstallResult{
 			PackID:      "failed",
 			Success:     false,
 			Message:     fmt.Sprintf("Installation failed: %v", err),
@@ -643,7 +643,7 @@ func executeInstallationScript(ctx context.Context, instance *types.Instance, sc
 		installedPackages = append(installedPackages, "nodejs")
 	}
 
-	result := &types.InstallResult{
+	result := &lfrtypes.InstallResult{
 		PackID:      "success",
 		Success:     true,
 		Message:     "Software pack installed successfully",
@@ -676,15 +676,15 @@ func toTitle(s string) string {
 	return string(runes)
 }
 
-func createBasicPackTemplate(name string) *types.SoftwarePack {
-	return &types.SoftwarePack{
+func createBasicPackTemplate(name string) *lfrtypes.SoftwarePack {
+	return &lfrtypes.SoftwarePack{
 		ID:          name,
 		Name:        toTitle(name) + " Pack",
 		Description: "Custom software pack",
 		Category:    "custom",
-		Type:        types.PackTypeAPT,
+		Type:        lfrtypes.PackTypeAPT,
 		Version:     "1.0",
-		Packages: []types.Package{
+		Packages: []lfrtypes.Package{
 			{Name: "git", Source: "apt"},
 			{Name: "curl", Source: "apt"},
 			{Name: "vim", Source: "apt"},
@@ -693,15 +693,15 @@ func createBasicPackTemplate(name string) *types.SoftwarePack {
 	}
 }
 
-func createDevelopmentPackTemplate(name string) *types.SoftwarePack {
-	return &types.SoftwarePack{
+func createDevelopmentPackTemplate(name string) *lfrtypes.SoftwarePack {
+	return &lfrtypes.SoftwarePack{
 		ID:          name,
 		Name:        toTitle(name) + " Development Pack",
 		Description: "Development environment with common tools",
 		Category:    "development",
-		Type:        types.PackTypeMixed,
+		Type:        lfrtypes.PackTypeMixed,
 		Version:     "1.0",
-		Packages: []types.Package{
+		Packages: []lfrtypes.Package{
 			{Name: "build-essential", Source: "apt"},
 			{Name: "git", Source: "apt"},
 			{Name: "python3", Source: "apt"},
@@ -709,7 +709,7 @@ func createDevelopmentPackTemplate(name string) *types.SoftwarePack {
 			{Name: "nodejs", Source: "apt"},
 			{Name: "npm", Source: "apt"},
 		},
-		Scripts: []types.Script{
+		Scripts: []lfrtypes.Script{
 			{
 				Name:    "dev-setup",
 				Content: "echo 'Development environment setup complete'",
@@ -720,16 +720,16 @@ func createDevelopmentPackTemplate(name string) *types.SoftwarePack {
 	}
 }
 
-func createDataSciencePackTemplate(name string) *types.SoftwarePack {
-	return &types.SoftwarePack{
+func createDataSciencePackTemplate(name string) *lfrtypes.SoftwarePack {
+	return &lfrtypes.SoftwarePack{
 		ID:          name,
 		Name:        toTitle(name) + " Data Science Pack",
 		Description: "Data science environment with R and Python",
 		Category:    "data-science",
-		Type:        types.PackTypeMixed,
+		Type:        lfrtypes.PackTypeMixed,
 		Version:     "1.0",
 		Dependencies: []string{"python-dev"},
-		Packages: []types.Package{
+		Packages: []lfrtypes.Package{
 			{Name: "r-base", Source: "apt"},
 			{Name: "python3-scipy", Source: "apt"},
 			{Name: "python3-numpy", Source: "apt"},
@@ -738,16 +738,16 @@ func createDataSciencePackTemplate(name string) *types.SoftwarePack {
 	}
 }
 
-func createGPUPackTemplate(name string) *types.SoftwarePack {
-	return &types.SoftwarePack{
+func createGPUPackTemplate(name string) *lfrtypes.SoftwarePack {
+	return &lfrtypes.SoftwarePack{
 		ID:          name,
 		Name:        toTitle(name) + " GPU Pack",
 		Description: "GPU computing environment with CUDA",
 		Category:    "gpu",
-		Type:        types.PackTypeMixed,
+		Type:        lfrtypes.PackTypeMixed,
 		Version:     "1.0",
 		Dependencies: []string{"python-dev"},
-		Packages: []types.Package{
+		Packages: []lfrtypes.Package{
 			{Name: "nvidia-cuda-toolkit", Source: "apt"},
 		},
 		Environment: map[string]string{

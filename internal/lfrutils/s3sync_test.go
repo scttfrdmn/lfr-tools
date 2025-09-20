@@ -1,11 +1,11 @@
-package utils
+package lfrutils
 
 import (
 	"context"
 	"testing"
 	"time"
 
-	"github.com/scttfrdmn/lfr-tools/internal/types"
+	"github.com/scttfrdmn/lfr-tools/internal/lfrtypes"
 )
 
 func TestExtractUsernameFromInstance(t *testing.T) {
@@ -33,7 +33,7 @@ func TestExtractUsernameFromInstance(t *testing.T) {
 
 func TestUpdateInstanceStatusInS3(t *testing.T) {
 	// Test with S3 sync disabled (should not error)
-	instance := &types.Instance{
+	instance := &lfrtypes.Instance{
 		Name:      "alice-ubuntu",
 		State:     "running",
 		PublicIP:  "1.2.3.4",
@@ -83,8 +83,8 @@ func TestS3SyncConfigStructure(t *testing.T) {
 	}
 }
 
-func TestUpdateMultipleInstancesInS3(t *testing.T) {
-	instances := []*types.Instance{
+func TestUpdateMultipleInstancesInS3(_ *testing.T) {
+	instances := []*lfrtypes.Instance{
 		{
 			Name:      "alice-ubuntu",
 			State:     "running",

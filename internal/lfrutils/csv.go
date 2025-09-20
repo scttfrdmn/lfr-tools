@@ -1,5 +1,5 @@
-// Package utils provides CSV parsing utilities for bulk operations.
-package utils
+// Package lfrutils provides CSV parsing utilities for bulk operations.
+package lfrutils
 
 import (
 	"encoding/csv"

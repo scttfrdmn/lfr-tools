@@ -10,7 +10,7 @@ import (
 
 	"github.com/scttfrdmn/lfr-tools/internal/aws"
 	"github.com/scttfrdmn/lfr-tools/internal/config"
-	"github.com/scttfrdmn/lfr-tools/internal/utils"
+	"github.com/scttfrdmn/lfr-tools/internal/lfrutils"
 )
 
 var groupsCmd = &cobra.Command{
@@ -209,7 +209,7 @@ func listGroups(ctx context.Context, project string) error {
 // createBulkGroups creates multiple groups from a CSV file.
 func createBulkGroups(ctx context.Context, csvFile string, dryRun, continueOnError bool) error {
 	// Parse CSV file
-	groups, err := utils.ParseGroupsCSV(csvFile)
+	groups, err := lfrutils.ParseGroupsCSV(csvFile)
 	if err != nil {
 		return fmt.Errorf("failed to parse CSV file: %w", err)
 	}
@@ -278,7 +278,7 @@ func removeBulkGroups(_ context.Context, groups []string, _ string, csvFile stri
 
 	// Determine groups to remove
 	if csvFile != "" {
-		bulkGroups, err := utils.ParseGroupsCSV(csvFile)
+		bulkGroups, err := lfrutils.ParseGroupsCSV(csvFile)
 		if err != nil {
 			return fmt.Errorf("failed to parse CSV file: %w", err)
 		}
@@ -333,7 +333,7 @@ func removeBulkGroups(_ context.Context, groups []string, _ string, csvFile stri
 
 // generateGroupTemplate generates a CSV template for bulk group creation.
 func generateGroupTemplate(filename string) error {
-	err := utils.GenerateGroupsCSVTemplate(filename)
+	err := lfrutils.GenerateGroupsCSVTemplate(filename)
 	if err != nil {
 		return fmt.Errorf("failed to generate template: %w", err)
 	}

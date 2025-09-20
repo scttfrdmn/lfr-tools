@@ -1,5 +1,5 @@
-// Package utils provides bundle management utilities for Lightsail for Research.
-package utils
+// Package lfrutils provides bundle management utilities for Lightsail for Research.
+package lfrutils
 
 import (
 	"fmt"

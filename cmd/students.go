@@ -14,7 +14,7 @@ import (
 
 	"github.com/scttfrdmn/lfr-tools/internal/aws"
 	"github.com/scttfrdmn/lfr-tools/internal/config"
-	"github.com/scttfrdmn/lfr-tools/internal/utils"
+	"github.com/scttfrdmn/lfr-tools/internal/lfrutils"
 )
 
 var studentsCmd = &cobra.Command{
@@ -35,7 +35,7 @@ var studentsSetupClassCmd = &cobra.Command{
 	Long: `Set up a complete educational environment (class, lab, or project) with S3 status bucket,
 student tokens, and automatic status synchronization.`,
 	Args: cobra.NoArgs,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 		bucket, _ := cmd.Flags().GetString("s3-bucket")
 		students, _ := cmd.Flags().GetStringSlice("students")
@@ -54,7 +54,7 @@ var studentsGenerateCmd = &cobra.Command{
 	Long: `Generate hardware-bindable access tokens for students and TAs.
 Tokens are distributed to users for one-time activation.`,
 	Args: cobra.NoArgs,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 		outputDir, _ := cmd.Flags().GetString("output")
 
@@ -68,7 +68,7 @@ var studentsCheckCmd = &cobra.Command{
 	Long: `Check S3 for pending instance start requests from students and TAs.
 Shows who is requesting access and when.`,
 	Args: cobra.NoArgs,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 		autoApprove, _ := cmd.Flags().GetBool("auto-approve")
 
@@ -81,7 +81,7 @@ var studentsStatusCmd = &cobra.Command{
 	Short: "Show comprehensive student access status",
 	Long: `Display status of all students including instance states, budget usage,
 access permissions, and recent activity.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 
 		return showStudentStatus(cmd.Context(), project)
@@ -168,7 +168,7 @@ func setupClass(ctx context.Context, project, bucket string, students, tas []str
 	}
 
 	// Enable S3 sync for this project
-	err = utils.EnableS3Sync(project, bucket)
+	err = lfrutils.EnableS3Sync(project, bucket)
 	if err != nil {
 		return fmt.Errorf("failed to enable S3 sync: %w", err)
 	}
@@ -201,7 +201,7 @@ func setupClass(ctx context.Context, project, bucket string, students, tas []str
 }
 
 // generateStudentTokens generates access tokens for all students in a project.
-func generateStudentTokens(ctx context.Context, project, outputDir string) error {
+func generateStudentTokens(_ context.Context, project, outputDir string) error {
 	fmt.Printf("Generating access tokens for project: %s\n", project)
 
 	// Create output directory
@@ -299,7 +299,7 @@ func generateStudentTokens(ctx context.Context, project, outputDir string) error
 // checkStartRequests checks for pending start requests.
 func checkStartRequests(ctx context.Context, project string, autoApprove bool) error {
 	// Get S3 sync config
-	syncConfig := utils.GetS3SyncConfig()
+	syncConfig := lfrutils.GetS3SyncConfig()
 	if !syncConfig.Enabled {
 		return fmt.Errorf("S3 sync not enabled. Run: lfr students setup class")
 	}
@@ -391,7 +391,7 @@ func showStudentStatus(ctx context.Context, project string) error {
 	fmt.Println(strings.Repeat("-", 95))
 
 	for _, instance := range instances {
-		username := utils.ExtractUsernameFromInstance(instance.Name)
+		username := lfrutils.ExtractUsernameFromInstance(instance.Name)
 		if username == "" {
 			continue
 		}

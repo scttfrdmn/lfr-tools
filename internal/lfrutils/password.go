@@ -1,5 +1,5 @@
-// Package utils provides common utility functions.
-package utils
+// Package lfrutils provides common utility functions.
+package lfrutils
 
 import (
 	"crypto/rand"

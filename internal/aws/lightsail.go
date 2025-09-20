@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/lightsail"
 	lightsailTypes "github.com/aws/aws-sdk-go-v2/service/lightsail/types"
 
-	"github.com/scttfrdmn/lfr-tools/internal/types"
+	"github.com/scttfrdmn/lfr-tools/internal/lfrtypes"
 )
 
 // LightsailService provides Lightsail operations.
@@ -73,7 +73,7 @@ func (s *LightsailService) GetRegions(ctx context.Context) ([]string, error) {
 }
 
 // CreateInstance creates a Lightsail instance.
-func (s *LightsailService) CreateInstance(ctx context.Context, name, blueprintID, bundleID, availabilityZone, project string) (*types.Instance, error) {
+func (s *LightsailService) CreateInstance(ctx context.Context, name, blueprintID, bundleID, availabilityZone, project string) (*lfrtypes.Instance, error) {
 	_, err := s.client.Lightsail.CreateInstances(ctx, &lightsail.CreateInstancesInput{
 		InstanceNames:    []string{name},
 		BlueprintId:      aws.String(blueprintID),
@@ -104,7 +104,7 @@ func (s *LightsailService) CreateInstance(ctx context.Context, name, blueprintID
 }
 
 // GetInstance retrieves instance details.
-func (s *LightsailService) GetInstance(ctx context.Context, name string) (*types.Instance, error) {
+func (s *LightsailService) GetInstance(ctx context.Context, name string) (*lfrtypes.Instance, error) {
 	output, err := s.client.Lightsail.GetInstance(ctx, &lightsail.GetInstanceInput{
 		InstanceName: aws.String(name),
 	})
@@ -118,7 +118,7 @@ func (s *LightsailService) GetInstance(ctx context.Context, name string) (*types
 		tags[aws.ToString(tag.Key)] = aws.ToString(tag.Value)
 	}
 
-	result := &types.Instance{
+	result := &lfrtypes.Instance{
 		Name:      aws.ToString(instance.Name),
 		ARN:       aws.ToString(instance.Arn),
 		State:     aws.ToString(instance.State.Name),
@@ -140,13 +140,13 @@ func (s *LightsailService) GetInstance(ctx context.Context, name string) (*types
 }
 
 // ListInstances lists all Lightsail instances, optionally filtered by project.
-func (s *LightsailService) ListInstances(ctx context.Context, project string) ([]*types.Instance, error) {
+func (s *LightsailService) ListInstances(ctx context.Context, project string) ([]*lfrtypes.Instance, error) {
 	output, err := s.client.Lightsail.GetInstances(ctx, &lightsail.GetInstancesInput{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list instances: %w", err)
 	}
 
-	var instances []*types.Instance
+	var instances []*lfrtypes.Instance
 	for _, instance := range output.Instances {
 		tags := make(map[string]string)
 		for _, tag := range instance.Tags {
@@ -160,7 +160,7 @@ func (s *LightsailService) ListInstances(ctx context.Context, project string) ([
 			}
 		}
 
-		result := &types.Instance{
+		result := &lfrtypes.Instance{
 			Name:      aws.ToString(instance.Name),
 			ARN:       aws.ToString(instance.Arn),
 			State:     aws.ToString(instance.State.Name),
@@ -233,7 +233,7 @@ func (s *LightsailService) GetInstanceSSHKeyPair(ctx context.Context, keyPairNam
 }
 
 // DownloadSSHKey downloads the private key for an instance.
-func (s *LightsailService) DownloadSSHKey(ctx context.Context, keyPairName string) (string, error) {
+func (s *LightsailService) DownloadSSHKey(ctx context.Context, _ string) (string, error) {
 	output, err := s.client.Lightsail.DownloadDefaultKeyPair(ctx, &lightsail.DownloadDefaultKeyPairInput{})
 	if err != nil {
 		return "", fmt.Errorf("failed to download default key pair: %w", err)
@@ -255,7 +255,7 @@ func (s *LightsailService) GetInstanceAccessDetails(ctx context.Context, instanc
 }
 
 // CreateDisk creates a new block storage disk.
-func (s *LightsailService) CreateDisk(ctx context.Context, diskName string, sizeGB int32, availabilityZone, project string) (*types.Disk, error) {
+func (s *LightsailService) CreateDisk(ctx context.Context, diskName string, sizeGB int32, availabilityZone, project string) (*lfrtypes.Disk, error) {
 	_, err := s.client.Lightsail.CreateDisk(ctx, &lightsail.CreateDiskInput{
 		DiskName:         aws.String(diskName),
 		AvailabilityZone: aws.String(availabilityZone),
@@ -279,7 +279,7 @@ func (s *LightsailService) CreateDisk(ctx context.Context, diskName string, size
 }
 
 // GetDisk retrieves disk details.
-func (s *LightsailService) GetDisk(ctx context.Context, diskName string) (*types.Disk, error) {
+func (s *LightsailService) GetDisk(ctx context.Context, diskName string) (*lfrtypes.Disk, error) {
 	output, err := s.client.Lightsail.GetDisk(ctx, &lightsail.GetDiskInput{
 		DiskName: aws.String(diskName),
 	})
@@ -293,7 +293,7 @@ func (s *LightsailService) GetDisk(ctx context.Context, diskName string) (*types
 		tags[aws.ToString(tag.Key)] = aws.ToString(tag.Value)
 	}
 
-	return &types.Disk{
+	return &lfrtypes.Disk{
 		Name:             aws.ToString(disk.Name),
 		ARN:              aws.ToString(disk.Arn),
 		State:            string(disk.State),
@@ -309,13 +309,13 @@ func (s *LightsailService) GetDisk(ctx context.Context, diskName string) (*types
 }
 
 // ListDisks lists all block storage disks.
-func (s *LightsailService) ListDisks(ctx context.Context, project string) ([]*types.Disk, error) {
+func (s *LightsailService) ListDisks(ctx context.Context, project string) ([]*lfrtypes.Disk, error) {
 	output, err := s.client.Lightsail.GetDisks(ctx, &lightsail.GetDisksInput{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list disks: %w", err)
 	}
 
-	var disks []*types.Disk
+	var disks []*lfrtypes.Disk
 	for _, disk := range output.Disks {
 		tags := make(map[string]string)
 		for _, tag := range disk.Tags {
@@ -329,7 +329,7 @@ func (s *LightsailService) ListDisks(ctx context.Context, project string) ([]*ty
 			}
 		}
 
-		result := &types.Disk{
+		result := &lfrtypes.Disk{
 			Name:             aws.ToString(disk.Name),
 			ARN:              aws.ToString(disk.Arn),
 			State:            string(disk.State),
@@ -401,7 +401,7 @@ func (s *LightsailService) CreateInstanceSnapshot(ctx context.Context, instanceN
 }
 
 // CreateInstanceFromSnapshot creates a new instance from a snapshot with specified bundle.
-func (s *LightsailService) CreateInstanceFromSnapshot(ctx context.Context, newInstanceName, snapshotName, bundleID, availabilityZone string, tags map[string]string) (*types.Instance, error) {
+func (s *LightsailService) CreateInstanceFromSnapshot(ctx context.Context, newInstanceName, snapshotName, bundleID, availabilityZone string, tags map[string]string) (*lfrtypes.Instance, error) {
 	var lightsailTags []lightsailTypes.Tag
 	for key, value := range tags {
 		lightsailTags = append(lightsailTags, lightsailTypes.Tag{

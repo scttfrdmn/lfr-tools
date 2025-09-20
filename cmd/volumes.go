@@ -10,7 +10,7 @@ import (
 
 	"github.com/scttfrdmn/lfr-tools/internal/aws"
 	"github.com/scttfrdmn/lfr-tools/internal/config"
-	"github.com/scttfrdmn/lfr-tools/internal/utils"
+	"github.com/scttfrdmn/lfr-tools/internal/lfrutils"
 )
 
 var volumesCmd = &cobra.Command{
@@ -40,7 +40,7 @@ var volumesListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List block storage volumes",
 	Long:  `List all block storage volumes with their attachment status and details.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 
 		return listVolumes(cmd.Context(), project)
@@ -169,7 +169,7 @@ func createVolume(ctx context.Context, name, sizeStr, zone, project string, wait
 
 	// Wait for availability if requested
 	if wait {
-		err = utils.WaitForDiskState(ctx, disk.Name, "available", func() (string, error) {
+		err = lfrutils.WaitForDiskState(ctx, disk.Name, "available", func() (string, error) {
 			updatedDisk, err := lightsailService.GetDisk(ctx, disk.Name)
 			if err != nil {
 				return "", err
@@ -285,7 +285,7 @@ func attachVolume(ctx context.Context, volumeName, instanceName, devicePath stri
 
 	// Wait for attachment if requested
 	if wait {
-		err = utils.WaitForDiskState(ctx, volumeName, "in-use", func() (string, error) {
+		err = lfrutils.WaitForDiskState(ctx, volumeName, "in-use", func() (string, error) {
 			disk, err := lightsailService.GetDisk(ctx, volumeName)
 			if err != nil {
 				return "", err
@@ -330,7 +330,7 @@ func detachVolume(ctx context.Context, volumeName string, wait bool) error {
 
 	// Wait for detachment if requested
 	if wait {
-		err = utils.WaitForDiskState(ctx, volumeName, "available", func() (string, error) {
+		err = lfrutils.WaitForDiskState(ctx, volumeName, "available", func() (string, error) {
 			disk, err := lightsailService.GetDisk(ctx, volumeName)
 			if err != nil {
 				return "", err

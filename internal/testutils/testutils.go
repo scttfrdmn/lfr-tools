@@ -10,7 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 	"github.com/aws/aws-sdk-go-v2/service/lightsail"
 
-	"github.com/scttfrdmn/lfr-tools/internal/types"
+	"github.com/scttfrdmn/lfr-tools/internal/lfrtypes"
 )
 
 // MockIAMClient provides a mock implementation of the IAM client for testing.
@@ -60,8 +60,8 @@ func NewTestFixture(t *testing.T) *TestFixture {
 }
 
 // TestProject returns a sample project for testing.
-func (f *TestFixture) TestProject() types.Project {
-	return types.Project{
+func (f *TestFixture) TestProject() lfrtypes.Project {
+	return lfrtypes.Project{
 		Name:      "test-project",
 		Blueprint: "ubuntu_22_04",
 		Bundle:    "nano_2_0",
@@ -71,8 +71,8 @@ func (f *TestFixture) TestProject() types.Project {
 }
 
 // TestUser returns a sample user for testing.
-func (f *TestFixture) TestUser() types.User {
-	return types.User{
+func (f *TestFixture) TestUser() lfrtypes.User {
+	return lfrtypes.User{
 		Username:     "test-user",
 		Project:      "test-project",
 		InstanceARN:  "arn:aws:lightsail:us-east-1:123456789012:Instance/test-instance",
@@ -83,8 +83,8 @@ func (f *TestFixture) TestUser() types.User {
 }
 
 // TestGroup returns a sample group for testing.
-func (f *TestFixture) TestGroup() types.Group {
-	return types.Group{
+func (f *TestFixture) TestGroup() lfrtypes.Group {
+	return lfrtypes.Group{
 		Name:        "test-group",
 		Policies:    []string{"arn:aws:iam::aws:policy/ReadOnlyAccess"},
 		Description: "Test group for unit tests",
@@ -93,8 +93,8 @@ func (f *TestFixture) TestGroup() types.Group {
 }
 
 // TestInstance returns a sample instance for testing.
-func (f *TestFixture) TestInstance() types.Instance {
-	return types.Instance{
+func (f *TestFixture) TestInstance() lfrtypes.Instance {
+	return lfrtypes.Instance{
 		Name:      "test-instance",
 		ARN:       "arn:aws:lightsail:us-east-1:123456789012:Instance/test-instance",
 		State:     "running",

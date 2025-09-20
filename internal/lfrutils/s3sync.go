@@ -1,5 +1,5 @@
-// Package utils provides S3 synchronization utilities for educational access.
-package utils
+// Package lfrutils provides S3 synchronization utilities for educational access.
+package lfrutils
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/scttfrdmn/lfr-tools/internal/aws"
-	"github.com/scttfrdmn/lfr-tools/internal/types"
+	"github.com/scttfrdmn/lfr-tools/internal/lfrtypes"
 )
 
 // S3SyncConfig holds configuration for S3 status synchronization.
@@ -23,7 +23,7 @@ type S3SyncConfig struct {
 }
 
 // UpdateInstanceStatusInS3 automatically updates instance status in S3 if configured.
-func UpdateInstanceStatusInS3(ctx context.Context, instance *types.Instance) error {
+func UpdateInstanceStatusInS3(ctx context.Context, instance *lfrtypes.Instance) error {
 	// Check if S3 sync is enabled
 	syncConfig := getS3SyncConfig()
 	if !syncConfig.Enabled || syncConfig.Bucket == "" {
@@ -77,7 +77,7 @@ func UpdateInstanceStatusInS3(ctx context.Context, instance *types.Instance) err
 }
 
 // UpdateMultipleInstancesInS3 updates status for multiple instances.
-func UpdateMultipleInstancesInS3(ctx context.Context, instances []*types.Instance) {
+func UpdateMultipleInstancesInS3(ctx context.Context, instances []*lfrtypes.Instance) {
 	for _, instance := range instances {
 		// Update each instance status (errors are logged, not returned)
 		_ = UpdateInstanceStatusInS3(ctx, instance)

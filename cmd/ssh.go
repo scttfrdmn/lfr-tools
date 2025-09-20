@@ -14,7 +14,7 @@ import (
 
 	"github.com/scttfrdmn/lfr-tools/internal/aws"
 	"github.com/scttfrdmn/lfr-tools/internal/config"
-	"github.com/scttfrdmn/lfr-tools/internal/types"
+	"github.com/scttfrdmn/lfr-tools/internal/lfrtypes"
 )
 
 var sshCmd = &cobra.Command{
@@ -63,7 +63,7 @@ var sshKeysListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List available SSH keys",
 	Long:  `List all available SSH keys for Lightsail instances, showing which instances they can access.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 
 		if project != "" {
@@ -82,7 +82,7 @@ var sshConfigCmd = &cobra.Command{
 	Short: "Generate SSH config entries",
 	Long: `Generate SSH config entries for easy access to Lightsail instances. This creates
 proper SSH config entries with hostnames, users, and key paths.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 		outputPath, _ := cmd.Flags().GetString("output")
 
@@ -177,7 +177,7 @@ func connectSSH(ctx context.Context, username, project, keyPath string) error {
 		return fmt.Errorf("failed to list instances: %w", err)
 	}
 
-	var targetInstance *types.Instance
+	var targetInstance *lfrtypes.Instance
 	for _, instance := range instances {
 		if strings.HasPrefix(instance.Name, username+"-") {
 			targetInstance = instance

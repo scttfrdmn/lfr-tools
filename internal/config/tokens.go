@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/scttfrdmn/lfr-tools/internal/utils"
+	"github.com/scttfrdmn/lfr-tools/internal/lfrutils"
 )
 
 // StudentToken represents a hardware-tied access token for students.
@@ -23,7 +23,7 @@ type StudentToken struct {
 	Role            string                    `json:"role"` // student, ta, professor
 	Permissions     []string                  `json:"permissions"`
 	S3Bucket        string                    `json:"s3_bucket"`
-	Fingerprint     *utils.MachineFingerprint `json:"machine_fingerprint,omitempty"`
+	Fingerprint     *lfrutils.MachineFingerprint `json:"machine_fingerprint,omitempty"`
 	SSHKeyData      string                    `json:"ssh_key_data"`
 	CreatedAt       time.Time                 `json:"created_at"`
 	ExpiresAt       time.Time                 `json:"expires_at"`
@@ -94,7 +94,7 @@ func (tm *TokenManager) ActivateToken(tokenString, studentID string) error {
 
 
 	// Generate machine fingerprint
-	fingerprint, err := utils.GenerateMachineFingerprint()
+	fingerprint, err := lfrutils.GenerateMachineFingerprint()
 	if err != nil {
 		return fmt.Errorf("failed to generate machine fingerprint: %w", err)
 	}
@@ -175,7 +175,7 @@ func (tm *TokenManager) ValidateToken(project, username string) error {
 
 	// Check machine fingerprint (if bound)
 	if token.Fingerprint != nil {
-		valid, err := utils.ValidateMachineFingerprint(token.Fingerprint)
+		valid, err := lfrutils.ValidateMachineFingerprint(token.Fingerprint)
 		if err != nil {
 			return fmt.Errorf("failed to validate machine fingerprint: %w", err)
 		}

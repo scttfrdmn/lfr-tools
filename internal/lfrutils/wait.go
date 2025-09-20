@@ -1,5 +1,5 @@
-// Package utils provides common utility functions including AWS operation waiters.
-package utils
+// Package lfrutils provides common utility functions including AWS operation waiters.
+package lfrutils
 
 import (
 	"context"

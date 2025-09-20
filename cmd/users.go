@@ -10,7 +10,7 @@ import (
 
 	"github.com/scttfrdmn/lfr-tools/internal/aws"
 	"github.com/scttfrdmn/lfr-tools/internal/config"
-	"github.com/scttfrdmn/lfr-tools/internal/utils"
+	"github.com/scttfrdmn/lfr-tools/internal/lfrutils"
 )
 
 var usersCmd = &cobra.Command{
@@ -24,7 +24,7 @@ var usersCreateCmd = &cobra.Command{
 	Short: "Create IAM users and Lightsail instances",
 	Long: `Create IAM users with auto-generated passwords and provision Lightsail instances
 for each user with appropriate access controls.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 		blueprint, _ := cmd.Flags().GetString("blueprint")
 		bundle, _ := cmd.Flags().GetString("bundle")
@@ -42,7 +42,7 @@ var usersRemoveCmd = &cobra.Command{
 	Short: "Remove IAM users and their Lightsail instances",
 	Long: `Remove IAM users and their associated Lightsail instances. This action is irreversible
 and will delete all data on the instances.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 		users, _ := cmd.Flags().GetStringSlice("users")
 		all, _ := cmd.Flags().GetBool("all")
@@ -55,7 +55,7 @@ var usersListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List IAM users and their instances",
 	Long:  `List all IAM users and their associated Lightsail instances, optionally filtered by project.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 
 		return listUsers(cmd.Context(), project)
@@ -83,7 +83,7 @@ var usersRemoveBulkCmd = &cobra.Command{
 	Short: "Remove multiple users with progress tracking",
 	Long: `Remove multiple users and their instances with detailed progress tracking
 and optional rollback capabilities.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		users, _ := cmd.Flags().GetStringSlice("users")
 		project, _ := cmd.Flags().GetString("project")
 		csvFile, _ := cmd.Flags().GetString("csv")
@@ -99,7 +99,7 @@ var usersTemplateCmd = &cobra.Command{
 	Long: `Generate a CSV template file with sample data for bulk user creation.
 Use this as a starting point for your bulk user operations.`,
 	Args: cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		filename := args[0]
 
 		return generateUserTemplate(filename)
@@ -213,7 +213,7 @@ func createUsers(ctx context.Context, project, blueprint, bundle, region string,
 		fmt.Printf("\n[%d/%d] Creating user: %s\n", i+1, len(usernames), username)
 
 		// Generate secure password
-		password, err := utils.GeneratePassword()
+		password, err := lfrutils.GeneratePassword()
 		if err != nil {
 			fmt.Printf("❌ Error generating password for %s: %v\n", username, err)
 			continue
@@ -427,7 +427,7 @@ func listUsers(ctx context.Context, project string) error {
 // createBulkUsers creates multiple users from a CSV file.
 func createBulkUsers(ctx context.Context, csvFile string, dryRun, continueOnError, startStopped bool) error {
 	// Parse CSV file
-	users, err := utils.ParseUsersCSV(csvFile)
+	users, err := lfrutils.ParseUsersCSV(csvFile)
 	if err != nil {
 		return fmt.Errorf("failed to parse CSV file: %w", err)
 	}
@@ -531,7 +531,7 @@ func removeBulkUsers(ctx context.Context, users []string, project, csvFile strin
 
 	// Determine users to remove
 	if csvFile != "" {
-		bulkUsers, err := utils.ParseUsersCSV(csvFile)
+		bulkUsers, err := lfrutils.ParseUsersCSV(csvFile)
 		if err != nil {
 			return fmt.Errorf("failed to parse CSV file: %w", err)
 		}
@@ -593,7 +593,7 @@ func removeBulkUsers(ctx context.Context, users []string, project, csvFile strin
 
 // generateUserTemplate generates a CSV template for bulk user creation.
 func generateUserTemplate(filename string) error {
-	err := utils.GenerateUsersCSVTemplate(filename)
+	err := lfrutils.GenerateUsersCSVTemplate(filename)
 	if err != nil {
 		return fmt.Errorf("failed to generate template: %w", err)
 	}

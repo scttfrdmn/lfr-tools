@@ -14,7 +14,7 @@ import (
 
 	"github.com/scttfrdmn/lfr-tools/internal/aws"
 	"github.com/scttfrdmn/lfr-tools/internal/config"
-	"github.com/scttfrdmn/lfr-tools/internal/types"
+	"github.com/scttfrdmn/lfr-tools/internal/lfrtypes"
 )
 
 var dcvCmd = &cobra.Command{
@@ -230,7 +230,7 @@ func connectDCV(ctx context.Context, username, project, quality string, fullscre
 		return fmt.Errorf("failed to list instances: %w", err)
 	}
 
-	var targetInstance *types.Instance
+	var targetInstance *lfrtypes.Instance
 	for _, instance := range instances {
 		if strings.HasPrefix(instance.Name, username+"-") {
 			targetInstance = instance

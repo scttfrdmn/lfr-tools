@@ -24,7 +24,7 @@ func setupIntegrationTest(t *testing.T) *Client {
 		t.Skip("Skipping integration tests (SKIP_INTEGRATION_TESTS=true)")
 	}
 
-	ctx := testutils.SetupTestContext()
+	ctx := testlfrutils.SetupTestContext()
 
 	// Try LocalStack first, then real AWS
 	var client *Client
@@ -83,8 +83,8 @@ func setupIntegrationTest(t *testing.T) *Client {
 
 func TestIntegrationIAMOperations(t *testing.T) {
 	client := setupIntegrationTest(t)
-	fixture := testutils.NewTestFixture(t)
-	ctx := testutils.SetupTestContext()
+	fixture := testlfrutils.NewTestFixture(t)
+	ctx := testlfrutils.SetupTestContext()
 
 	service := NewIAMService(client)
 
@@ -144,8 +144,8 @@ func TestIntegrationIAMOperations(t *testing.T) {
 
 func TestIntegrationLightsailOperations(t *testing.T) {
 	client := setupIntegrationTest(t)
-	fixture := testutils.NewTestFixture(t)
-	ctx := testutils.SetupTestContext()
+	fixture := testlfrutils.NewTestFixture(t)
+	ctx := testlfrutils.SetupTestContext()
 
 	service := NewLightsailService(client)
 

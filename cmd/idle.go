@@ -10,7 +10,7 @@ import (
 
 	"github.com/scttfrdmn/lfr-tools/internal/aws"
 	"github.com/scttfrdmn/lfr-tools/internal/config"
-	"github.com/scttfrdmn/lfr-tools/internal/types"
+	"github.com/scttfrdmn/lfr-tools/internal/lfrtypes"
 )
 
 var idleCmd = &cobra.Command{
@@ -169,7 +169,7 @@ func configureIdleDetectionBulk(ctx context.Context, project string, users []str
 
 	// Filter by users if specified
 	if len(users) > 0 {
-		var filtered []*types.Instance
+		var filtered []*lfrtypes.Instance
 		for _, instance := range instances {
 			for _, user := range users {
 				if strings.HasPrefix(instance.Name, user+"-") {
@@ -239,7 +239,7 @@ func showIdleStatus(ctx context.Context, project, user string) error {
 
 	// Filter by user if specified
 	if user != "" {
-		var filtered []*types.Instance
+		var filtered []*lfrtypes.Instance
 		for _, instance := range instances {
 			if strings.HasPrefix(instance.Name, user+"-") {
 				filtered = append(filtered, instance)

@@ -1,5 +1,5 @@
-// Package types defines software pack data structures.
-package types
+// Package lfrtypes defines software pack data structures.
+package lfrtypes
 
 // SoftwarePack represents a deployable software package.
 type SoftwarePack struct {
