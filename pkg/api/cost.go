@@ -61,6 +61,10 @@ type UsageMetrics struct {
 	MonthlyCost     float64 `json:"monthly_cost"`
 }
 
+const (
+	defaultAWSProfile = "aws"
+)
+
 // GetProjectBudget returns budget information for a project
 func (api *CostAPI) GetProjectBudget(project string) (*BudgetInfo, error) {
 	// Load configuration
@@ -72,7 +76,7 @@ func (api *CostAPI) GetProjectBudget(project string) (*BudgetInfo, error) {
 	// Create AWS client
 	profile := cfg.AWS.Profile
 	if profile == "" {
-		profile = "aws"
+		profile = defaultAWSProfile
 	}
 
 	awsClient, err := awsInternal.NewClient(api.ctx, awsInternal.Options{

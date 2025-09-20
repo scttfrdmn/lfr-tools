@@ -364,6 +364,10 @@ func checkStartRequests(ctx context.Context, project string, autoApprove bool) e
 }
 
 // showStudentStatus shows comprehensive status for all students.
+const (
+	instanceStateRunning = "running"
+)
+
 func showStudentStatus(ctx context.Context, project string) error {
 	// Create AWS client
 	awsClient, err := aws.NewClient(ctx, aws.Options{
@@ -400,7 +404,7 @@ func showStudentStatus(ctx context.Context, project string) error {
 
 		// Calculate last activity (simplified)
 		lastActivity := "Stopped"
-		if instance.State == "running" {
+		if instance.State == instanceStateRunning {
 			lastActivity = "Active now"
 		}
 

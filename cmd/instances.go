@@ -641,8 +641,13 @@ func resizeInstance(ctx context.Context, instanceName, direction string, wait bo
 }
 
 // switchGPUMode switches an instance between GPU and standard bundles.
+const (
+	actionEnable  = "enable"
+	actionDisable = "disable"
+)
+
 func switchGPUMode(ctx context.Context, instanceName, action string, wait bool) error {
-	if action != "enable" && action != "disable" {
+	if action != actionEnable && action != actionDisable {
 		return fmt.Errorf("action must be 'enable' or 'disable', got: %s", action)
 	}
 
@@ -676,7 +681,7 @@ func switchGPUMode(ctx context.Context, instanceName, action string, wait bool) 
 
 	// Find target bundle
 	var targetBundle *utils.BundleInfo
-	if action == "enable" {
+	if action == actionEnable {
 		if currentBundle.IsGPU {
 			return fmt.Errorf("instance %s already has GPU enabled (%s)", instanceName, currentBundle.Name)
 		}
@@ -696,7 +701,7 @@ func switchGPUMode(ctx context.Context, instanceName, action string, wait bool) 
 
 	// Display GPU switch plan
 	actionDesc := "Enabling GPU"
-	if action == "disable" {
+	if action == actionDisable {
 		actionDesc = "Disabling GPU"
 	}
 
@@ -705,7 +710,7 @@ func switchGPUMode(ctx context.Context, instanceName, action string, wait bool) 
 	fmt.Printf("%s\n", utils.FormatBundleComparison(currentBundle, targetBundle))
 
 	// TODO: Add GPU quota checking here when AWS implements it
-	if action == "enable" {
+	if action == actionEnable {
 		fmt.Printf("\n💡 Note: GPU quota checking not yet available from AWS API\n")
 		fmt.Printf("Ensure you have GPU quota in your account before proceeding\n")
 	}

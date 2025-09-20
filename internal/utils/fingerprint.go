@@ -25,14 +25,14 @@ func GenerateMachineFingerprint() (*MachineFingerprint, error) {
 	// Get hostname
 	hostname, err := os.Hostname()
 	if err != nil {
-		hostname = "unknown"
+		hostname = unknownValue
 	}
 	components = append(components, "hostname:"+hostname)
 
 	// Get primary MAC address
 	macAddr, err := getPrimaryMACAddress()
 	if err != nil {
-		macAddr = "unknown"
+		macAddr = unknownValue
 	}
 	components = append(components, "mac:"+macAddr)
 
@@ -43,7 +43,7 @@ func GenerateMachineFingerprint() (*MachineFingerprint, error) {
 	// Get user info (adds user-specific binding)
 	userInfo, err := os.UserHomeDir()
 	if err != nil {
-		userInfo = "unknown"
+		userInfo = unknownValue
 	}
 	components = append(components, "user:"+userInfo)
 
@@ -117,6 +117,8 @@ func getPlatformSpecificID() (string, error) {
 		return "", fmt.Errorf("unsupported platform: %s", runtime.GOOS)
 	}
 }
+
+const unknownValue = "unknown"
 
 // getMacOSMachineID gets macOS-specific machine identifier.
 func getMacOSMachineID() (string, error) {

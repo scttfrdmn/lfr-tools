@@ -341,13 +341,19 @@ func getDCVFrameRate(quality string) string {
 	}
 }
 
+const (
+	platformDarwin  = "darwin"
+	platformWindows = "windows"
+	platformLinux   = "linux"
+)
+
 // launchDCVViewer launches the appropriate DCV viewer
 func launchDCVViewer(dcvURL, _ string, fullscreen bool) error {
 	// Try native DCV viewer first
 	var cmd *exec.Cmd
 
 	switch runtime.GOOS {
-	case "darwin":
+	case platformDarwin:
 		dcvPath := "/Applications/DCV Viewer.app/Contents/MacOS/DCV Viewer"
 		if _, err := os.Stat(dcvPath); err == nil {
 			args := []string{dcvURL}
@@ -356,7 +362,7 @@ func launchDCVViewer(dcvURL, _ string, fullscreen bool) error {
 			}
 			cmd = exec.Command(dcvPath, args...)
 		}
-	case "windows":
+	case platformWindows:
 		dcvPath := "C:\\Program Files\\NICE\\DCV\\Client\\bin\\dcvviewer.exe"
 		if _, err := os.Stat(dcvPath); err == nil {
 			args := []string{dcvURL}
@@ -365,7 +371,7 @@ func launchDCVViewer(dcvURL, _ string, fullscreen bool) error {
 			}
 			cmd = exec.Command(dcvPath, args...)
 		}
-	case "linux":
+	case platformLinux:
 		if _, err := exec.LookPath("dcvviewer"); err == nil {
 			args := []string{dcvURL}
 			if fullscreen {
@@ -397,9 +403,9 @@ func launchDCVViewer(dcvURL, _ string, fullscreen bool) error {
 	switch runtime.GOOS {
 	case "darwin":
 		browserCmd = exec.Command("open", webURL)
-	case "windows":
+	case platformWindows:
 		browserCmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", webURL)
-	case "linux":
+	case platformLinux:
 		browserCmd = exec.Command("xdg-open", webURL)
 	default:
 		return fmt.Errorf("unsupported platform for DCV viewer launch")

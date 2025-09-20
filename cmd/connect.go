@@ -64,6 +64,7 @@ func init() {
 	connectCmd.Flags().BoolP("force", "f", false, "Force connection even if instance stopped")
 }
 
+
 // connectToInstance connects to a student's instance with automatic start.
 func connectToInstance(ctx context.Context, username, project string, force bool) error {
 	// Load token manager
