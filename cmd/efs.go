@@ -46,7 +46,7 @@ var efsListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List EFS file systems",
 	Long:  `List all EFS file systems with their mount targets and access information.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 
 		return listEFSFileSystems(cmd.Context(), project)
@@ -92,7 +92,7 @@ var efsMountStatusCmd = &cobra.Command{
 	Short: "Show EFS mount status across instances",
 	Long: `Display which instances have EFS file systems mounted and their status.
 Connects to running instances to check actual mount status.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 
 		return showEFSMountStatus(cmd.Context(), project)
@@ -103,7 +103,7 @@ var efsStatusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "Check EFS and VPC peering status",
 	Long:  `Check the status of VPC peering and EFS file systems, including mount target health.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		return checkEFSStatus(cmd.Context())
 	},
 }

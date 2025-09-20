@@ -270,7 +270,7 @@ func connectSSH(ctx context.Context, username, project, keyPath string) error {
 }
 
 // downloadSSHKey downloads SSH key for a user's instance.
-func downloadSSHKey(ctx context.Context, username, project, outputPath string) error {
+func downloadSSHKey(ctx context.Context, username, _ string, outputPath string) error {
 	// Load configuration
 	cfg, err := config.Load()
 	if err != nil {

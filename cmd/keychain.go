@@ -22,7 +22,7 @@ var keychainStoreCmd = &cobra.Command{
 	Long: `Store an access token securely in the system keychain (macOS Keychain,
 Windows Credential Manager, or Linux secret service).`,
 	Args: cobra.ExactArgs(3),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		project := args[0]
 		username := args[1]
 		token := args[2]
@@ -35,7 +35,7 @@ var keychainListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List stored tokens",
 	Long:  `List all access tokens stored in the system keychain.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, _ []string) error {
 		return listKeychainTokens()
 	},
 }
@@ -45,7 +45,7 @@ var keychainDeleteCmd = &cobra.Command{
 	Short: "Delete token from keychain",
 	Long:  `Remove an access token from the system keychain.`,
 	Args: cobra.ExactArgs(2),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		project := args[0]
 		username := args[1]
 

@@ -56,7 +56,7 @@ var idleStatusCmd = &cobra.Command{
 	Short: "Show idle detection status for instances",
 	Long: `Display idle detection configuration for all instances, showing thresholds,
 durations, and current idle status.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 		user, _ := cmd.Flags().GetString("user")
 

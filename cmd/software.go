@@ -342,7 +342,7 @@ func installSoftwarePack(ctx context.Context, packName, username, project string
 }
 
 // listSoftwarePacks lists available software packs.
-func listSoftwarePacks(category string, installed bool) error {
+func listSoftwarePacks(category string, _ bool) error {
 	fmt.Printf("Available software packs:\n\n")
 	fmt.Printf("%-15s %-30s %-15s %-40s\n",
 		"ID", "NAME", "CATEGORY", "DESCRIPTION")
@@ -515,7 +515,7 @@ func isPackSupportedOnBlueprint(pack *types.SoftwarePack, blueprint string) bool
 	return false
 }
 
-func generateInstallScript(pack *types.SoftwarePack, instance *types.Instance, force bool) (string, error) {
+func generateInstallScript(pack *types.SoftwarePack, instance *types.Instance, _ bool) (string, error) {
 	script := "#!/bin/bash\n"
 	script += "set -e\n\n"
 	script += fmt.Sprintf("echo 'Installing %s on %s'\n", pack.Name, instance.Name)
@@ -607,6 +607,7 @@ func executeInstallationScript(ctx context.Context, instance *types.Instance, sc
 	}
 
 	// Execute script on remote instance
+	// #nosec G204 - SSH command execution is intentional for software installation
 	sshCommand := exec.Command("ssh",
 		"-i", keyPath,
 		"-o", "StrictHostKeyChecking=no",

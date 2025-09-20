@@ -26,7 +26,7 @@ var idlePoliciesListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List available idle detection policies",
 	Long:  `List all available idle detection policy templates with their configurations and estimated savings.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		category, _ := cmd.Flags().GetString("category")
 
 		return listIdlePolicies(category)
@@ -54,7 +54,7 @@ var idleAnalyzeCmd = &cobra.Command{
 	Short: "Analyze instance usage patterns for idle optimization",
 	Long: `Analyze instance CPU, memory, and network usage patterns to recommend
 optimal idle detection policies and estimate potential cost savings.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 		days, _ := cmd.Flags().GetInt("days")
 
