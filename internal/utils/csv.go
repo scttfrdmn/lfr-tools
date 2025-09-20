@@ -28,6 +28,7 @@ type BulkGroup struct {
 
 // ParseUsersCSV parses a CSV file containing user information.
 func ParseUsersCSV(filename string) ([]BulkUser, error) {
+	// #nosec G304 - File path is from command line argument, user controls input
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open CSV file: %w", err)
@@ -118,6 +119,7 @@ func ParseUsersCSV(filename string) ([]BulkUser, error) {
 
 // ParseGroupsCSV parses a CSV file containing group information.
 func ParseGroupsCSV(filename string) ([]BulkGroup, error) {
+	// #nosec G304 - File path is from command line argument, user controls input
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open CSV file: %w", err)

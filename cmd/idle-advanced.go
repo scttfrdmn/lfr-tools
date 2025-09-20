@@ -135,7 +135,7 @@ func listIdlePolicies(category string) error {
 }
 
 // applyIdlePolicy applies an idle detection policy to instances.
-func applyIdlePolicy(ctx context.Context, policyID, project string, users []string, dryRun bool) error {
+func applyIdlePolicy(_ context.Context, policyID, project string, users []string, dryRun bool) error {
 	pm := idle.NewPolicyManager()
 
 	// Get policy template

@@ -197,6 +197,7 @@ func createUsers(ctx context.Context, project, blueprint, bundle, region string,
 	}
 
 	// Step 2: Ensure Lightsail-Users group exists
+	// #nosec G101 - This is a public AWS managed policy ARN, not credentials
 	changePasswordPolicyARN := "arn:aws:iam::aws:policy/IAMUserChangePassword"
 	_, err = iamService.CreateGroup(ctx, "Lightsail-Users", "Group for Lightsail for Research users", []string{policyARN, changePasswordPolicyARN})
 	if err != nil {

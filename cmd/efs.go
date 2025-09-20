@@ -314,7 +314,7 @@ func listEFSFileSystems(ctx context.Context, project string) error {
 }
 
 // mountEFSOnInstance mounts EFS on a user's instance with specified permissions.
-func mountEFSOnInstance(_ context.Context, filesystemID, username, mountPoint, project, mode string) error {
+func mountEFSOnInstance(_ context.Context, filesystemID, username, mountPoint, _ string, mode string) error {
 	if mode != "rw" && mode != "ro" {
 		return fmt.Errorf("mount mode must be 'rw' (read-write) or 'ro' (read-only), got: %s", mode)
 	}
