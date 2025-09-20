@@ -32,7 +32,11 @@ func ParseUsersCSV(filename string) ([]BulkUser, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open CSV file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Printf("Warning: failed to close CSV file: %v\n", err)
+		}
+	}()
 
 	reader := csv.NewReader(file)
 	reader.TrimLeadingSpace = true
@@ -118,7 +122,11 @@ func ParseGroupsCSV(filename string) ([]BulkGroup, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open CSV file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Printf("Warning: failed to close CSV file: %v\n", err)
+		}
+	}()
 
 	reader := csv.NewReader(file)
 	reader.TrimLeadingSpace = true
@@ -201,7 +209,11 @@ func GenerateUsersCSVTemplate(filename string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create CSV template: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Printf("Warning: failed to close CSV file: %v\n", err)
+		}
+	}()
 
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
@@ -234,7 +246,11 @@ func GenerateGroupsCSVTemplate(filename string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create CSV template: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Printf("Warning: failed to close CSV file: %v\n", err)
+		}
+	}()
 
 	writer := csv.NewWriter(file)
 	defer writer.Flush()

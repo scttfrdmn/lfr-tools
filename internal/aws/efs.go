@@ -233,9 +233,9 @@ func (s *EFSService) ListEFSFileSystems(ctx context.Context, project string) ([]
 	var fileSystems []*EFSFileSystem
 
 	for _, fs := range output.FileSystems {
-		// Get tags
-		tagsOutput, err := s.efsClient.DescribeTags(ctx, &efs.DescribeTagsInput{
-			FileSystemId: fs.FileSystemId,
+		// Get tags using new API
+		tagsOutput, err := s.efsClient.ListTagsForResource(ctx, &efs.ListTagsForResourceInput{
+			ResourceId: fs.FileSystemId,
 		})
 		if err != nil {
 			continue // Skip if can't get tags

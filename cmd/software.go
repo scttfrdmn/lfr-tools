@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -649,10 +650,26 @@ func executeInstallationScript(ctx context.Context, instance *types.Instance, sc
 
 // Template creation functions
 
+// toTitle provides title case functionality to replace deprecated strings.Title
+func toTitle(s string) string {
+	if s == "" {
+		return s
+	}
+
+	runes := []rune(s)
+	runes[0] = unicode.ToUpper(runes[0])
+	for i := 1; i < len(runes); i++ {
+		if runes[i-1] == ' ' || runes[i-1] == '-' || runes[i-1] == '_' {
+			runes[i] = unicode.ToUpper(runes[i])
+		}
+	}
+	return string(runes)
+}
+
 func createBasicPackTemplate(name string) *types.SoftwarePack {
 	return &types.SoftwarePack{
 		ID:          name,
-		Name:        strings.Title(name) + " Pack",
+		Name:        toTitle(name) + " Pack",
 		Description: "Custom software pack",
 		Category:    "custom",
 		Type:        types.PackTypeAPT,
@@ -669,7 +686,7 @@ func createBasicPackTemplate(name string) *types.SoftwarePack {
 func createDevelopmentPackTemplate(name string) *types.SoftwarePack {
 	return &types.SoftwarePack{
 		ID:          name,
-		Name:        strings.Title(name) + " Development Pack",
+		Name:        toTitle(name) + " Development Pack",
 		Description: "Development environment with common tools",
 		Category:    "development",
 		Type:        types.PackTypeMixed,
@@ -696,7 +713,7 @@ func createDevelopmentPackTemplate(name string) *types.SoftwarePack {
 func createDataSciencePackTemplate(name string) *types.SoftwarePack {
 	return &types.SoftwarePack{
 		ID:          name,
-		Name:        strings.Title(name) + " Data Science Pack",
+		Name:        toTitle(name) + " Data Science Pack",
 		Description: "Data science environment with R and Python",
 		Category:    "data-science",
 		Type:        types.PackTypeMixed,
@@ -714,7 +731,7 @@ func createDataSciencePackTemplate(name string) *types.SoftwarePack {
 func createGPUPackTemplate(name string) *types.SoftwarePack {
 	return &types.SoftwarePack{
 		ID:          name,
-		Name:        strings.Title(name) + " GPU Pack",
+		Name:        toTitle(name) + " GPU Pack",
 		Description: "GPU computing environment with CUDA",
 		Category:    "gpu",
 		Type:        types.PackTypeMixed,

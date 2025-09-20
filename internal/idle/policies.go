@@ -29,13 +29,21 @@ type PolicyTemplate struct {
 type PolicyCategory string
 
 const (
+	// CategoryAggressive represents aggressive cost optimization policies
 	CategoryAggressive   PolicyCategory = "aggressive"
+	// CategoryBalanced represents balanced cost and performance policies
 	CategoryBalanced     PolicyCategory = "balanced"
+	// CategoryConservative represents conservative policies prioritizing safety
 	CategoryConservative PolicyCategory = "conservative"
+	// CategoryDevelopment represents policies for development environments
 	CategoryDevelopment  PolicyCategory = "development"
+	// CategoryProduction represents policies for production environments
 	CategoryProduction   PolicyCategory = "production"
+	// CategoryResearch represents policies for research computing
 	CategoryResearch     PolicyCategory = "research"
+	// CategoryEducational represents policies for educational environments
 	CategoryEducational  PolicyCategory = "educational"
+	// CategoryCustom represents custom user-defined policies
 	CategoryCustom       PolicyCategory = "custom"
 )
 
@@ -75,11 +83,17 @@ type Schedule struct {
 type ScheduleType string
 
 const (
+	// ScheduleTypeDaily represents daily recurring schedules
 	ScheduleTypeDaily       ScheduleType = "daily"
+	// ScheduleTypeWeekly represents weekly recurring schedules
 	ScheduleTypeWeekly      ScheduleType = "weekly"
+	// ScheduleTypeWorkHours represents standard work hours scheduling
 	ScheduleTypeWorkHours   ScheduleType = "work_hours"
+	// ScheduleTypeClassHours represents class-specific scheduling
 	ScheduleTypeClassHours  ScheduleType = "class_hours"
+	// ScheduleTypeIdleBased represents idle activity-based scheduling
 	ScheduleTypeIdleBased   ScheduleType = "idle_based"
+	// ScheduleTypeCustom represents custom user-defined schedules
 	ScheduleTypeCustom      ScheduleType = "custom"
 )
 
@@ -87,12 +101,19 @@ const (
 type DayOfWeek string
 
 const (
+	// Monday represents Monday
 	Monday    DayOfWeek = "monday"
+	// Tuesday represents Tuesday
 	Tuesday   DayOfWeek = "tuesday"
+	// Wednesday represents Wednesday
 	Wednesday DayOfWeek = "wednesday"
+	// Thursday represents Thursday
 	Thursday  DayOfWeek = "thursday"
+	// Friday represents Friday
 	Friday    DayOfWeek = "friday"
+	// Saturday represents Saturday
 	Saturday  DayOfWeek = "saturday"
+	// Sunday represents Sunday
 	Sunday    DayOfWeek = "sunday"
 )
 

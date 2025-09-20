@@ -17,7 +17,7 @@ type FileKeychain struct {
 func NewFileKeychain() *FileKeychain {
 	homeDir, _ := os.UserHomeDir()
 	storePath := filepath.Join(homeDir, ".lfr-tools", "keychain")
-	os.MkdirAll(storePath, 0700)
+	_ = os.MkdirAll(storePath, 0700) // Best effort directory creation
 
 	return &FileKeychain{
 		storePath: storePath,
@@ -25,14 +25,14 @@ func NewFileKeychain() *FileKeychain {
 }
 
 // NewWindowsKeychain creates a Windows credential manager service.
-func NewWindowsKeychain() KeychainService {
+func NewWindowsKeychain() Service {
 	// For now, use file fallback on Windows
 	// TODO: Implement Windows Credential Manager integration
 	return NewFileKeychain()
 }
 
 // NewLinuxKeychain creates a Linux secret service.
-func NewLinuxKeychain() KeychainService {
+func NewLinuxKeychain() Service {
 	// For now, use file fallback on Linux
 	// TODO: Implement libsecret/gnome-keyring integration
 	return NewFileKeychain()

@@ -35,7 +35,7 @@ var connectListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List available connections",
 	Long:  `List all available connections from stored tokens.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, _ []string) error {
 		return listAvailableConnections()
 	},
 }
@@ -156,7 +156,11 @@ func connectToInstance(ctx context.Context, username, project string, force bool
 	if err != nil {
 		return fmt.Errorf("failed to create SSH key: %w", err)
 	}
-	defer os.Remove(keyFile)
+	defer func() {
+		if err := os.Remove(keyFile); err != nil {
+			fmt.Printf("Warning: failed to cleanup SSH key file: %v\n", err)
+		}
+	}()
 
 	// Execute SSH
 	sshArgs := []string{
@@ -363,18 +367,18 @@ func createTempSSHKey(keyData string) (string, error) {
 	// Write key data
 	_, err = tmpFile.WriteString(keyData)
 	if err != nil {
-		tmpFile.Close()
-		os.Remove(tmpFile.Name())
+		_ = tmpFile.Close()
+		_ = os.Remove(tmpFile.Name())
 		return "", fmt.Errorf("failed to write SSH key: %w", err)
 	}
 
 	// Set proper permissions
 	if err := tmpFile.Chmod(0600); err != nil {
-		tmpFile.Close()
-		os.Remove(tmpFile.Name())
+		_ = tmpFile.Close()
+		_ = os.Remove(tmpFile.Name())
 		return "", fmt.Errorf("failed to set key permissions: %w", err)
 	}
 
-	tmpFile.Close()
+	_ = tmpFile.Close()
 	return tmpFile.Name(), nil
 }

@@ -15,7 +15,11 @@ func TestTokenManager(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() {
+		if err := os.RemoveAll(tempDir); err != nil {
+			t.Logf("Warning: failed to cleanup temp dir: %v", err)
+		}
+	}()
 
 	// Create token manager with temp directory
 	tm := &TokenManager{
@@ -94,7 +98,11 @@ func TestActivateToken(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() {
+		if err := os.RemoveAll(tempDir); err != nil {
+			t.Logf("Warning: failed to cleanup temp dir: %v", err)
+		}
+	}()
 
 	// Create token manager with temp directory
 	tm := &TokenManager{
@@ -131,7 +139,11 @@ func TestValidateToken(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() {
+		if err := os.RemoveAll(tempDir); err != nil {
+			t.Logf("Warning: failed to cleanup temp dir: %v", err)
+		}
+	}()
 
 	// Create token manager with temp directory
 	tm := &TokenManager{
@@ -186,7 +198,11 @@ func TestListTokens(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create temp dir: %v", err)
 	}
-	defer os.RemoveAll(tempDir)
+	defer func() {
+		if err := os.RemoveAll(tempDir); err != nil {
+			t.Logf("Warning: failed to cleanup temp dir: %v", err)
+		}
+	}()
 
 	// Create token manager with temp directory
 	tm := &TokenManager{

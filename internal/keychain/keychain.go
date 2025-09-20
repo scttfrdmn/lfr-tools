@@ -6,8 +6,8 @@ import (
 	"runtime"
 )
 
-// KeychainService provides secure credential storage.
-type KeychainService interface {
+// Service provides secure credential storage.
+type Service interface {
 	Store(service, account, secret string) error
 	Retrieve(service, account string) (string, error)
 	Delete(service, account string) error
@@ -15,7 +15,7 @@ type KeychainService interface {
 }
 
 // NewKeychainService creates a platform-appropriate keychain service.
-func NewKeychainService() (KeychainService, error) {
+func NewKeychainService() (Service, error) {
 	switch runtime.GOOS {
 	case "darwin":
 		return NewMacOSKeychain(), nil
@@ -30,7 +30,7 @@ func NewKeychainService() (KeychainService, error) {
 
 // TokenStore provides high-level token storage operations.
 type TokenStore struct {
-	keychain KeychainService
+	keychain Service
 	service  string
 }
 

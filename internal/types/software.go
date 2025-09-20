@@ -21,9 +21,13 @@ type SoftwarePack struct {
 type PackType string
 
 const (
+	// PackTypeAPT represents APT package-based software packs
 	PackTypeAPT       PackType = "apt"
+	// PackTypeContainer represents container-based software packs
 	PackTypeContainer PackType = "container"
+	// PackTypeScript represents script-based software packs
 	PackTypeScript    PackType = "script"
+	// PackTypeMixed represents mixed-type software packs
 	PackTypeMixed     PackType = "mixed"
 )
 

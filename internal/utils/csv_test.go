@@ -17,7 +17,11 @@ charlie,ml-project,ubuntu_22_04,gpu_nvidia_xl_1_0,ml-group`
 	if err != nil {
 		t.Fatalf("failed to create temp file: %v", err)
 	}
-	defer os.Remove(tmpFile.Name())
+	defer func() {
+		if err := os.Remove(tmpFile.Name()); err != nil {
+			t.Logf("Warning: failed to remove temp file: %v", err)
+		}
+	}()
 
 	_, err = tmpFile.WriteString(csvContent)
 	if err != nil {
@@ -103,7 +107,11 @@ func TestParseUsersCSVErrors(t *testing.T) {
 			if err != nil {
 				t.Fatalf("failed to create temp file: %v", err)
 			}
-			defer os.Remove(tmpFile.Name())
+			defer func() {
+		if err := os.Remove(tmpFile.Name()); err != nil {
+			t.Logf("Warning: failed to remove temp file: %v", err)
+		}
+	}()
 
 			_, err = tmpFile.WriteString(tt.content)
 			if err != nil {
@@ -126,7 +134,11 @@ func TestGenerateUsersCSVTemplate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create temp file: %v", err)
 	}
-	defer os.Remove(tmpFile.Name())
+	defer func() {
+		if err := os.Remove(tmpFile.Name()); err != nil {
+			t.Logf("Warning: failed to remove temp file: %v", err)
+		}
+	}()
 	tmpFile.Close()
 
 	err = GenerateUsersCSVTemplate(tmpFile.Name())
@@ -174,7 +186,11 @@ admins,Admin team,arn:aws:iam::aws:policy/PowerUserAccess;arn:aws:iam::aws:polic
 	if err != nil {
 		t.Fatalf("failed to create temp file: %v", err)
 	}
-	defer os.Remove(tmpFile.Name())
+	defer func() {
+		if err := os.Remove(tmpFile.Name()); err != nil {
+			t.Logf("Warning: failed to remove temp file: %v", err)
+		}
+	}()
 
 	_, err = tmpFile.WriteString(csvContent)
 	if err != nil {

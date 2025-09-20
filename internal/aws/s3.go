@@ -131,10 +131,10 @@ func (s *S3Service) CheckStartRequests(ctx context.Context, bucket, project stri
 
 		var request StudentStartRequest
 		if err := json.NewDecoder(reqOutput.Body).Decode(&request); err != nil {
-			reqOutput.Body.Close()
+			_ = reqOutput.Body.Close()
 			continue
 		}
-		reqOutput.Body.Close()
+		_ = reqOutput.Body.Close()
 
 		requests[username] = &request
 	}
