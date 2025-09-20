@@ -273,7 +273,7 @@ func createBulkGroups(ctx context.Context, csvFile string, dryRun, continueOnErr
 }
 
 // removeBulkGroups removes multiple groups with progress tracking.
-func removeBulkGroups(ctx context.Context, groups []string, project, csvFile string, confirm bool) error {
+func removeBulkGroups(_ context.Context, groups []string, project, csvFile string, confirm bool) error {
 	var groupsToRemove []string
 
 	// Determine groups to remove

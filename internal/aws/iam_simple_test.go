@@ -2,18 +2,15 @@ package aws
 
 import (
 	"testing"
-
-	"github.com/scttfrdmn/lfr-tools/internal/testutils"
 )
 
 func TestNewIAMService(t *testing.T) {
-	fixture := testutils.NewTestFixture(t)
-
 	client := &Client{}
 	service := NewIAMService(client)
 
 	if service == nil {
-		fixture.AssertError(nil) // This will fail the test
+		t.Error("expected non-nil service")
+		return
 	}
 
 	if service.client != client {
@@ -22,13 +19,12 @@ func TestNewIAMService(t *testing.T) {
 }
 
 func TestLightsailService(t *testing.T) {
-	fixture := testutils.NewTestFixture(t)
-
 	client := &Client{}
 	service := NewLightsailService(client)
 
 	if service == nil {
-		fixture.AssertError(nil) // This will fail the test
+		t.Error("expected non-nil service")
+		return
 	}
 
 	if service.client != client {

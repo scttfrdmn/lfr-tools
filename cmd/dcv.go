@@ -44,7 +44,7 @@ var dcvConfigCmd = &cobra.Command{
 	Short: "Configure NICE DCV settings for instances",
 	Long: `Configure NICE DCV settings on Lightsail instances to optimize performance
 and reliability. Sets up authentication, display settings, and performance parameters.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 		users, _ := cmd.Flags().GetStringSlice("users")
 		quality, _ := cmd.Flags().GetString("quality")
@@ -72,7 +72,7 @@ var dcvStatusCmd = &cobra.Command{
 	Short: "Check NICE DCV status on instances",
 	Long: `Check the status of NICE DCV services on Lightsail instances, including
 service health, active sessions, and configuration status.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 		user, _ := cmd.Flags().GetString("user")
 
@@ -99,7 +99,7 @@ var dcvSessionsListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List active NICE DCV sessions",
 	Long:  `List all active NICE DCV sessions across instances with session details.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 		user, _ := cmd.Flags().GetString("user")
 
@@ -141,7 +141,7 @@ var dcvOptimizeCmd = &cobra.Command{
 	Short: "Optimize NICE DCV settings for performance",
 	Long: `Apply performance optimizations to NICE DCV configurations based on
 instance type, network conditions, and usage patterns.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 		users, _ := cmd.Flags().GetStringSlice("users")
 		profile, _ := cmd.Flags().GetString("profile")
@@ -298,7 +298,7 @@ func connectDCV(ctx context.Context, username, project, quality string, fullscre
 }
 
 // executeSSHCommand executes a command on an instance via SSH
-func executeSSHCommand(ctx context.Context, publicIP, command string) error {
+func executeSSHCommand(_ context.Context, publicIP, command string) error {
 	// Get SSH key path
 	homeDir, err := os.UserHomeDir()
 	if err != nil {

@@ -399,11 +399,9 @@ func showStudentStatus(ctx context.Context, project string) error {
 		}
 
 		// Calculate last activity (simplified)
-		lastActivity := "Unknown"
+		lastActivity := "Stopped"
 		if instance.State == "running" {
 			lastActivity = "Active now"
-		} else {
-			lastActivity = "Stopped"
 		}
 
 		fmt.Printf("%-15s %-20s %-12s %-18s %-15s\n",

@@ -163,7 +163,9 @@ func containsHelper(s, substr string) bool {
 
 // SetupTestContext creates a context with timeout for testing.
 func SetupTestContext() context.Context {
-	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	// Note: In tests, we generally want the timeout to trigger, so we don't defer cancel
+	_ = cancel // Acknowledge we have the cancel function
 	return ctx
 }
 

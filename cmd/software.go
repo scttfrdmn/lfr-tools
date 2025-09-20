@@ -570,13 +570,19 @@ func executeInstallationScript(ctx context.Context, instance *types.Instance, sc
 	if err != nil {
 		return nil, fmt.Errorf("failed to create temp script: %w", err)
 	}
-	defer os.Remove(tmpFile.Name())
+	defer func() {
+		if err := os.Remove(tmpFile.Name()); err != nil {
+			fmt.Printf("Warning: failed to cleanup temp file: %v\n", err)
+		}
+	}()
 
 	_, err = tmpFile.WriteString(script)
 	if err != nil {
 		return nil, fmt.Errorf("failed to write script: %w", err)
 	}
-	tmpFile.Close()
+	if err := tmpFile.Close(); err != nil {
+		return nil, fmt.Errorf("failed to close temp file: %w", err)
+	}
 
 	// Make script executable
 	err = os.Chmod(tmpFile.Name(), 0755)

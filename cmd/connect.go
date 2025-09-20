@@ -46,7 +46,7 @@ var connectActivateCmd = &cobra.Command{
 	Long: `Activate an access token for this machine. This binds the token to your
 hardware and enables lfr connect functionality.`,
 	Args: cobra.ExactArgs(2),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		token := args[0]
 		studentID := args[1]
 
@@ -76,6 +76,9 @@ func connectToInstance(ctx context.Context, username, project string, force bool
 	var token *config.StudentToken
 	if project != "" {
 		token, err = tm.LoadToken(project, username)
+		if err != nil {
+			return fmt.Errorf("failed to load token: %w", err)
+		}
 	} else {
 		// Auto-detect from available tokens
 		tokens, err := tm.ListTokens()
@@ -179,7 +182,7 @@ func connectToInstance(ctx context.Context, username, project string, force bool
 }
 
 // getInstanceStatusFromS3 retrieves instance status from S3.
-func getInstanceStatusFromS3(ctx context.Context, bucket, project, username string) (*aws.StudentStatus, error) {
+func getInstanceStatusFromS3(_ context.Context, bucket, project, username string) (*aws.StudentStatus, error) {
 	url := fmt.Sprintf("https://%s.s3.amazonaws.com/%s/%s/status.json", bucket, project, username)
 
 	resp, err := http.Get(url)

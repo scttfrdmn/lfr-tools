@@ -27,7 +27,9 @@ charlie,ml-project,ubuntu_22_04,gpu_nvidia_xl_1_0,ml-group`
 	if err != nil {
 		t.Fatalf("failed to write CSV content: %v", err)
 	}
-	tmpFile.Close()
+	if err := tmpFile.Close(); err != nil {
+		t.Fatalf("failed to close temp file: %v", err)
+	}
 
 	// Parse the CSV
 	users, err := ParseUsersCSV(tmpFile.Name())
@@ -117,7 +119,9 @@ func TestParseUsersCSVErrors(t *testing.T) {
 			if err != nil {
 				t.Fatalf("failed to write CSV content: %v", err)
 			}
-			tmpFile.Close()
+			if err := tmpFile.Close(); err != nil {
+		t.Fatalf("failed to close temp file: %v", err)
+	}
 
 			_, err = ParseUsersCSV(tmpFile.Name())
 			if err == nil {
@@ -139,7 +143,9 @@ func TestGenerateUsersCSVTemplate(t *testing.T) {
 			t.Logf("Warning: failed to remove temp file: %v", err)
 		}
 	}()
-	tmpFile.Close()
+	if err := tmpFile.Close(); err != nil {
+		t.Fatalf("failed to close temp file: %v", err)
+	}
 
 	err = GenerateUsersCSVTemplate(tmpFile.Name())
 	if err != nil {
@@ -196,7 +202,9 @@ admins,Admin team,arn:aws:iam::aws:policy/PowerUserAccess;arn:aws:iam::aws:polic
 	if err != nil {
 		t.Fatalf("failed to write CSV content: %v", err)
 	}
-	tmpFile.Close()
+	if err := tmpFile.Close(); err != nil {
+		t.Fatalf("failed to close temp file: %v", err)
+	}
 
 	groups, err := ParseGroupsCSV(tmpFile.Name())
 	if err != nil {

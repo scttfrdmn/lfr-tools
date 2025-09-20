@@ -585,13 +585,11 @@ func showEFSMountStatus(ctx context.Context, project string) error {
 		}
 
 		sshReady := "No"
-		mountStatus := "Unknown"
+		mountStatus := "Instance not running"
 
 		if instance.State == "running" && instance.PublicIP != "" {
 			sshReady = "Yes"
 			mountStatus = "Check manually"
-		} else {
-			mountStatus = "Instance not running"
 		}
 
 		fmt.Printf("%-20s %-12s %-18s %-15s %-15s\n",
