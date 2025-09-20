@@ -342,7 +342,7 @@ func getDCVFrameRate(quality string) string {
 }
 
 // launchDCVViewer launches the appropriate DCV viewer
-func launchDCVViewer(dcvURL, quality string, fullscreen bool) error {
+func launchDCVViewer(dcvURL, _ string, fullscreen bool) error {
 	// Try native DCV viewer first
 	var cmd *exec.Cmd
 

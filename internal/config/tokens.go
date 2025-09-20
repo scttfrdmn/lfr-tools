@@ -92,6 +92,7 @@ func (tm *TokenManager) ActivateToken(tokenString, studentID string) error {
 	project := parts[0]
 	username := parts[1]
 
+
 	// Generate machine fingerprint
 	fingerprint, err := utils.GenerateMachineFingerprint()
 	if err != nil {
@@ -107,6 +108,7 @@ func (tm *TokenManager) ActivateToken(tokenString, studentID string) error {
 		Permissions: []string{"connect"},
 		Fingerprint: fingerprint,
 		CreatedAt:   time.Now(),
+		ExpiresAt:   time.Now().AddDate(0, 6, 0), // 6 months from now
 		TokenHash:   fmt.Sprintf("%x", sha256.Sum256([]byte(tokenString))),
 	}
 
@@ -116,14 +118,15 @@ func (tm *TokenManager) ActivateToken(tokenString, studentID string) error {
 // SaveToken saves a token to local storage.
 func (tm *TokenManager) SaveToken(project, username string, token *StudentToken) error {
 	filename := fmt.Sprintf("%s-%s.json", project, username)
-	filepath := filepath.Join(tm.tokensDir, filename)
+	filePath := filepath.Join(tm.tokensDir, filename)
+
 
 	data, err := json.MarshalIndent(token, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal token: %w", err)
 	}
 
-	if err := os.WriteFile(filepath, data, 0600); err != nil {
+	if err := os.WriteFile(filePath, data, 0600); err != nil {
 		return fmt.Errorf("failed to save token: %w", err)
 	}
 
@@ -133,9 +136,9 @@ func (tm *TokenManager) SaveToken(project, username string, token *StudentToken)
 // LoadToken loads a token from local storage.
 func (tm *TokenManager) LoadToken(project, username string) (*StudentToken, error) {
 	filename := fmt.Sprintf("%s-%s.json", project, username)
-	filepath := filepath.Join(tm.tokensDir, filename)
+	filePath := filepath.Join(tm.tokensDir, filename)
 
-	data, err := os.ReadFile(filepath)
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read token file: %w", err)
 	}
@@ -213,6 +216,20 @@ func (tm *TokenManager) ListTokens() ([]*StudentToken, error) {
 }
 
 // splitTokenString splits a token string into components.
+// Token format: project-username-randompart
+// We need to find the last two dashes to split correctly
 func splitTokenString(tokenString string) []string {
-	return strings.Split(tokenString, "-")
+	parts := strings.Split(tokenString, "-")
+	if len(parts) < 3 {
+		return parts
+	}
+
+	// Find the last two parts (username and random)
+	randomPart := parts[len(parts)-1]
+	username := parts[len(parts)-2]
+
+	// Everything else is the project name
+	project := strings.Join(parts[:len(parts)-2], "-")
+
+	return []string{project, username, randomPart}
 }

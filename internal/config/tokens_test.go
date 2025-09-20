@@ -117,6 +117,13 @@ func TestActivateToken(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to activate token: %v", err)
 	}
+	t.Logf("ActivateToken completed successfully")
+
+	// Debug: Check if file was created
+	expectedFile := filepath.Join(tempDir, "test-project-alice.json")
+	if _, err := os.Stat(expectedFile); os.IsNotExist(err) {
+		t.Fatalf("token file was not created at %s", expectedFile)
+	}
 
 	// Verify token was saved
 	token, err := tm.LoadToken("test-project", "alice")
