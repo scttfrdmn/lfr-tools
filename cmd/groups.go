@@ -24,7 +24,7 @@ var groupsCreateCmd = &cobra.Command{
 	Short: "Create an IAM group with policies",
 	Long: `Create an IAM group and attach the specified policies to it. This allows for
 organized user management and consistent permission sets.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		name, _ := cmd.Flags().GetString("name")
 		policies, _ := cmd.Flags().GetStringSlice("policies")
 		description, _ := cmd.Flags().GetString("description")
@@ -38,7 +38,7 @@ var groupsRemoveCmd = &cobra.Command{
 	Short: "Remove an IAM group",
 	Long: `Remove an IAM group and detach all policies. Users in the group will lose
 the group's permissions but will not be deleted.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		name, _ := cmd.Flags().GetString("name")
 
 		fmt.Printf("Removing group: %s\n", name)
@@ -52,7 +52,7 @@ var groupsListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all IAM groups",
 	Long:  `List all IAM groups with their attached policies and member counts.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		project, _ := cmd.Flags().GetString("project")
 
 		return listGroups(cmd.Context(), project)
@@ -79,7 +79,7 @@ var groupsRemoveBulkCmd = &cobra.Command{
 	Short: "Remove multiple groups with progress tracking",
 	Long: `Remove multiple groups with detailed progress tracking. Groups must be
 empty (no members) before deletion.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		groups, _ := cmd.Flags().GetStringSlice("groups")
 		project, _ := cmd.Flags().GetString("project")
 		csvFile, _ := cmd.Flags().GetString("csv")
@@ -95,7 +95,7 @@ var groupsTemplateCmd = &cobra.Command{
 	Long: `Generate a CSV template file with sample data for bulk group creation.
 Use this as a starting point for your bulk group operations.`,
 	Args: cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		filename := args[0]
 
 		return generateGroupTemplate(filename)
