@@ -9,11 +9,10 @@ import {
   Alert,
   ProgressBar,
   Grid,
-  Badge,
   Modal
 } from '@cloudscape-design/components'
 
-import { LFRService } from "../../bindings/lfr-gui"
+import { LFRService } from "../../bindings/lfr-gui/pkg/services"
 import Terminal from './Terminal'
 
 interface UserInfo {
@@ -40,6 +39,7 @@ const StudentConnect: React.FC<StudentConnectProps> = ({ userInfo }) => {
   const [instance, setInstance] = useState<InstanceInfo | null>(null)
   const [loading, setLoading] = useState(true)
   const [showTerminal, setShowTerminal] = useState(false)
+  const [connected, setConnected] = useState(false)
   const [budgetInfo, setBudgetInfo] = useState({
     used: 18.50,
     total: 25.00,
@@ -214,12 +214,11 @@ const StudentConnect: React.FC<StudentConnectProps> = ({ userInfo }) => {
                     ${budgetInfo.used}
                   </Box>
                   <Box color="text-body-secondary">of ${budgetInfo.total}</Box>
-                </SpaceBetween>
+                </Box>
 
                 <ProgressBar
                   value={budgetInfo.percentage}
                   description="Budget used this semester"
-                  size="small"
                 />
 
                 <Box textAlign="center" color="text-body-secondary" fontSize="body-s">

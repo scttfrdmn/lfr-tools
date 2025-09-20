@@ -13,7 +13,7 @@ import {
   Badge
 } from '@cloudscape-design/components'
 
-import { LFRService } from "../../bindings/lfr-gui"
+import { LFRService } from "../../bindings/lfr-gui/pkg/services"
 import StudentConnect from './StudentConnect'
 import { useClassMonitoring } from '../hooks/useRealTimeStatus'
 

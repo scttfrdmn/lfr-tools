@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import '@cloudscape-design/global-styles/index.css'
 import { AppLayout, TopNavigation, SideNavigation } from '@cloudscape-design/components'
 
-import { LFRService } from "../bindings/lfr-gui"
+import { LFRService } from "../bindings/lfr-gui/pkg/services"
 
 // Import components
 import Dashboard from './components/Dashboard'

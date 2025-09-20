@@ -8,12 +8,11 @@ import {
   StatusIndicator,
   Alert,
   Tabs,
-  Badge,
   Grid,
   ProgressBar
 } from '@cloudscape-design/components'
 
-import { LFRService } from "../../bindings/lfr-gui"
+import { LFRService } from "../../bindings/lfr-gui/pkg/services"
 import Terminal from './Terminal'
 import DCVViewer from './DCVViewer'
 
@@ -223,12 +222,11 @@ const StudentWorkspace: React.FC<StudentWorkspaceProps> = ({ userInfo }) => {
                       ${budgetInfo.used}
                     </Box>
                     <Box color="text-body-secondary">of ${budgetInfo.total}</Box>
-                  </SpaceBetween>
+                  </Box>
 
                   <ProgressBar
                     value={budgetInfo.percentage}
                     description="Budget used this semester"
-                    size="small"
                   />
 
                   <Box textAlign="center" color="text-body-secondary" fontSize="body-s">

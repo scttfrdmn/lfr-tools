@@ -17,7 +17,7 @@ import {
 } from '@cloudscape-design/components'
 
 import { useClassMonitoring } from '../hooks/useRealTimeStatus'
-import { LFRService } from "../../bindings/lfr-gui"
+import { LFRService } from "../../bindings/lfr-gui/pkg/services"
 
 interface UserInfo {
   role: string

@@ -1,4 +1,4 @@
-.PHONY: build clean test coverage lint fmt vet sec install help
+.PHONY: build clean test coverage lint fmt vet sec install integration-test integration-test-real test-with-localstack stop-localstack e2e-test e2e-test-localstack e2e-test-aws e2e-test-all help
 .DEFAULT_GOAL := help
 
 # Build variables
@@ -104,6 +104,28 @@ test-with-localstack:
 stop-localstack:
 	@echo "Stopping LocalStack..."
 	@docker-compose -f docker-compose.test.yml down
+
+## e2e-test: Run end-to-end tests for GUI (mocked)
+e2e-test:
+	@echo "Running e2e tests with mocked backend..."
+	@cd gui/lfr-gui/frontend && npm run test:e2e
+
+## e2e-test-localstack: Run e2e tests with LocalStack
+e2e-test-localstack:
+	@echo "Starting LocalStack and running GUI e2e tests..."
+	@make test-with-localstack
+	@sleep 5
+	@cd gui/lfr-gui/frontend && npm run test:e2e:localstack
+	@make stop-localstack
+
+## e2e-test-aws: Run e2e tests with real AWS
+e2e-test-aws:
+	@echo "Running e2e tests against real AWS..."
+	@echo "Ensure AWS credentials are configured!"
+	@cd gui/lfr-gui/frontend && npm run test:e2e:aws
+
+## e2e-test-all: Run all e2e test configurations
+e2e-test-all: e2e-test e2e-test-localstack
 
 ## help: Show this help message
 help:

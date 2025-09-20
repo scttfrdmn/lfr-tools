@@ -15,7 +15,7 @@ import {
   Alert
 } from '@cloudscape-design/components'
 
-import { LFRService } from "../../bindings/lfr-gui"
+import { LFRService } from "../../bindings/lfr-gui/pkg/services"
 
 interface UserInfo {
   role: string

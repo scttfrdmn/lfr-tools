@@ -14,7 +14,10 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
-    "test:all": "npm run test && npm run test:e2e"
+    "test:e2e:aws": "playwright test --config=playwright.config.aws.ts",
+    "test:e2e:localstack": "playwright test --config=playwright.config.localstack.ts",
+    "test:all": "npm run test && npm run test:e2e",
+    "test:integration": "npm run test:e2e:localstack"
   },
   "dependencies": {
     "@cloudscape-design/components": "^3.0.1095",
@@ -35,6 +38,7 @@
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
     "@types/puppeteer": "^5.4.7",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",

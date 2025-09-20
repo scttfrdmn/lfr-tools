@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { Terminal as XTerm } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { WebLinksAddon } from '@xterm/addon-web-links'
@@ -38,6 +38,8 @@ const Terminal: React.FC<TerminalProps> = ({
   const terminalRef = useRef<HTMLDivElement>(null)
   const [terminal, setTerminal] = useState<XTerm | null>(null)
   const [fitAddon, setFitAddon] = useState<FitAddon | null>(null)
+  const [connected, setConnected] = useState<boolean>(false)
+  const [connecting, setConnecting] = useState<boolean>(false)
 
   // Use WebSocket SSH hook for real communication
   const { status, connect, sendInput, resize, disconnect, setOnOutput } = useWebSocketSSH(username, project)
