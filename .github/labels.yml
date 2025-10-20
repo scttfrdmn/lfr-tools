@@ -1,0 +1,280 @@
+# GitHub Labels Configuration for LFR Tools
+# This file defines all labels used for issue and PR management
+#
+# To apply these labels, use: gh label sync --labels .github/labels.yml --force
+
+# ============================================================================
+# Type Labels - What kind of issue is this?
+# ============================================================================
+
+- name: "bug"
+  color: "d73a4a"
+  description: "Something isn't working correctly"
+
+- name: "enhancement"
+  color: "a2eeef"
+  description: "New feature or request"
+
+- name: "documentation"
+  color: "0075ca"
+  description: "Improvements or additions to documentation"
+
+- name: "technical-debt"
+  color: "fbca04"
+  description: "Code refactoring or improvement needed"
+
+- name: "security"
+  color: "ee0701"
+  description: "Security-related issue or improvement"
+
+# ============================================================================
+# Priority Labels - How urgent is this?
+# ============================================================================
+
+- name: "priority: critical"
+  color: "b60205"
+  description: "Highest priority - blocking work or severe impact"
+
+- name: "priority: high"
+  color: "d93f0b"
+  description: "High priority - should be addressed soon"
+
+- name: "priority: medium"
+  color: "fbca04"
+  description: "Medium priority - important but not urgent"
+
+- name: "priority: low"
+  color: "0e8a16"
+  description: "Low priority - nice to have"
+
+# ============================================================================
+# Area Labels - Which component is affected?
+# ============================================================================
+
+- name: "area: cli"
+  color: "c5def5"
+  description: "Command-line interface (cmd/)"
+
+- name: "area: gui"
+  color: "c5def5"
+  description: "Desktop GUI application (gui/lfr-gui)"
+
+- name: "area: api"
+  color: "c5def5"
+  description: "Public API interfaces (pkg/api)"
+
+- name: "area: aws-iam"
+  color: "c5def5"
+  description: "AWS IAM integration (internal/aws/iam.go)"
+
+- name: "area: aws-lightsail"
+  color: "c5def5"
+  description: "AWS Lightsail integration (internal/aws/lightsail.go)"
+
+- name: "area: aws-efs"
+  color: "c5def5"
+  description: "AWS EFS integration (internal/aws/efs.go)"
+
+- name: "area: aws-s3"
+  color: "c5def5"
+  description: "AWS S3 integration (internal/aws/s3.go)"
+
+- name: "area: ssh"
+  color: "c5def5"
+  description: "SSH and connection management"
+
+- name: "area: dcv"
+  color: "c5def5"
+  description: "NICE DCV remote desktop integration"
+
+- name: "area: idle-detection"
+  color: "c5def5"
+  description: "Idle detection and cost optimization"
+
+- name: "area: keychain"
+  color: "c5def5"
+  description: "Credential storage (keychain integration)"
+
+- name: "area: config"
+  color: "c5def5"
+  description: "Configuration system (internal/config)"
+
+- name: "area: build"
+  color: "c5def5"
+  description: "Build system, CI/CD, packaging, releases"
+
+- name: "area: tests"
+  color: "c5def5"
+  description: "Testing infrastructure and test coverage"
+
+- name: "area: docs"
+  color: "c5def5"
+  description: "Documentation (docs/, tutorials)"
+
+# ============================================================================
+# Persona Labels - Who does this help?
+# ============================================================================
+
+- name: "persona: professor"
+  color: "e99695"
+  description: "Benefits professors managing courses"
+
+- name: "persona: teaching-assistant"
+  color: "e99695"
+  description: "Benefits teaching assistants"
+
+- name: "persona: student"
+  color: "e99695"
+  description: "Benefits students using instances"
+
+- name: "persona: researcher"
+  color: "e99695"
+  description: "Benefits research computing workflows"
+
+- name: "persona: lab-manager"
+  color: "e99695"
+  description: "Benefits lab environment management"
+
+- name: "persona: admin"
+  color: "e99695"
+  description: "Benefits system administrators"
+
+# ============================================================================
+# Status Labels - Issue lifecycle
+# ============================================================================
+
+- name: "triage"
+  color: "ededed"
+  description: "Needs initial review and prioritization"
+
+- name: "needs-info"
+  color: "d876e3"
+  description: "Waiting for more information from reporter"
+
+- name: "blocked"
+  color: "b60205"
+  description: "Blocked by external dependency or other issue"
+
+- name: "ready"
+  color: "0e8a16"
+  description: "Ready to be worked on"
+
+- name: "in-progress"
+  color: "fbca04"
+  description: "Currently being worked on"
+
+- name: "in-review"
+  color: "fef2c0"
+  description: "In code review"
+
+- name: "awaiting-merge"
+  color: "c2e0c6"
+  description: "Approved and ready to merge"
+
+# ============================================================================
+# Resolution Labels - Why was this closed?
+# ============================================================================
+
+- name: "duplicate"
+  color: "cfd3d7"
+  description: "This issue or PR already exists"
+
+- name: "wontfix"
+  color: "ffffff"
+  description: "This will not be worked on"
+
+- name: "invalid"
+  color: "e4e669"
+  description: "This doesn't seem right or is not applicable"
+
+- name: "works-as-designed"
+  color: "fef2c0"
+  description: "Behavior is intentional"
+
+# ============================================================================
+# Special Labels
+# ============================================================================
+
+- name: "good first issue"
+  color: "7057ff"
+  description: "Good for newcomers to the project"
+
+- name: "help wanted"
+  color: "008672"
+  description: "Extra attention is needed from community"
+
+- name: "breaking-change"
+  color: "d73a4a"
+  description: "Changes that break backward compatibility"
+
+- name: "performance"
+  color: "1d76db"
+  description: "Performance optimization or issue"
+
+- name: "dependencies"
+  color: "0366d6"
+  description: "Pull requests that update a dependency file"
+
+- name: "needs-design"
+  color: "d4c5f9"
+  description: "Needs design or UX review before implementation"
+
+- name: "question"
+  color: "d876e3"
+  description: "Further information is requested"
+
+# ============================================================================
+# Testing Labels
+# ============================================================================
+
+- name: "test: unit"
+  color: "bfdadc"
+  description: "Related to unit tests"
+
+- name: "test: integration"
+  color: "bfdadc"
+  description: "Related to integration tests (LocalStack)"
+
+- name: "test: e2e"
+  color: "bfdadc"
+  description: "Related to end-to-end tests (GUI)"
+
+- name: "test: aws"
+  color: "bfdadc"
+  description: "Requires real AWS testing"
+
+# ============================================================================
+# Phase/Roadmap Labels (align with README roadmap)
+# ============================================================================
+
+- name: "phase: 1-enhanced-core"
+  color: "bfd4f2"
+  description: "Phase 1 - Enhanced Core Features"
+
+- name: "phase: 2-advanced-mgmt"
+  color: "bfd4f2"
+  description: "Phase 2 - Advanced Management"
+
+- name: "phase: 3-enterprise"
+  color: "bfd4f2"
+  description: "Phase 3 - Enterprise & Educational Features"
+
+# ============================================================================
+# Platform Labels
+# ============================================================================
+
+- name: "platform: macos"
+  color: "f9d0c4"
+  description: "Specific to macOS"
+
+- name: "platform: linux"
+  color: "f9d0c4"
+  description: "Specific to Linux"
+
+- name: "platform: windows"
+  color: "f9d0c4"
+  description: "Specific to Windows"
+
+- name: "platform: wails"
+  color: "f9d0c4"
+  description: "Related to Wails3 framework issues"

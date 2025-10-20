@@ -1,21 +1,76 @@
-name: Feature Request
+name: ✨ Feature Request
 description: Suggest a new feature or enhancement
 title: "[Feature]: "
-labels: ["enhancement", "needs-triage"]
-assignees: []
+labels: ["enhancement", "triage"]
 
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for suggesting a new feature! Please provide as much detail as possible to help us understand your request.
+        Thanks for suggesting a new feature! Before submitting, please check:
+        - Does this align with our [roadmap](https://github.com/scttfrdmn/lfr-tools/blob/main/README.md#-roadmap)?
+        - Would this benefit our target personas (professors, TAs, students, researchers)?
+
+  - type: dropdown
+    id: persona
+    attributes:
+      label: Which Persona Benefits?
+      description: Who would benefit most from this feature?
+      options:
+        - Professor (Course Management)
+        - Teaching Assistant
+        - Student
+        - Researcher
+        - Lab Manager
+        - System Administrator
+        - All/Multiple Personas
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of LFR Tools would this affect?
+      options:
+        - CLI
+        - GUI (Desktop App)
+        - AWS IAM Integration
+        - AWS Lightsail Integration
+        - AWS EFS Integration
+        - SSH/Connection Management
+        - NICE DCV Integration
+        - Idle Detection
+        - User Management
+        - Group Management
+        - Instance Management
+        - Documentation
+        - All Components
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: roadmap-phase
+    attributes:
+      label: Roadmap Phase
+      description: Which roadmap phase does this align with?
+      options:
+        - Phase 1 - Enhanced Core Features
+        - Phase 2 - Advanced Management
+        - Phase 3 - Enterprise & Educational
+        - Not on roadmap (new idea)
+        - Not sure
+    validations:
+      required: true
 
   - type: textarea
     id: problem
     attributes:
-      label: Problem Description
-      description: What problem does this feature solve? What use case does it address?
-      placeholder: Describe the problem or use case...
+      label: Problem Statement
+      description: What problem does this feature solve?
+      placeholder: As a [persona], I need to [do something] because [reason]...
     validations:
       required: true
 
@@ -23,32 +78,35 @@ body:
     id: solution
     attributes:
       label: Proposed Solution
-      description: Describe the feature you'd like to see implemented
-      placeholder: Describe your proposed solution...
+      description: How would you like this feature to work?
+      placeholder: |
+        I'd like to be able to...
+        For example: `lfr command --new-flag`
+        Or: "Add a button in the GUI to..."
     validations:
       required: true
 
   - type: textarea
     id: alternatives
     attributes:
-      label: Alternative Solutions
-      description: Have you considered any alternative approaches?
-      placeholder: Describe alternative solutions you've considered...
+      label: Alternatives Considered
+      description: Have you thought of other ways to solve this problem?
+      placeholder: I also considered...
 
-  - type: dropdown
-    id: category
+  - type: textarea
+    id: workflow
     attributes:
-      label: Feature Category
-      description: Which area of lfr-tools does this feature relate to?
-      options:
-        - User Management
-        - Group Management
-        - Instance Management
-        - SSH Management
-        - Configuration
-        - CLI/UX
-        - AWS Integration
-        - Other
+      label: Example Workflow
+      description: Show us how this feature would improve your workflow
+      placeholder: |
+        Current workflow:
+        1. Step 1
+        2. Step 2
+        3. Step 3
+
+        With this feature:
+        1. Step 1 (simplified)
+        2. Done!
     validations:
       required: true
 
@@ -58,39 +116,23 @@ body:
       label: Priority
       description: How important is this feature to you?
       options:
-        - Low - Nice to have
-        - Medium - Would be helpful
-        - High - Important for my workflow
-        - Critical - Blocking my use case
+        - Critical - Blocking my teaching/research work
+        - High - Would significantly improve my workflow
+        - Medium - Nice to have
+        - Low - Minor improvement
     validations:
       required: true
 
   - type: textarea
-    id: examples
+    id: aws-features
     attributes:
-      label: Usage Examples
-      description: Provide examples of how this feature would be used
-      placeholder: |
-        ```bash
-        # Example command usage
-        lfr-tools new-feature --option value
-        ```
-      render: shell
-
-  - type: checkboxes
-    id: compatibility
-    attributes:
-      label: Compatibility Considerations
-      description: Check any that apply to this feature request
-      options:
-        - label: This feature should be backward compatible
-        - label: This feature may require breaking changes
-        - label: This feature affects configuration format
-        - label: This feature requires new dependencies
+      label: AWS Features Involved
+      description: Does this require new AWS service integrations?
+      placeholder: e.g., AWS Cost Explorer, AWS Organizations, VPC Peering, etc.
 
   - type: textarea
-    id: additional
+    id: context
     attributes:
       label: Additional Context
-      description: Add any other context, screenshots, or links about the feature request
-      placeholder: Any additional information...
+      description: Any other information, mockups, or examples
+      placeholder: Screenshots, diagrams, links to similar features in other tools, course syllabus requirements, etc.

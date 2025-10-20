@@ -1,0 +1,125 @@
+name: 🔧 Technical Debt
+description: Propose code refactoring or technical improvements
+title: "[Tech Debt]: "
+labels: ["technical-debt", "triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to suggest code refactoring, performance improvements, or other technical enhancements that don't directly add features but improve code quality and maintainability.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of the codebase needs attention?
+      options:
+        - CLI (cmd/)
+        - GUI (gui/lfr-gui)
+        - AWS Integration (internal/aws)
+        - Core Types (internal/lfrtypes)
+        - Utilities (internal/lfrutils)
+        - Configuration (internal/config)
+        - API (pkg/api)
+        - Build System
+        - Testing Infrastructure
+        - CI/CD
+        - Multiple Components
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type of Technical Debt
+      description: What kind of improvement is this?
+      options:
+        - Code Refactoring
+        - Performance Optimization
+        - Test Coverage
+        - Documentation (code comments/godoc)
+        - Dependency Update
+        - Security Hardening
+        - Error Handling
+        - Code Duplication
+        - Architecture Improvement
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Current State
+      description: Describe the current technical debt or issue
+      placeholder: Currently, the code...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Improvement
+      description: How would you improve this?
+      placeholder: |
+        Refactor to...
+        Extract common code into...
+        Optimize by...
+    validations:
+      required: true
+
+  - type: textarea
+    id: benefits
+    attributes:
+      label: Benefits
+      description: What are the benefits of making this change?
+      placeholder: |
+        - Improved maintainability
+        - Better performance
+        - Easier to test
+        - Reduced complexity
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How urgent is this improvement?
+      options:
+        - Critical - Affecting stability or security
+        - High - Causing maintenance difficulties
+        - Medium - Would improve codebase quality
+        - Low - Nice to have
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope of Changes
+      description: What files/packages would be affected?
+      placeholder: |
+        Files affected:
+        - internal/aws/iam.go
+        - internal/aws/lightsail.go
+        
+        Estimated effort: X hours/days
+
+  - type: checkboxes
+    id: breaking
+    attributes:
+      label: Breaking Changes
+      description: Check all that apply
+      options:
+        - label: This requires breaking changes to public APIs
+        - label: This can be done without breaking changes
+        - label: Migration guide would be needed
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any other relevant information
+      placeholder: Links to similar refactoring in other projects, performance benchmarks, etc.

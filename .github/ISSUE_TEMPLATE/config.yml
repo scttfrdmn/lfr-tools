@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Ask a Question
+    url: https://github.com/scttfrdmn/lfr-tools/discussions/new?category=q-a
+    about: Ask questions about using LFR Tools
+  - name: 💡 Share an Idea
+    url: https://github.com/scttfrdmn/lfr-tools/discussions/new?category=ideas
+    about: Discuss new ideas before creating a formal feature request
+  - name: 🎉 Show and Tell
+    url: https://github.com/scttfrdmn/lfr-tools/discussions/new?category=show-and-tell
+    about: Share your educational/research workflows and success stories
+  - name: 📚 Documentation
+    url: https://github.com/scttfrdmn/lfr-tools/tree/main/docs
+    about: Read the user guides, tutorials, and architecture documentation
+  - name: 🐛 Security Issue
+    url: mailto:scofri@g.ucla.edu
+    about: Report security vulnerabilities privately

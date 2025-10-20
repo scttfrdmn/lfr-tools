@@ -1,0 +1,121 @@
+name: 📚 Documentation
+description: Suggest documentation improvements
+title: "[Docs]: "
+labels: ["documentation", "triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to suggest improvements to documentation, tutorials, or guides.
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: What kind of documentation needs attention?
+      options:
+        - User Guide
+        - Tutorial
+        - API Documentation (godoc)
+        - Architecture Documentation
+        - README
+        - Installation Instructions
+        - Configuration Guide
+        - Troubleshooting Guide
+        - Contributing Guide
+        - Code Comments
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: persona
+    attributes:
+      label: Target Audience
+      description: Who is this documentation for?
+      options:
+        - Professor
+        - Teaching Assistant
+        - Student
+        - Researcher
+        - Lab Manager
+        - System Administrator
+        - Developer/Contributor
+        - All Users
+    validations:
+      required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Documentation Location
+      description: Where is the documentation that needs attention?
+      placeholder: |
+        File: docs/getting-started.md
+        Section: "Quick Start"
+        Or: Missing documentation for...
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue
+    attributes:
+      label: Issue Description
+      description: What's wrong or missing?
+      placeholder: |
+        The current documentation...
+        - Is unclear about...
+        - Is missing information on...
+        - Contains outdated information...
+    validations:
+      required: true
+
+  - type: textarea
+    id: improvement
+    attributes:
+      label: Suggested Improvement
+      description: How should this be improved?
+      placeholder: |
+        The documentation should...
+        Add a section about...
+        Include examples for...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this documentation?
+      options:
+        - Critical - Blocks users from using the tool
+        - High - Causes confusion for many users
+        - Medium - Would help users understand better
+        - Low - Minor clarification
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples or Mockups
+      description: Provide examples of what the improved documentation might look like
+      placeholder: |
+        Example text, command examples, screenshots, etc.
+
+  - type: checkboxes
+    id: reading-level
+    attributes:
+      label: Reading Level
+      description: Should this be written at a specific reading level?
+      options:
+        - label: This should be at a 14-year-old reading level (educational focus)
+        - label: This can assume technical expertise
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any other relevant information
+      placeholder: Links to related docs, user feedback, common support questions, etc.
