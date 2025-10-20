@@ -13,8 +13,9 @@
 
 ### GUI Application (Wails3 + React)
 - **Backend**: Go services in `gui/lfr-gui/pkg/services/`
-- **Frontend**: React + TypeScript in `gui/lfr-gui/frontend/`
-- **Framework**: **Wails3** (alpha version)
+- **Frontend**: React 19 + TypeScript in `gui/lfr-gui/frontend/`
+- **Framework**: **Wails3 v3.0.0-alpha.36** (active development)
+- **Build Tool**: Vite 7.1.11 (upgraded from 4.5.5)
 - **UI Components**: Cloudscape Design System
 - **Testing**: Playwright e2e tests
 
@@ -74,9 +75,19 @@ make e2e-test-localstack  # GUI + LocalStack tests
 make e2e-test-aws         # GUI + Real AWS tests
 ```
 
+### Recent Updates
+1. **✅ Vite 7.x Compatibility Resolved** (October 2025):
+   - Upgraded Wails3 from alpha.28 to alpha.36
+   - Successfully upgraded Vite from 4.5.5 to 7.1.11
+   - React 19.2.0 compatible (peer warnings from Cloudscape expected)
+   - Build tested and working correctly
+
 ### Known Issues
-1. **Wails3 Bindings**: May need regeneration with `wails3 generate` if TypeScript errors occur
-2. **React Components**: Some JSX syntax issues in StudentConnect.tsx and StudentWorkspace.tsx
+1. **Cloudscape + React 19**: Peer dependency warnings from @cloudscape-design/components
+   - Components are designed for React 18.x but work with React 19
+   - Build and runtime functionality confirmed working
+   - Warnings can be safely ignored until Cloudscape updates
+2. **Wails3 Bindings**: May need regeneration with `wails3 generate bindings` if TypeScript errors occur
 3. **LocalStack Limitations**: Lightsail API not fully supported (IAM works fine)
 
 ### Development Workflow
