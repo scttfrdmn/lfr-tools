@@ -13,13 +13,18 @@
 **Primary Responsibilities**:
 1. **Grant Lifecycle**: Pre-award through closeout
 2. **Budget Management**: Ensure spending aligns with grant restrictions
-3. **Compliance**: NSF/NIH reporting, audits, cost accounting
+3. **Financial Accountability**: NSF/NIH reporting, audits, cost accounting
 4. **Systems Integration**: Workday (finance), Research.gov, eRA Commons, Petri
 5. **PI Support**: Help faculty manage grant budgets
-6. **Audit Preparation**: Prepare for federal audits (A-133, single audit)
+6. **Audit Preparation**: Prepare for federal grant audits (financial compliance)
+
+**Important Note on Compliance**:
+- **Technical Compliance**: Lightsail for Research supports GDPR only
+- **Grant Financial Accountability**: NSF/NIH/A-133 audits focus on financial compliance (cost accounting, allowability, allocability), NOT technical compliance frameworks
+- Research administrators ensure **financial** compliance with grant terms
 
 **Primary Concerns**:
-1. **Compliance**: One mistake = audit finding = university reputation at risk
+1. **Financial Accountability**: One mistake = audit finding = university reputation at risk
 2. **Visibility**: Need real-time view of spending across all grants
 3. **Audit Trail**: Must prove every dollar spent is allowable and allocable
 4. **PI Communication**: PIs need budget alerts before overspending

@@ -15,7 +15,12 @@
 2. **Research Productivity**: Limited time - can't waste hours on infrastructure
 3. **Reproducibility**: Need to document environment for paper methods section
 4. **Collaboration**: Share data/code with co-authors, but securely
-5. **Grant Compliance**: NSF requires proper accounting of funds
+5. **Grant Financial Accountability**: NSF requires proper cost accounting and audit trails
+
+**Important Note on Compliance**:
+- **Technical Compliance**: Lightsail for Research supports GDPR only
+- **Financial Accountability**: NSF/NIH grant requirements are about cost accounting (allowability, allocability, documentation), NOT technical compliance frameworks
+- LFR Tools provides **financial tracking and reporting** to meet grant audit requirements
 
 **Pain Points**:
 - Previous experience with AWS: Spent 2 days learning EC2, still confused about billing
@@ -108,8 +113,8 @@ sarah@laptop:~$ lfr instances create rnaseq-analysis \
 #    Your budget: $3,000
 #    This would use: $108/month (3.6% of your budget)
 #
-# ⚠️  Grant Compliance:
-#    All resources will be tagged:
+# ⚠️  Grant Financial Accountability:
+#    All resources will be tagged for cost tracking:
 #      - GrantNumber: NSF-2024-12345
 #      - PI: martinez@university.edu
 #      - Researcher: sarah.chen@university.edu
