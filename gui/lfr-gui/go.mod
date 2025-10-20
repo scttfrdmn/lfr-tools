@@ -7,7 +7,7 @@ replace github.com/scttfrdmn/lfr-tools => ../../
 require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/scttfrdmn/lfr-tools v0.0.0-00010101000000-000000000000
-	github.com/wailsapp/wails/v3 v3.0.0-alpha.28
+	github.com/wailsapp/wails/v3 v3.0.0-alpha.36
 	golang.org/x/crypto v0.42.0
 )
 
@@ -76,7 +76,7 @@ require (
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/spf13/viper v1.21.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/wailsapp/go-webview2 v1.0.21 // indirect
+	github.com/wailsapp/go-webview2 v1.0.22 // indirect
 	github.com/wailsapp/mimetype v1.4.1 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
